@@ -5,21 +5,12 @@ import { ref, query, orderByChild, equalTo, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card';
 import Link from 'next/link';
-
-interface Prompt {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  userName: string;
-  createdAt: string;
-  tags?: string[];
-}
+import { Prompt, PromptCategory } from '@/types/prompt';
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
-  const categoryName = decodeURIComponent(params.slug);
+  const categoryName = decodeURIComponent(params.slug) as PromptCategory;
 
   useEffect(() => {
     async function fetchPrompts() {
@@ -37,8 +28,10 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
             .map(([id, data]) => ({
               id,
               ...(data as Omit<Prompt, 'id'>),
+              createdAt: new Date(data.createdAt),
+              updatedAt: new Date(data.updatedAt)
             }))
-            .filter(prompt => prompt.visibility === 'public');
+            .filter(prompt => prompt.visibility === 'public' && prompt.isPublished);
 
           setPrompts(promptsData);
         }
@@ -104,7 +97,7 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
                   <div className="flex items-center text-sm text-text-muted">
                     <span>{prompt.userName}</span>
                     <span className="mx-2">•</span>
-                    <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                    <span>{prompt.createdAt.toLocaleDateString()}</span>
                   </div>
                 </div>
               </Card>
