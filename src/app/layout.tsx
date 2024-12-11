@@ -29,12 +29,17 @@ export default function RootLayout({
             {/* Sidebar - Desktop only */}
             <aside className="hidden lg:block w-64 border-r border-surface-light/10">
               <div className="p-4">
-                <Link href="/" className="block mb-4 hover:bg-surface-light/10 p-2 rounded-lg">
-                  <span className="font-medium">Home</span>
-                </Link>
-                <Link href="/prompts" className="block hover:bg-surface-light/10 p-2 rounded-lg">
-                  <span className="font-medium">Browse Prompts</span>
-                </Link>
+                <nav className="flex space-x-4">
+                  <Link href="/" className="text-gray-600 hover:text-gray-900">
+                    Home
+                  </Link>
+                  <Link href="/prompts" className="text-gray-600 hover:text-gray-900">
+                    Browse Prompts
+                  </Link>
+                  <Link href="/login" className="text-gray-600 hover:text-gray-900">
+                    Login
+                  </Link>
+                </nav>
               </div>
               <SideNav />
             </aside>
