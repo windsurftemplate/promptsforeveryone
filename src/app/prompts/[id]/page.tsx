@@ -1,9 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 export default function PromptPage({ params }: { params: { id: string } }) {
+  const [promptData, setPromptData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const fetchPromptData = async () => {
+      try {
+        const response = await fetch(`/api/prompts/${params.id}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch prompt ${params.id}`);
+        }
+        const data = await response.json();
+        setPromptData(data);
+      } catch (error) {
+        console.error(`Error fetching prompt ${params.id}:`, error);
+      }
+    };
+
+    if (params.id) {
+      fetchPromptData();
+    }
+  }, [params.id]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(`I need to write a professional email with the following details:
@@ -28,9 +49,13 @@ Please help me write a well-structured email that effectively communicates my me
                 ChatGPT
               </span>
               <span className="inline-flex items-center text-sm text-gray-500">
-                <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                <Image 
+                  src="/path-to-your-image.png"
+                  alt="Rating"
+                  width={16}
+                  height={16}
+                  className="w-4 h-4 text-yellow-400 mr-1"
+                />
                 4.9 (128 ratings)
               </span>
             </div>
@@ -69,9 +94,11 @@ Please help me write a well-structured email that effectively communicates my me
         <div className="flex items-center space-x-4 pt-4 border-t">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-              <img
+              <Image 
                 src="https://api.dicebear.com/7.x/avataaars/svg?seed=John"
                 alt="Creator avatar"
+                width={40}
+                height={40}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -156,7 +183,7 @@ Please help me write a well-structured email that effectively communicates my me
                   • Timeline review and adjustments if needed
                   • Resource allocation and requirements
 
-                  Would you be available for a 45-minute meeting next week? Please let me know your preferred time slots, and I'll coordinate accordingly.
+                  Would you be available for a 45-minute meeting next week? Please let me know your preferred time slots, and I&#39;ll coordinate accordingly.
 
                   Looking forward to our discussion.
 

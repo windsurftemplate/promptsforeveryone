@@ -1,191 +1,261 @@
 'use client';
 
+import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/firebase';
+import { Prompt, PromptCategory, PromptVisibility } from '@/types/prompt';
+import { ref, push, set, Database } from 'firebase/database';
 import { useState } from 'react';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 
-export default function SubmitPromptPage() {
-  const [previewMode, setPreviewMode] = useState(false);
+const categories: PromptCategory[] = [
+  'ChatGPT',
+  'Code Assistant',
+  'Writing',
+  'Translation',
+  'Data Analysis',
+  'Image Generation',
+  'Research',
+  'Education',
+  'Business',
+  'Creative',
+  'Other',
+];
 
-  const categories = [
-    'ChatGPT',
-    'Image Generation',
-    'Code Assistant',
-    'Writing',
-    'Translation',
-    'Data Analysis',
-    'Other'
-  ];
+export default function SubmitPage() {
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const [promptData, setPromptData] = useState<Partial<Prompt>>({
+    title: '',
+    description: '',
+    content: '',
+    category: 'general' as PromptCategory,
+    visibility: 'public' as PromptVisibility,
+  });
+
+  if (!user) {
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const tagsArray = promptData.tags
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      const promptDataToSave: Omit<Prompt, 'id'> = {
+        title: promptData.title,
+        description: promptData.description,
+        content: promptData.content,
+        category: promptData.category,
+        tags: tagsArray,
+        userId: user.uid,
+        userName: user.displayName || 'Anonymous',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        likes: 0,
+        visibility: promptData.visibility,
+        isPublished: true,
+      };
+
+      const promptsRef = ref(db, 'prompts');
+      const newPromptRef = push(promptsRef);
+      
+      await set(newPromptRef, promptDataToSave);
+      console.log('Prompt saved with ID:', newPromptRef.key);
+    } catch (err) {
+      console.error('Error saving prompt:', err);
+      setError('Failed to save prompt. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setPromptData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-sm p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Submit a Prompt</h1>
-          <p className="mt-2 text-gray-600">
-            Share your prompt with the community. Be sure to include clear instructions and examples.
-          </p>
-        </div>
-
-        <form className="space-y-8">
-          {/* Basic Information */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
-            
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="E.g., Professional Email Writer"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                Category
-              </label>
-              <select
-                id="category"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category.toLowerCase()}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
-              <textarea
-                id="description"
-                rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="Describe what your prompt does and how it helps users..."
-              />
-            </div>
-
-            <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-                Tags
-              </label>
-              <input
-                type="text"
-                id="tags"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="E.g., email, business, professional (comma separated)"
-              />
-            </div>
+    <div className="container mx-auto px-4 py-8">
+      <Card className="max-w-4xl mx-auto">
+        <div className="p-6 space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold">Create a New Prompt</h1>
+            <p className="mt-2 text-text-muted">
+              Share your prompt with the community
+            </p>
           </div>
 
-          {/* Prompt Content */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Prompt Content</h2>
-            
-            <div className="space-y-4">
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode(false)}
-                  className={`px-4 py-2 text-sm font-medium rounded-md ${
-                    !previewMode
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 bg-white border border-gray-300'
-                  }`}
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPreviewMode(true)}
-                  className={`px-4 py-2 text-sm font-medium rounded-md ${
-                    previewMode
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 bg-white border border-gray-300'
-                  }`}
-                >
-                  Preview
-                </button>
+          {error && (
+            <div className="text-red-500 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium mb-1">
+                  Title
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={promptData.title}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  placeholder="Give your prompt a clear, descriptive title"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="category" className="block text-sm font-medium mb-1">
+                    Category
+                  </label>
+                  <select
+                    id="category"
+                    name="category"
+                    value={promptData.category}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  >
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="visibility" className="block text-sm font-medium mb-1">
+                    Visibility
+                  </label>
+                  <select
+                    id="visibility"
+                    name="visibility"
+                    value={promptData.visibility}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  >
+                    <option value="public">Public - Share with everyone</option>
+                    <option value="private">Private - Only visible to you</option>
+                  </select>
+                  <p className="mt-1 text-sm text-text-muted">
+                    {promptData.visibility === 'private' 
+                      ? 'Only you can see this prompt'
+                      : 'Everyone can see and use this prompt'}
+                  </p>
+                </div>
               </div>
 
               <div>
-                <label htmlFor="prompt" className="block text-sm font-medium text-gray-700">
-                  Prompt Template
+                <label htmlFor="description" className="block text-sm font-medium mb-1">
+                  Description
                 </label>
                 <textarea
-                  id="prompt"
-                  rows={8}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm font-mono"
-                  placeholder="Enter your prompt template here. Use {placeholders} for variable inputs..."
+                  id="description"
+                  name="description"
+                  value={promptData.description}
+                  onChange={handleChange}
+                  required
+                  rows={3}
+                  className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  placeholder="Explain what your prompt does and how to use it effectively"
                 />
-                <p className="mt-2 text-sm text-gray-500">
-                  Use {'{placeholders}'} for variables that users should replace.
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label htmlFor="content" className="block text-sm font-medium">
+                    Prompt Content
+                  </label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setShowPreview(!showPreview)}
+                    className="text-sm"
+                  >
+                    {showPreview ? 'Edit' : 'Preview'}
+                  </Button>
+                </div>
+                {showPreview ? (
+                  <div className="mt-1 block w-full rounded-md border border-border bg-background-light p-4">
+                    <pre className="whitespace-pre-wrap font-mono text-sm">
+                      {promptData.content || 'No content yet'}
+                    </pre>
+                  </div>
+                ) : (
+                  <textarea
+                    id="content"
+                    name="content"
+                    value={promptData.content}
+                    onChange={handleChange}
+                    required
+                    rows={8}
+                    className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
+                    placeholder="Enter your prompt here..."
+                  />
+                )}
+                <p className="mt-2 text-sm text-text-muted">
+                  Pro tip: Use clear, specific instructions and include examples if helpful
                 </p>
               </div>
 
               <div>
-                <label htmlFor="variables" className="block text-sm font-medium text-gray-700">
-                  Variable Descriptions
+                <label htmlFor="tags" className="block text-sm font-medium mb-1">
+                  Tags
                 </label>
-                <textarea
-                  id="variables"
-                  rows={4}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  placeholder="Describe each variable in your prompt template:
-- {purpose}: The main goal of the email
-- {recipient}: The person or group receiving the email
-..."
+                <input
+                  type="text"
+                  id="tags"
+                  name="tags"
+                  value={promptData.tags}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  placeholder="Add tags separated by commas (e.g., coding, python, ai)"
                 />
+                <p className="mt-1 text-sm text-text-muted">
+                  Tags help others find your prompt
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Example Usage */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Example Usage</h2>
-            
-            <div>
-              <label htmlFor="example-input" className="block text-sm font-medium text-gray-700">
-                Example Input
-              </label>
-              <textarea
-                id="example-input"
-                rows={4}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm font-mono"
-                placeholder="Provide an example of how to use your prompt..."
-              />
+            <div className="flex justify-end space-x-4 pt-6">
+              <Button
+                type="button"
+                variant="secondary"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Saving...' : 'Save Prompt'}
+              </Button>
             </div>
-
-            <div>
-              <label htmlFor="example-output" className="block text-sm font-medium text-gray-700">
-                Example Output
-              </label>
-              <textarea
-                id="example-output"
-                rows={6}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm font-mono"
-                placeholder="Show what the AI might generate given your example input..."
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="pt-6">
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Submit Prompt
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      </Card>
     </div>
   );
 }
