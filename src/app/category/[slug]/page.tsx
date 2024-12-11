@@ -7,6 +7,11 @@ import Card from '@/components/ui/Card';
 import Link from 'next/link';
 import { Prompt, PromptCategory } from '@/types/prompt';
 
+type FirebasePrompt = Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'> & {
+  createdAt: string;
+  updatedAt: string;
+};
+
 export default function CategoryPage({ params }: { params: { slug: string } }) {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,12 +30,15 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         const snapshot = await get(promptsQuery);
         if (snapshot.exists()) {
           const promptsData = Object.entries(snapshot.val())
-            .map(([id, data]) => ({
-              id,
-              ...(data as Omit<Prompt, 'id'>),
-              createdAt: new Date(data.createdAt),
-              updatedAt: new Date(data.updatedAt)
-            }))
+            .map(([id, data]) => {
+              const firebaseData = data as FirebasePrompt;
+              return {
+                id,
+                ...firebaseData,
+                createdAt: new Date(firebaseData.createdAt),
+                updatedAt: new Date(firebaseData.updatedAt)
+              };
+            })
             .filter(prompt => prompt.visibility === 'public' && prompt.isPublished);
 
           setPrompts(promptsData);
