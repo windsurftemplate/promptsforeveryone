@@ -1,19 +1,14 @@
 import type { Metadata } from 'next';
-import { Geist_Sans, Geist_Mono } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import Link from 'next/link';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
 import SideNav from '@/components/layout/SideNav';
 import MobileNav from '@/components/layout/MobileNav';
 
-const geistSans = Geist_Sans({ 
+const inter = Inter({ 
   subsets: ['latin'],
-  variable: '--font-geist-sans',
-});
-
-const geistMono = Geist_Mono({
-  subsets: ['latin'],
-  variable: '--font-geist-mono',
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -27,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className={`${geistSans.className} bg-primary min-h-screen text-text`}>
+    <html lang="en" className={inter.variable}>
+      <body className={`${inter.className} bg-primary min-h-screen text-text`}>
         <AuthProvider>
           <div className="flex h-screen">
             {/* Sidebar - Desktop only */}
