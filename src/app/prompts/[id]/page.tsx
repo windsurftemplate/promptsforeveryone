@@ -3,7 +3,14 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 
-export default function PromptPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function PromptPage({ params }: PageProps) {
   const [promptData, setPromptData] = useState<any>(null);
   const [copied, setCopied] = useState(false);
 
