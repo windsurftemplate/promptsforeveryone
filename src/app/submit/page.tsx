@@ -9,17 +9,16 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
 const categories: PromptCategory[] = [
-  'ChatGPT',
-  'Code Assistant',
-  'Writing',
-  'Translation',
-  'Data Analysis',
-  'Image Generation',
-  'Research',
-  'Education',
-  'Business',
-  'Creative',
-  'Other',
+  'general',
+  'creative-writing',
+  'academic',
+  'business',
+  'programming',
+  'data-analysis',
+  'marketing',
+  'social-media',
+  'email',
+  'other',
 ];
 
 export default function SubmitPage() {
@@ -142,7 +141,7 @@ export default function SubmitPage() {
                 value={promptData.title}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
                 placeholder="Give your prompt a clear, descriptive title"
               />
             </div>
@@ -158,10 +157,95 @@ export default function SubmitPage() {
                   value={promptData.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 bg-white text-black rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
                 >
                   {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
                     </option>
-             
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="visibility" className="block text-sm font-medium mb-1">
+                  Visibility
+                </label>
+                <select
+                  id="visibility"
+                  name="visibility"
+                  value={promptData.visibility}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                >
+                  <option value="public">Public - Share with everyone</option>
+                  <option value="private">Private - Only visible to you</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={promptData.description}
+                onChange={handleChange}
+                required
+                rows={3}
+                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                placeholder="Explain what your prompt does and how to use it effectively"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="content" className="block text-sm font-medium mb-1">
+                Prompt Content
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                value={promptData.content}
+                onChange={handleChange}
+                required
+                rows={8}
+                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
+                placeholder="Enter your prompt content here"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium mb-1">
+                Tags
+              </label>
+              <input
+                type="text"
+                id="tags"
+                name="tags"
+                value={promptData.tags}
+                onChange={handleChange}
+                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                placeholder="Enter tags separated by commas (e.g., coding, python, ai)"
+              />
+              <p className="mt-1 text-sm text-text-muted">
+                Add relevant tags to help others find your prompt
+              </p>
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
+                {isLoading ? 'Submitting...' : 'Submit Prompt'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Card>
+    </div>
+  );
+}

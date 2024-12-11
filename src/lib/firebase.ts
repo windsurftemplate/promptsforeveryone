@@ -15,44 +15,16 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-// Debug log for environment variables
-console.log('Firebase Config:', {
-  authDomain: firebaseConfig.authDomain,
-  projectId: firebaseConfig.projectId,
-  databaseURL: firebaseConfig.databaseURL,
-  apiKeyLength: firebaseConfig.apiKey?.length || 0,
-});
+// Initialize Firebase
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-let app;
-let auth;
-let db;
+// Initialize Auth
+export const auth = getAuth(app);
+auth.useDeviceLanguage();
 
-try {
-  // Initialize Firebase
-  if (!getApps().length) {
-    console.log('Initializing Firebase app...');
-    app = initializeApp(firebaseConfig);
-  } else {
-    console.log('Firebase app already initialized');
-    app = getApp();
-  }
+// Initialize Realtime Database
+export const db = getDatabase(app);
 
-  // Initialize Auth with specific settings
-  auth = getAuth(app);
-  auth.useDeviceLanguage();
-  
-  // Configure Google provider
-  const googleProvider = new GoogleAuthProvider();
-  googleProvider.addScope('email');
-  googleProvider.setCustomParameters({
-    prompt: 'select_account'
-  });
-
-  // Initialize Realtime Database
-  db = getDatabase(app);
-
-} catch (error) {
-  console.error('Error initializing Firebase:', error);
-}
-
-export { app, auth, db };
+// Auth providers
+export const googleProvider = new GoogleAuthProvider();
+export const githubProvider = new GithubAuthProvider();

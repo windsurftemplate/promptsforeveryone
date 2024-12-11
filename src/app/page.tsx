@@ -1,18 +1,38 @@
+'use client';
+
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
+
+  const titles = [
+    "Discover Windsurf IDE Prompts",
+    "Enhance Your Development Flow",
+    "Power Up Your Coding",
+    "Unlock AI's Full Potential"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTitleIndex((prev) => (prev + 1) % titles.length);
+    }, 7000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="space-y-12">
       {/* Hero Section */}
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-dark via-primary to-surface p-8 md:p-12">
         <div className="relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-text">
-            Discover Windsurf IDE Prompts
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-fade-in">
+            {titles[currentTitleIndex]}
           </h1>
           <p className="text-xl text-text-muted max-w-2xl mb-8">
-            Enhance your development workflow with community-curated prompts designed specifically for Windsurf IDE&apos;s AI assistant.
+            Community-curated prompts designed specifically for Windsurf IDE.
           </p>
           <div className="flex flex-wrap gap-4">
             <Link href="/get-started">
@@ -45,107 +65,103 @@ export default function Home() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories.map((category) => (
-            <Card key={category.name} className="group cursor-pointer">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-accent transition-colors">
-                  {category.name}
-                </h3>
-                <p className="text-text-muted">{category.description}</p>
-              </div>
-            </Card>
+            <Link key={category.name} href={`/category/${encodeURIComponent(category.name)}`}>
+              <Card className="group cursor-pointer">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-accent transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-text-muted">{category.description}</p>
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       </section>
 
-      {/* Featured Prompts */}
-      <section>
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">Featured Prompts</h2>
-          <Link href="/prompts">
-            <Button variant="ghost">View All</Button>
-          </Link>
+      {/* Footer */}
+      <footer className="mt-16 border-t border-surface-light">
+        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">About</h3>
+              <ul className="space-y-2">
+                <li><Link href="/about" className="text-text-muted hover:text-text transition-colors">About Us</Link></li>
+                <li><Link href="/blog" className="text-text-muted hover:text-text transition-colors">Blog</Link></li>
+                <li><Link href="/careers" className="text-text-muted hover:text-text transition-colors">Careers</Link></li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Resources</h3>
+              <ul className="space-y-2">
+                <li><Link href="/docs" className="text-text-muted hover:text-text transition-colors">Documentation</Link></li>
+                <li><Link href="/guides" className="text-text-muted hover:text-text transition-colors">Guides</Link></li>
+                <li><Link href="/api" className="text-text-muted hover:text-text transition-colors">API</Link></li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Community</h3>
+              <ul className="space-y-2">
+                <li><Link href="/discord" className="text-text-muted hover:text-text transition-colors">Discord</Link></li>
+                <li><Link href="/github" className="text-text-muted hover:text-text transition-colors">GitHub</Link></li>
+                <li><Link href="/twitter" className="text-text-muted hover:text-text transition-colors">Twitter</Link></li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="/privacy" className="text-text-muted hover:text-text transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-text-muted hover:text-text transition-colors">Terms of Service</Link></li>
+                <li><Link href="/cookies" className="text-text-muted hover:text-text transition-colors">Cookie Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-surface-light">
+            <p className="text-center text-text-muted">
+              &copy; {new Date().getFullYear()} Windsurf IDE. All rights reserved.
+            </p>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {featuredPrompts.map((prompt) => (
-            <Card key={prompt.title} className="group cursor-pointer">
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-1 group-hover:text-primary-accent transition-colors">
-                      {prompt.title}
-                    </h3>
-                    <p className="text-text-muted text-sm">{prompt.author}</p>
-                  </div>
-                  <Button variant="ghost" size="sm">Copy</Button>
-                </div>
-                <p className="text-text-muted mb-4">{prompt.description}</p>
-                <div className="flex gap-2">
-                  {prompt.tags.map((tag) => (
-                    <span key={tag} className="px-2 py-1 text-xs rounded-full bg-surface-light text-text-muted">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
+      </footer>
     </div>
   );
 }
 
 const categories = [
   {
-    name: 'Code Review',
-    description: 'Prompts for analyzing and improving code quality'
+    name: 'ChatGPT',
+    description: 'General purpose prompts for ChatGPT interactions'
   },
   {
-    name: 'Testing',
-    description: 'Generate test cases and testing strategies'
+    name: 'Code Assistant',
+    description: 'Prompts for code generation, review, and debugging'
   },
   {
-    name: 'Refactoring',
-    description: 'Transform and improve existing code'
+    name: 'Writing',
+    description: 'Content creation and writing assistance prompts'
   },
   {
-    name: 'Documentation',
-    description: 'Create and enhance code documentation'
+    name: 'Translation',
+    description: 'Language translation and localization prompts'
   },
   {
-    name: 'Debugging',
-    description: 'Find and fix bugs in your code'
+    name: 'Data Analysis',
+    description: 'Prompts for analyzing and visualizing data'
   },
   {
-    name: 'Performance',
-    description: 'Optimize code for better performance'
-  }
-];
-
-const featuredPrompts = [
-  {
-    title: 'Comprehensive Code Review',
-    author: 'Sarah Chen',
-    description: 'Analyze code for best practices, potential bugs, and performance improvements',
-    tags: ['review', 'best-practices', 'performance']
+    name: 'Image Generation',
+    description: 'Prompts for generating and editing images'
   },
   {
-    title: 'Generate Unit Tests',
-    author: 'Michael Rodriguez',
-    description: 'Create comprehensive unit tests with edge cases and mocks',
-    tags: ['testing', 'unit-tests', 'automation']
+    name: 'Research',
+    description: 'Academic and general research assistance'
   },
   {
-    title: 'Refactor for Clean Code',
-    author: 'Alex Kim',
-    description: 'Transform code to follow clean code principles and improve readability',
-    tags: ['refactoring', 'clean-code', 'maintainability']
+    name: 'Education',
+    description: 'Teaching and learning enhancement prompts'
   },
   {
-    title: 'API Documentation',
-    author: 'Emma Wilson',
-    description: 'Generate detailed API documentation with examples and edge cases',
-    tags: ['documentation', 'api', 'examples']
+    name: 'Business',
+    description: 'Business strategy and communication prompts'
   }
 ];

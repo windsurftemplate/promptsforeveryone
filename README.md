@@ -6,18 +6,19 @@ A community-driven platform for sharing and discovering prompts specifically des
 
 ## Features
 
-- 🎨 **Modern Design System**: Clean, dark-themed interface optimized for developers
-- 🔍 **Smart Search**: Find the perfect prompt for your development task
+- 🎨 **Modern Design System**: Clean, themed interface with consistent colors and typography
+- 🔍 **Category-based Navigation**: Browse prompts by categories for easy discovery
 - 💻 **Development-Focused**: Prompts specifically designed for software development
-- 🌟 **Community Curated**: High-quality prompts vetted by the developer community
-- 🔄 **Real-time Updates**: Instant feedback on prompt effectiveness
+- 🌟 **Community Curated**: High-quality prompts shared by the developer community
+- 🔒 **Privacy Controls**: Choose to make your prompts public or private
 - 📱 **Responsive Design**: Seamless experience across all devices
+- 🔄 **Real-time Updates**: Instant updates using Firebase Realtime Database
 
 ## Tech Stack
 
 - **Framework**: Next.js 14 with App Router
 - **Styling**: Tailwind CSS with custom design system
-- **Authentication**: Firebase Auth
+- **Authentication**: Firebase Auth with Google Sign-in
 - **Database**: Firebase Realtime Database
 - **Fonts**: Inter (text) & JetBrains Mono (code)
 - **Icons**: Custom SVG icons
@@ -60,6 +61,7 @@ colors: {
 - Node.js 18.x or later
 - npm or yarn
 - Git
+- Firebase account
 
 ### Installation
 
@@ -76,7 +78,7 @@ npm install
 yarn install
 ```
 
-3. Create a `.env.local` file in the root directory and add necessary environment variables:
+3. Create a `.env.local` file in the root directory and add your Firebase configuration:
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -87,120 +89,62 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
-4. Run the development server:
+4. Set up Firebase:
+   - Create a new Firebase project
+   - Enable Authentication with Google provider
+   - Create a Realtime Database
+   - Set up database rules for public/private access
+
+5. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
-## Development
-
-### Environment Setup
-
-1. Create a `.env.local` file in the root directory with your Firebase configuration:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=your_database_url
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
-
-### Seeding the Database
-
-To populate the database with sample prompts:
-
-1. Ensure your Firebase Realtime Database is set up and the database URL is correctly configured in `.env.local`
-2. Run the seeding script:
-```bash
-npx ts-node scripts/seedPrompts.ts
-```
-
-## Firebase Setup
-
-### Database Rules
-
-The project uses Firebase Realtime Database with secure rules that:
-- Allow public read access to prompts
-- Restrict write access to authenticated users
-- Ensure users can only modify their own prompts
-- Validate data structure and field types
-
-To deploy the database rules:
-
-1. Install Firebase CLI if not already installed:
-```bash
-npm install -g firebase-tools
-```
-
-2. Login to Firebase:
-```bash
-firebase login
-```
-
-3. Deploy the rules:
-```bash
-firebase deploy --only database
-```
-
-The rules file is located at `firebase/database.rules.json`. Review and modify the rules as needed for your use case.
-
-### Seeding Data
-
-To populate the database with sample prompts:
-
-1. Temporarily update the database rules to allow write access for seeding:
-```json
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}
-```
-
-2. Run the seeding script:
-```bash
-npx ts-node scripts/seedPrompts.ts
-```
-
-3. After seeding, deploy the secure rules:
-```bash
-firebase deploy --only database
-```
+6. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
 ## Project Structure
 
 ```
 src/
-├── app/                 # Next.js app router pages
-├── components/         
-│   ├── ui/             # Reusable UI components
-│   └── layout/         # Layout components
-├── contexts/           # React contexts
-├── lib/                # Utility functions
-└── styles/             # Global styles
+├── app/                    # Next.js app router pages
+│   ├── category/          # Dynamic category pages
+│   ├── explore/           # Browse all prompts
+│   ├── submit/            # Submit new prompts
+│   └── page.tsx           # Homepage
+├── components/            # Reusable UI components
+├── lib/                   # Utilities and configurations
+└── types/                 # TypeScript type definitions
 ```
+
+## Features in Detail
+
+### Authentication
+- Sign in with Google
+- Protected routes for authenticated users
+- User profile management
+
+### Prompt Management
+- Create and edit prompts
+- Set visibility (public/private)
+- Categorize prompts
+- Add tags for better discovery
+
+### Browse and Discovery
+- Browse prompts by category
+- Filter prompts by tags
+- Search functionality
+- Real-time updates
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Windsurf IDE team for inspiration
-- All contributors who share their prompts
-- Next.js and Tailwind CSS communities

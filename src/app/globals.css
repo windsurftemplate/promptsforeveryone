@@ -25,6 +25,15 @@
   }
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 @layer components {
   .card {
     @apply bg-surface rounded-lg border border-surface-light/10 transition-all duration-200;

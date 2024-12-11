@@ -42,23 +42,27 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-surface border-b border-surface-light/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-14">
           {/* Left side - Logo and main navigation */}
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold text-indigo-600">Windsurf Prompts</span>
+                <span className="text-xl font-bold text-primary-accent">Windsurf Prompts</span>
               </Link>
             </div>
 
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium ${pathname === href ? 'border-b-2 border-indigo-600' : 'border-b-2 border-transparent'} hover:border-gray-300`}
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
+                    pathname === href 
+                      ? 'text-primary-accent bg-primary-accent/10 rounded-md' 
+                      : 'text-text-muted hover:text-text hover:bg-surface-light/80 rounded-md'
+                  }`}
                 >
                   {label}
                 </Link>
@@ -67,10 +71,10 @@ export default function NavBar() {
           </div>
 
           {/* Right side - User menu */}
-          <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+          <div className="hidden sm:flex sm:items-center sm:space-x-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-text-muted">
                   {user.displayName || user.email}
                 </span>
                 <Button
@@ -97,43 +101,66 @@ export default function NavBar() {
             )}
           </div>
 
-          {/* Mobile menu */}
-          <div className="sm:hidden">
-            <div className="pt-2 pb-3 space-y-1">
-              {navLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`block pl-3 pr-4 py-2 ${pathname === href ? 'border-l-4 border-indigo-600' : 'border-l-4 border-transparent'} text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-300`}
-                >
-                  {label}
-                </Link>
-              ))}
-              {user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                >
-                  Sign Out
-                </button>
-              ) : (
-                <>
-                  <Link
-                    href="/signin"
-                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:text-gray-700 hover:bg-gray-50 hover:border-gray-300"
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
+          {/* Mobile menu button */}
+          <div className="sm:hidden flex items-center">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center p-2 rounded-md text-text-muted hover:text-text hover:bg-surface-light/80"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
+            >
+              <span className="sr-only">Open main menu</span>
+              {/* Icon for menu button */}
+              <svg
+                className="block h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div className="sm:hidden" id="mobile-menu">
+        <div className="px-2 pt-2 pb-3 space-y-1">
+          {navLinks.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${
+                pathname === href
+                  ? 'text-primary-accent bg-primary-accent/10'
+                  : 'text-text-muted hover:text-text hover:bg-surface-light/80'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+          {!user && (
+            <div className="mt-4 px-3 space-y-2">
+              <Link href="/signin">
+                <Button variant="secondary" className="w-full">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="primary" className="w-full">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

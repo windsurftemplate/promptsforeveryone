@@ -197,7 +197,7 @@ export default function SettingsPage() {
             <div className="space-y-4">
               <Button
                 onClick={handleLogout}
-                variant="destructive"
+                variant="secondary"
                 className="w-full sm:w-auto"
                 disabled={isLoading}
               >
