@@ -7,19 +7,7 @@ import { ref, get, query, orderByChild, equalTo } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 
-const categories: PromptCategory[] = [
-  'ChatGPT',
-  'Code Assistant',
-  'Writing',
-  'Translation',
-  'Data Analysis',
-  'Image Generation',
-  'Research',
-  'Education',
-  'Business',
-  'Creative',
-  'Other'
-];
+const categories: PromptCategory[] = ['General Prompts'];
 
 export default function ExplorePage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);

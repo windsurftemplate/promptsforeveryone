@@ -1,35 +1,48 @@
 'use client';
 
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { getDatabase, ref, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import { Prompt, PromptVisibility } from '@/types/prompt';
-import { ref, push, set } from 'firebase/database';
-import { useState } from 'react';
+import { Prompt, PromptVisibility, PromptCategory } from '@/types/prompt';
+
+interface FormData {
+  title: string;
+  description: string;
+  content: string;
+  tags: string;
+  category: PromptCategory;
+  visibility: PromptVisibility;
+}
 
 export default function PromptForm() {
   const { user } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const [formData, setFormData] = useState({
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     description: '',
     content: '',
     tags: '',
-    visibility: 'public' as PromptVisibility,
+    category: 'General Prompts',
+    visibility: 'public',
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!user) {
       setError('You must be signed in to submit a prompt');
       return;
     }
 
-    setIsLoading(true);
     setError(null);
-    setSuccess(false);
+    setIsSubmitting(true);
 
     try {
       const tagsArray = formData.tags
@@ -41,6 +54,7 @@ export default function PromptForm() {
         title: formData.title,
         description: formData.description,
         content: formData.content,
+        category: formData.category,
         tags: tagsArray,
         userId: user.uid,
         userName: user.displayName || 'Anonymous',
@@ -48,40 +62,27 @@ export default function PromptForm() {
         updatedAt: new Date().toISOString(),
         likes: 0,
         visibility: formData.visibility,
-        isPublished: true,
+        isPublished: true
       };
 
-      // Create a new reference with an auto-generated key
       const promptsRef = ref(db, 'prompts');
-      const newPromptRef = push(promptsRef);
-      
-      // Set the data at the new reference
-      await set(newPromptRef, promptData);
+      await push(promptsRef, promptData);
 
-      setSuccess(true);
+      // Reset form
       setFormData({
         title: '',
         description: '',
         content: '',
         tags: '',
+        category: 'General Prompts',
         visibility: 'public',
       });
     } catch (err) {
-      console.error('Error saving prompt:', err);
-      setError('Failed to save prompt. Please try again.');
+      console.error('Error submitting prompt:', err);
+      setError('Failed to submit prompt. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
   return (
@@ -89,14 +90,8 @@ export default function PromptForm() {
       <h1 className="text-3xl font-bold mb-6">Submit a Prompt</h1>
       
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded mb-4">
-          Prompt submitted successfully!
+        <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{error}</span>
         </div>
       )}
 
@@ -129,13 +124,13 @@ export default function PromptForm() {
             required
             rows={3}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Briefly describe what your prompt does"
+            placeholder="Enter a description for your prompt"
           />
         </div>
 
         <div>
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-            Prompt Content
+            Content
           </label>
           <textarea
             id="content"
@@ -144,9 +139,31 @@ export default function PromptForm() {
             onChange={handleChange}
             required
             rows={6}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Enter your prompt content here"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono"
+            placeholder="Enter your prompt content"
           />
+        </div>
+
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+            Category
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option value="General Prompts">General Prompts</option>
+            <option value="Project Initialization & Setup">Project Initialization & Setup</option>
+            <option value="Frontend Design & Development">Frontend Design & Development</option>
+            <option value="Backend Development">Backend Development</option>
+            <option value="Database Design & Integration">Database Design & Integration</option>
+            <option value="Full-Stack Features">Full-Stack Features</option>
+            <option value="Styling & Theming">Styling & Theming</option>
+          </select>
         </div>
 
         <div>
@@ -160,7 +177,7 @@ export default function PromptForm() {
             value={formData.tags}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            placeholder="Enter tags separated by commas (e.g., coding, python, ai)"
+            placeholder="Enter tags separated by commas"
           />
         </div>
 
@@ -173,20 +190,25 @@ export default function PromptForm() {
             name="visibility"
             value={formData.visibility}
             onChange={handleChange}
+            required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
-            <option value="public">Public - Anyone can view this prompt</option>
-            <option value="private">Private - Only you can view this prompt</option>
+            <option value="public">Public</option>
+            <option value="private">Private</option>
           </select>
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? 'Submitting...' : 'Submit Prompt'}
-        </button>
+        <div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Prompt'}
+          </button>
+        </div>
       </form>
     </div>
   );

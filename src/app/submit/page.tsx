@@ -5,24 +5,40 @@ import { db } from '@/lib/firebase';
 import { Prompt, PromptCategory, PromptVisibility } from '@/types/prompt';
 import { ref, push, set } from 'firebase/database';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
 const categories: PromptCategory[] = [
-  'general',
-  'creative-writing',
-  'academic',
-  'business',
-  'programming',
-  'data-analysis',
-  'marketing',
-  'social-media',
-  'email',
-  'other',
+  'General Prompts',
+  'Project Initialization & Setup',
+  'Frontend Design & Development',
+  'Backend Development',
+  'Database Design & Integration',
+  'Full-Stack Features',
+  'Styling & Theming',
+  'Responsive Design',
+  'Forms & User Input Handling',
+  'API Integration & Development',
+  'Animations & Interactivity',
+  'E-Commerce Features',
+  'Authentication & Security',
+  'Testing & Debugging',
+  'Performance Optimization',
+  'DevOps & Deployment',
+  'Internationalization & Localization',
+  'Real-Time Features',
+  'Documentation & Knowledge Sharing',
+  'Accessibility & Compliance',
+  'Workflow Automation',
+  'Third-Party Integration',
+  'Algorithm & Data Structures',
+  'Custom Components & Utilities'
 ];
 
 export default function SubmitPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -30,9 +46,9 @@ export default function SubmitPage() {
 
   const [promptData, setPromptData] = useState<Partial<Prompt>>({
     title: '',
-    description: '',
     content: '',
-    category: 'general' as PromptCategory,
+    description: '',
+    category: 'General Prompts' as PromptCategory,
     visibility: 'public' as PromptVisibility,
   });
 
@@ -52,48 +68,66 @@ export default function SubmitPage() {
     setError(null);
     setSuccessMessage(null);
 
-    if (!promptData.title || !promptData.description || !promptData.content) {
+    if (!user) {
+      setError('You must be logged in to submit a prompt');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!promptData.title || !promptData.content || !promptData.description) {
       setError('All fields are required. Please complete the form.');
       setIsLoading(false);
       return;
     }
 
     try {
-      const tagsArray = promptData.tags
-        ?.split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0) || [];
-
+      console.log('Starting prompt submission...');
       const promptDataToSave: Omit<Prompt, 'id'> = {
         title: promptData.title!,
-        description: promptData.description!,
         content: promptData.content!,
+        description: promptData.description!,
         category: promptData.category!,
-        tags: tagsArray,
         userId: user.uid,
         userName: user.displayName || 'Anonymous',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         likes: 0,
+        downloads: 0,
         visibility: promptData.visibility!,
         isPublished: true,
       };
 
+      console.log('Creating database reference...');
       const promptsRef = ref(db, 'prompts');
       const newPromptRef = push(promptsRef);
 
+      console.log('Saving prompt data...');
       await set(newPromptRef, promptDataToSave);
+      console.log('Prompt saved successfully!');
+
       setSuccessMessage('Prompt submitted successfully!');
       setPromptData({
         title: '',
-        description: '',
         content: '',
-        category: 'general' as PromptCategory,
+        description: '',
+        category: 'General Prompts' as PromptCategory,
         visibility: 'public' as PromptVisibility,
       });
-    } catch (err) {
+
+      console.log('Redirecting to dashboard...');
+      router.push('/dashboard');
+    } catch (err: any) {
       console.error('Error saving prompt:', err);
-      setError('Failed to save prompt. Please try again.');
+      console.error('Error code:', err.code);
+      console.error('Error message:', err.message);
+      
+      if (err.code === 'PERMISSION_DENIED') {
+        setError('Permission denied. Please make sure you are logged in and have the necessary permissions.');
+      } else if (err.code === 'NETWORK_ERROR') {
+        setError('Network error. Please check your internet connection and try again.');
+      } else {
+        setError(err.message || 'Failed to save prompt. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -146,6 +180,38 @@ export default function SubmitPage() {
               />
             </div>
 
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={promptData.description}
+                onChange={handleChange}
+                required
+                rows={4}
+                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
+                placeholder="Enter a brief description of your prompt"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="content" className="block text-sm font-medium mb-1">
+                Prompt Content
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                value={promptData.content}
+                onChange={handleChange}
+                required
+                rows={8}
+                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
+                placeholder="Enter your prompt content here"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="category" className="block text-sm font-medium mb-1">
@@ -182,56 +248,6 @@ export default function SubmitPage() {
                   <option value="private">Private - Only visible to you</option>
                 </select>
               </div>
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={promptData.description}
-                onChange={handleChange}
-                required
-                rows={3}
-                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
-                placeholder="Explain what your prompt does and how to use it effectively"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="content" className="block text-sm font-medium mb-1">
-                Prompt Content
-              </label>
-              <textarea
-                id="content"
-                name="content"
-                value={promptData.content}
-                onChange={handleChange}
-                required
-                rows={8}
-                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
-                placeholder="Enter your prompt content here"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="tags" className="block text-sm font-medium mb-1">
-                Tags
-              </label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                value={promptData.tags}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
-                placeholder="Enter tags separated by commas (e.g., coding, python, ai)"
-              />
-              <p className="mt-1 text-sm text-text-muted">
-                Add relevant tags to help others find your prompt
-              </p>
             </div>
 
             <div className="flex justify-end space-x-4">

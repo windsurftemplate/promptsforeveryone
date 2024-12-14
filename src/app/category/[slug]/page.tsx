@@ -1,42 +1,58 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ref, query, orderByChild, equalTo, get } from 'firebase/database';
+import { useParams } from 'next/navigation';
+import { getDatabase, ref, query, orderByChild, equalTo, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card';
 import Link from 'next/link';
-import { Prompt, PromptCategory } from '@/types/prompt';
+import { PromptVisibility, PromptCategory } from '@/types/prompt';
 
-type FirebasePrompt = Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'> & {
+interface FirebasePrompt {
+  content: string;
+  title: string;
+  visibility: PromptVisibility;
+  category: PromptCategory;
+  userId: string;
+  userName: string;
+  createdAt: number;
+  updatedAt: number;
+  isPublished: boolean;
+  description: string;
+  tags: string[];
+}
+
+interface Prompt extends Omit<FirebasePrompt, 'createdAt' | 'updatedAt'> {
+  id: string;
   createdAt: string;
   updatedAt: string;
-};
+}
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
+export default function CategoryPage() {
+  const { slug } = useParams();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
-  const categoryName = decodeURIComponent(params.slug) as PromptCategory;
+  const categoryName = decodeURIComponent(slug as string) as PromptCategory;
 
   useEffect(() => {
-    async function fetchPrompts() {
+    const fetchPrompts = async () => {
       try {
-        const promptsRef = ref(db, 'prompts');
         const promptsQuery = query(
-          promptsRef,
+          ref(db, 'prompts'),
           orderByChild('category'),
           equalTo(categoryName)
         );
         
         const snapshot = await get(promptsQuery);
         if (snapshot.exists()) {
-          const promptsData = Object.entries(snapshot.val())
+          const promptsData = Object.entries(snapshot.val() || {})
             .map(([id, data]) => {
-              const firebaseData = data as FirebasePrompt;
+              const prompt = data as FirebasePrompt;
               return {
+                ...prompt,
                 id,
-                ...firebaseData,
-                createdAt: new Date(firebaseData.createdAt),
-                updatedAt: new Date(firebaseData.updatedAt)
+                createdAt: new Date(prompt.createdAt).toISOString(),
+                updatedAt: new Date(prompt.updatedAt).toISOString()
               };
             })
             .filter(prompt => prompt.visibility === 'public' && prompt.isPublished);
@@ -48,15 +64,31 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchPrompts();
-  }, [categoryName]);
+    if (slug) {
+      fetchPrompts();
+    }
+  }, [slug, categoryName]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!prompts.length) {
+    return (
+      <div className="text-center py-12">
+        <h3 className="text-xl font-medium text-text-muted">No prompts found</h3>
+        <p className="mt-2 text-text-muted">
+          Be the first to submit a prompt in this category!
+        </p>
+        <Link href="/submit" className="mt-4 inline-block text-primary-accent hover:underline">
+          Submit a Prompt
+        </Link>
       </div>
     );
   }
@@ -70,49 +102,37 @@ export default function CategoryPage({ params }: { params: { slug: string } }) {
         </p>
       </div>
 
-      {prompts.length === 0 ? (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium text-text-muted">No prompts found</h3>
-          <p className="mt-2 text-text-muted">
-            Be the first to submit a prompt in this category!
-          </p>
-          <Link href="/submit" className="mt-4 inline-block text-primary-accent hover:underline">
-            Submit a Prompt
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {prompts.map((prompt) => (
-            <Link key={prompt.id} href={`/prompt/${prompt.id}`}>
-              <Card className="h-full hover:bg-surface-light transition-colors">
-                <div className="p-6">
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-accent transition-colors">
-                    {prompt.title}
-                  </h3>
-                  <p className="text-text-muted mb-4 line-clamp-2">
-                    {prompt.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {prompt.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-surface-light text-text-muted rounded-full text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center text-sm text-text-muted">
-                    <span>{prompt.userName}</span>
-                    <span className="mx-2">•</span>
-                    <span>{prompt.createdAt.toLocaleDateString()}</span>
-                  </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {prompts.map((prompt) => (
+          <Link key={prompt.id} href={`/prompt/${prompt.id}`}>
+            <Card className="h-full hover:bg-surface-light transition-colors">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold mb-2 group-hover:text-primary-accent transition-colors">
+                  {prompt.title}
+                </h3>
+                <p className="text-text-muted mb-4 line-clamp-2">
+                  {prompt.description}
+                </p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {prompt.tags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 bg-surface-light text-text-muted rounded-full text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
+                <div className="flex items-center text-sm text-text-muted">
+                  <span>{prompt.userName}</span>
+                  <span className="mx-2">•</span>
+                  <span>{prompt.createdAt}</span>
+                </div>
+              </div>
+            </Card>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

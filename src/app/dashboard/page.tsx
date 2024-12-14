@@ -7,6 +7,9 @@ import SubmitPrompt from '@/components/SubmitPrompt';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { ref, query, orderByChild, equalTo, onValue } from 'firebase/database';
+import { db } from '@/lib/firebase';
+import Link from 'next/link';
 
 interface Prompt {
   id: string;
@@ -16,15 +19,54 @@ interface Prompt {
   likes: number;
   downloads: number;
   createdAt: string;
+  visibility: string;
+  userId: string;
+  content: string;
 }
 
-type TabType = 'all' | 'public' | 'private' | 'submit';
+type TabType = 'all' | 'public' | 'private';
 
 export default function DashboardPage() {
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [sortBy, setSortBy] = useState<'date' | 'likes' | 'downloads' | 'title'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  useEffect(() => {
+    if (!user) return;
+
+    const promptsRef = ref(db, 'prompts');
+    const userPromptsQuery = query(promptsRef, orderByChild('userId'), equalTo(user.uid));
+
+    const unsubscribe = onValue(userPromptsQuery, (snapshot) => {
+      if (!snapshot.exists()) {
+        setPrompts([]);
+        setIsLoading(false);
+        return;
+      }
+      
+      const promptsData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
+        id,
+        ...data,
+      }));
+      
+      // Sort prompts by creation date (newest first)
+      promptsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      setPrompts(promptsData);
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching prompts:', error);
+      setIsLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!user && !isLoading) {
@@ -42,33 +84,63 @@ export default function DashboardPage() {
     return null;
   }
 
-  // Mock data for demonstration
+  // Update stats based on actual prompts data
   const userStats = {
-    totalPrompts: 12,
-    totalLikes: 156,
-    totalDownloads: 892,
-    savedPrompts: 24,
+    totalPrompts: prompts.length,
+    totalLikes: prompts.reduce((acc, prompt) => {
+      const likes = typeof prompt.likes === 'number' ? prompt.likes : 0;
+      return acc + likes;
+    }, 0),
+    totalDownloads: prompts.reduce((acc, prompt) => {
+      const downloads = typeof prompt.downloads === 'number' ? prompt.downloads : 0;
+      return acc + downloads;
+    }, 0),
+    savedPrompts: prompts.filter(prompt => prompt.visibility === 'private').length,
   };
 
-  const userPrompts: Prompt[] = [
-    {
-      id: '1',
-      title: 'Code Review Expert',
-      description: 'A comprehensive code review prompt for any programming language',
-      category: 'Code Review',
-      likes: 45,
-      downloads: 128,
-      createdAt: '2024-01-15',
-    },
-    // Add more mock prompts as needed
+  const tabs: { id: TabType; name: string }[] = [
+    { id: 'all', name: `All Prompts (${prompts.length})` },
+    { id: 'public', name: `Public (${prompts.filter(p => p.visibility === 'public').length})` },
+    { id: 'private', name: `Private (${prompts.filter(p => p.visibility === 'private').length})` },
   ];
 
-  const tabs: { id: TabType; name: string }[] = [
-    { id: 'all', name: 'All Prompts' },
-    { id: 'public', name: 'Public' },
-    { id: 'private', name: 'Private' },
-    { id: 'submit', name: 'Submit New' },
-  ];
+  const handleCopyPrompt = async (prompt: Prompt) => {
+    try {
+      await navigator.clipboard.writeText(prompt.content);
+      // You can add a toast notification here if you have one
+      alert('Prompt copied to clipboard!');
+    } catch (err) {
+      console.error('Failed to copy prompt:', err);
+      alert('Failed to copy prompt. Please try again.');
+    }
+  };
+
+  const getSortedPrompts = () => {
+    return [...prompts].sort((a, b) => {
+      switch (sortBy) {
+        case 'date':
+          return sortOrder === 'desc' 
+            ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'likes':
+          return sortOrder === 'desc' 
+            ? (b.likes || 0) - (a.likes || 0)
+            : (a.likes || 0) - (b.likes || 0);
+        case 'downloads':
+          return sortOrder === 'desc'
+            ? (b.downloads || 0) - (a.downloads || 0)
+            : (a.downloads || 0) - (b.downloads || 0);
+        case 'title':
+          return sortOrder === 'desc'
+            ? b.title.localeCompare(a.title)
+            : a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+  };
+
+  const sortedPrompts = getSortedPrompts();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -82,6 +154,16 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex items-center space-x-4">
+            <Button
+              variant="primary"
+              onClick={() => router.push('/submit')}
+              className="flex items-center space-x-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span>Create New Prompt</span>
+            </Button>
             <Button
               variant="ghost"
               onClick={() => router.push('/settings')}
@@ -173,40 +255,81 @@ export default function DashboardPage() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">My Prompts</h2>
-            <Button
-              variant="secondary"
-              onClick={() => setActiveTab('submit')}
-            >
-              Create New Prompt
-            </Button>
-          </div>
-
-          <div className="border-b border-border">
-            <nav className="-mb-px flex space-x-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors
-                    ${
-                      activeTab === tab.id
-                        ? 'border-primary-accent text-primary-accent'
-                        : 'border-transparent text-text-muted hover:text-text hover:border-border'
-                    }
-                  `}
+            <div className="flex items-center space-x-4 mb-6">
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-text">Sort by:</label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'date' | 'likes' | 'downloads' | 'title')}
+                  className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-text hover:bg-surface-hover focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
                 >
-                  {tab.name}
+                  <option value="date">Date</option>
+                  <option value="likes">Likes</option>
+                  <option value="downloads">Downloads</option>
+                  <option value="title">Title</option>
+                </select>
+              </div>
+              <div className="flex items-center space-x-2">
+                <label className="text-sm font-medium text-text">Order:</label>
+                <button
+                  onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                  className="flex items-center space-x-1 rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-text hover:bg-surface-hover transition-colors"
+                >
+                  {sortOrder === 'asc' ? (
+                    <>
+                      <span>Ascending</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      <span>Descending</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </>
+                  )}
                 </button>
-              ))}
-            </nav>
+              </div>
+            </div>
           </div>
 
-          {activeTab === 'submit' ? (
-            <SubmitPrompt />
-          ) : (
-            <PromptList visibility={activeTab} />
-          )}
+          <div className="grid grid-cols-1 gap-4">
+            {sortedPrompts.map((prompt) => (
+              <div key={prompt.id} className="bg-card rounded-lg p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <Link href={`/prompt/${prompt.id}`} className="group">
+                      <h3 className="text-lg font-semibold group-hover:text-primary-accent transition-colors">
+                        {prompt.title}
+                      </h3>
+                    </Link>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => handleCopyPrompt(prompt)}
+                      className="rounded-md bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary-accent transition-colors"
+                    >
+                      Copy Prompt
+                    </button>
+                    <Link
+                      href={`/prompt/${prompt.id}`}
+                      className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-surface transition-colors"
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4 mt-2 text-sm text-text-muted">
+                  <span>❤️ {prompt.likes || 0} likes</span>
+                  <span>⬇️ {prompt.downloads || 0} downloads</span>
+                  <span>🔒 {prompt.visibility}</span>
+                  <span>📅 {new Date(prompt.createdAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

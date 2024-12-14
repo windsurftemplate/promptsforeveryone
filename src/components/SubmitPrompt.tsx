@@ -9,17 +9,30 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
 const categories: PromptCategory[] = [
-  'ChatGPT',
-  'Code Assistant',
-  'Writing',
-  'Translation',
-  'Data Analysis',
-  'Image Generation',
-  'Research',
-  'Education',
-  'Business',
-  'Creative',
-  'Other',
+  'General Prompts',
+  'Project Initialization & Setup',
+  'Frontend Design & Development',
+  'Backend Development',
+  'Database Design & Integration',
+  'Full-Stack Features',
+  'Styling & Theming',
+  'Responsive Design',
+  'Forms & User Input Handling',
+  'API Integration & Development',
+  'Animations & Interactivity',
+  'E-Commerce Features',
+  'Authentication & Security',
+  'Testing & Debugging',
+  'Performance Optimization',
+  'DevOps & Deployment',
+  'Internationalization & Localization',
+  'Real-Time Features',
+  'Documentation & Knowledge Sharing',
+  'Accessibility & Compliance',
+  'Workflow Automation',
+  'Third-Party Integration',
+  'Algorithm & Data Structures',
+  'Custom Components & Utilities'
 ];
 
 export default function SubmitPrompt() {
@@ -33,7 +46,7 @@ export default function SubmitPrompt() {
     title: '',
     description: '',
     content: '',
-    category: 'ChatGPT' as PromptCategory,
+    category: 'General Prompts' as PromptCategory,
     tags: '',
     visibility: 'public' as PromptVisibility,
   });
@@ -77,7 +90,7 @@ export default function SubmitPrompt() {
         title: '',
         description: '',
         content: '',
-        category: 'ChatGPT',
+        category: 'General Prompts',
         tags: '',
         visibility: 'public',
       });

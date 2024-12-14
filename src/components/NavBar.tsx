@@ -35,6 +35,7 @@ export default function NavBar() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/explore', label: 'Explore' },
+    { href: '/how-to-start', label: 'How to Start' },
     ...(user ? [
       { href: '/dashboard', label: 'Dashboard' },
       { href: '/submit', label: 'Submit' }

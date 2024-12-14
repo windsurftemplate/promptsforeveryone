@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page Scraper</title>
+    <style>
+        body {
+            width: 800px;
+            height: 600px;
+            margin: 0;
+            padding: 16px;
+            font-family: Arial, sans-serif;
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .header {
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .button {
+            padding: 8px 16px;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .button:hover {
+            background: #106ebe;
+        }
+
+        .code-window {
+            height: 500px;
+            background: #252526;
+            border: 1px solid #333;
+            border-radius: 4px;
+            overflow: auto;
+            display: none;
+        }
+
+        .code-content {
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            white-space: pre;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #ce9178;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #888;
+        }
+
+        .error {
+            color: #f14c4c;
+            padding: 16px;
+            background: rgba(241, 76, 76, 0.1);
+            border-radius: 4px;
+            margin: 16px 0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .description {
+            color: #888;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Page Scraper</h2>
+        <div class="button-group">
+            <button id="scrapeButton" class="button primary">
+                Scrape Page
+            </button>
+            <button id="screenshotButton" class="button">
+                Screenshot
+            </button>
+            <button id="copyButton" class="button" style="display: none;">
+                Copy HTML
+            </button>
+            <button id="downloadButton" class="button" style="display: none;">
+                Download
+            </button>
+        </div>
+    </div>
+
+    <div class="description">
+        Click "Scrape Page" to capture the complete HTML with computed styles from the current page.
+    </div>
+
+    <div id="loading" class="loading">Scraping page...</div>
+
+    <div id="codeWindow" class="code-window">
+        <div id="htmlSection" class="code-content"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

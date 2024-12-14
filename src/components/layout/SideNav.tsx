@@ -2,110 +2,146 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from 'react';
+import {
+  ChevronDownIcon,
+  Cog6ToothIcon,
+  UserIcon,
+  ArrowLeftOnRectangleIcon,
+} from '@heroicons/react/24/outline';
+import { ref, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
 
-const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Explore', href: '/explore' },
-];
-
-const categories = [
-  { name: 'ChatGPT', href: '/category/chatgpt' },
-  { name: 'Code Assistant', href: '/category/code-assistant' },
-  { name: 'Writing', href: '/category/writing' },
-  { name: 'Translation', href: '/category/translation' },
-  { name: 'Data Analysis', href: '/category/data-analysis' },
-  { name: 'Image Generation', href: '/category/image-generation' },
-  { name: 'Research', href: '/category/research' },
-  { name: 'Education', href: '/category/education' },
-  { name: 'Business', href: '/category/business' },
+const adminNavItems = [
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: Cog6ToothIcon,
+    requiresAuth: true,
+  },
 ];
 
 export default function SideNav() {
   const pathname = usePathname();
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const [categories, setCategories] = useState<any[]>([]);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesRef = ref(db, 'categories');
+        const snapshot = await get(categoriesRef);
+        if (snapshot.exists()) {
+          const categoriesData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
+            id,
+            ...data,
+          }));
+          setCategories(categoriesData);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
-    <nav className="h-full w-full bg-surface-dark">
-      <div className="px-4 py-6">
-        <Link href="/" className="flex items-center space-x-3">
-          <span className="text-xl font-bold text-text">Windsurf Prompts</span>
+    <nav className="h-full flex flex-col">
+      {/* Logo */}
+      <div className="p-6 border-b border-white/[0.06]">
+        <Link href="/" className="flex items-center gap-2">
+          <span className="text-xl font-bold">Prompt Repository</span>
         </Link>
       </div>
-      <div className="px-2 py-4 space-y-2">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                'flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary-accent/10 text-primary-accent'
-                  : 'text-text-muted hover:bg-surface-light hover:text-text'
-              )}
-            >
-              {item.name}
-            </Link>
-          );
-        })}
 
-        {/* Categories Dropdown */}
-        <div className="space-y-1">
+      {/* Navigation */}
+      <div className="flex-1 py-6 flex flex-col gap-1">
+        {/* Categories Section */}
+        <div className="px-6 mb-2">
           <button
             onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-            className={cn(
-              'w-full flex items-center justify-between px-4 py-2 rounded-md text-sm font-medium transition-colors',
-              pathname.startsWith('/category')
-                ? 'bg-primary-accent/10 text-primary-accent'
-                : 'text-text-muted hover:bg-surface-light hover:text-text'
-            )}
+            className="w-full flex items-center justify-between text-sm font-semibold text-white/90 hover:text-white"
           >
             <span>Categories</span>
-            <svg
-              className={cn(
-                'w-4 h-4 transition-transform duration-200',
-                isCategoriesOpen ? 'transform rotate-180' : ''
-              )}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
+            <ChevronDownIcon
+              className={`w-4 h-4 transition-transform ${
+                isCategoriesOpen ? 'rotate-180' : ''
+              }`}
+            />
           </button>
-
-          {/* Dropdown Content */}
-          {isCategoriesOpen && (
-            <div className="pl-4 space-y-1">
-              {categories.map((category) => {
-                const isActive = pathname === category.href;
-                return (
-                  <Link
-                    key={category.name}
-                    href={category.href}
-                    className={cn(
-                      'flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors',
-                      isActive
-                        ? 'bg-primary-accent/10 text-primary-accent'
-                        : 'text-text-muted hover:bg-surface-light hover:text-text'
-                    )}
-                  >
-                    {category.name}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
         </div>
+
+        {isCategoriesOpen && (
+          <div className="space-y-1">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/categories/${category.id}`}
+                className={`flex items-center gap-2 px-6 py-2 text-sm font-medium transition-colors ${
+                  isActive(`/categories/${category.id}`)
+                    ? 'text-white bg-white/[0.06]'
+                    : 'text-white/70 hover:text-white hover:bg-white/[0.06]'
+                }`}
+              >
+                <span className="text-xl">{category.icon}</span>
+                <span>{category.name}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Admin Navigation - Only show if user is logged in */}
+        {user && (
+          <>
+            <div className="mt-6 mb-2 px-6">
+              <h3 className="text-xs font-semibold text-white/50 uppercase">Admin</h3>
+            </div>
+            {adminNavItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center gap-2 px-6 py-2 text-sm font-medium transition-colors ${
+                  isActive(item.href)
+                    ? 'text-white bg-white/[0.06]'
+                    : 'text-white/70 hover:text-white hover:bg-white/[0.06]'
+                }`}
+              >
+                <item.icon className="w-5 h-5" />
+                {item.name}
+              </Link>
+            ))}
+          </>
+        )}
       </div>
+
+      {/* User Section - Only show if logged in */}
+      {user && (
+        <div className="p-6 border-t border-white/[0.06]">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-sm">
+              <UserIcon className="w-5 h-5" />
+              <span className="font-medium">{user.email}</span>
+            </div>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 text-sm text-white/70 hover:text-white transition-colors"
+            >
+              <ArrowLeftOnRectangleIcon className="w-5 h-5" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

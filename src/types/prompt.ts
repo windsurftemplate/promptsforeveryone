@@ -1,30 +1,44 @@
 export type PromptVisibility = 'public' | 'private';
 
 export type PromptCategory = 
-  | 'ChatGPT'
-  | 'Code Assistant'
-  | 'Writing'
-  | 'Translation'
-  | 'Data Analysis'
-  | 'Image Generation'
-  | 'Research'
-  | 'Education'
-  | 'Business'
-  | 'Creative'
-  | 'Other';
+  | 'General Prompts'
+  | 'Project Initialization & Setup'
+  | 'Frontend Design & Development'
+  | 'Backend Development'
+  | 'Database Design & Integration'
+  | 'Full-Stack Features'
+  | 'Styling & Theming'
+  | 'Responsive Design'
+  | 'Forms & User Input Handling'
+  | 'API Integration & Development'
+  | 'Animations & Interactivity'
+  | 'E-Commerce Features'
+  | 'Authentication & Security'
+  | 'Testing & Debugging'
+  | 'Performance Optimization'
+  | 'DevOps & Deployment'
+  | 'Internationalization & Localization'
+  | 'Real-Time Features'
+  | 'Documentation & Knowledge Sharing'
+  | 'Accessibility & Compliance'
+  | 'Workflow Automation'
+  | 'Third-Party Integration'
+  | 'Algorithm & Data Structures'
+  | 'Custom Components & Utilities';
 
 export interface Prompt {
   id?: string;
   title: string;
-  description: string;
   content: string;
+  description: string;
   category: PromptCategory;
-  tags: string[];
   userId: string;
   userName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   likes: number;
   visibility: PromptVisibility;
   isPublished: boolean;
+  downloads?: number;
+  tags?: string[];
 }

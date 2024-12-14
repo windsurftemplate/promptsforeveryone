@@ -22,7 +22,7 @@ export default function SignInPage() {
 
     try {
       await signIn(email, password);
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
     } finally {
@@ -36,7 +36,7 @@ export default function SignInPage() {
 
     try {
       await signInWithGoogle();
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
     } finally {

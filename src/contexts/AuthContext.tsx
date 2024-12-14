@@ -2,18 +2,20 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut as firebaseSignOut,
   onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
   GoogleAuthProvider,
   signInWithPopup,
+  getRedirectResult,
   User
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { ref, get, set } from 'firebase/database';
 
-interface AuthContextType {
+type AuthContextType = {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
@@ -21,7 +23,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   error: string | null;
-}
+};
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -43,8 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setError(null);
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/profile');
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Check user role and redirect accordingly
+      const userRef = ref(db, `users/${userCredential.user.uid}`);
+      const snapshot = await get(userRef);
+      const userData = snapshot.val();
+      
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
     }
@@ -53,8 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string) => {
     try {
       setError(null);
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/profile');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Create user profile in database
+      await set(ref(db, `users/${userCredential.user.uid}`), {
+        email,
+        role: 'user',
+        createdAt: new Date().toISOString()
+      });
+      
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     }
@@ -63,11 +79,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       setError(null);
+      console.log('Starting Google sign-in...');
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push('/profile');
+      provider.addScope('https://www.googleapis.com/auth/userinfo.email');
+      provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
+      
+      console.log('Initiating popup...');
+      const result = await signInWithPopup(auth, provider);
+      console.log('Sign-in successful:', result.user?.email);
+      
+      if (result.user) {
+        const userRef = ref(db, `users/${result.user.uid}`);
+        console.log('Checking if user exists...');
+        const snapshot = await get(userRef);
+        
+        if (!snapshot.exists()) {
+          console.log('Creating new user profile...');
+          await set(userRef, {
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoURL: result.user.photoURL,
+            role: 'user',
+            createdAt: new Date().toISOString()
+          });
+        }
+        console.log('Redirecting to dashboard...');
+        router.push('/dashboard');
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+      console.error('Google sign-in error:', err);
+      console.error('Error code:', err.code);
+      console.error('Error message:', err.message);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in was cancelled');
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Sign-in popup was blocked. Please allow popups for this site.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('This domain is not authorized for Google sign-in. Please check Firebase Console settings.');
+      } else {
+        setError(err.message || 'Failed to sign in with Google');
+      }
     }
   };
 
@@ -91,7 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error
   };
 
-  // Show a loading state while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
