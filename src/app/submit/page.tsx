@@ -147,25 +147,27 @@ export default function SubmitPage() {
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-4xl mx-auto">
         <div className="p-6 space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold">Create a New Prompt</h1>
-            <p className="mt-2 text-text-muted">Share your prompt with the community.</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-white">Create a New Prompt</h1>
+              <p className="mt-2 text-white/70">Share your prompt with the community.</p>
+            </div>
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-4">
               {error}
             </div>
           )}
           {successMessage && (
-            <div className="text-green-500 text-sm bg-green-500/10 border border-green-500/20 rounded-lg p-3">
+            <div className="bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg p-4">
               {successMessage}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium mb-1">
+              <label htmlFor="title" className="block text-sm font-medium text-white/70 mb-2">
                 Title
               </label>
               <input
@@ -175,13 +177,13 @@ export default function SubmitPage() {
                 value={promptData.title}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Give your prompt a clear, descriptive title"
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
+              <label htmlFor="description" className="block text-sm font-medium text-white/70 mb-2">
                 Description
               </label>
               <textarea
@@ -190,31 +192,48 @@ export default function SubmitPage() {
                 value={promptData.description}
                 onChange={handleChange}
                 required
-                rows={4}
-                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
+                rows={3}
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Enter a brief description of your prompt"
               />
             </div>
 
             <div>
-              <label htmlFor="content" className="block text-sm font-medium mb-1">
-                Prompt Content
-              </label>
-              <textarea
-                id="content"
-                name="content"
-                value={promptData.content}
-                onChange={handleChange}
-                required
-                rows={8}
-                className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent font-mono"
-                placeholder="Enter your prompt content here"
-              />
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="content" className="block text-sm font-medium text-white/70">
+                  Prompt Content
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="text-sm text-primary-accent hover:text-primary transition-colors"
+                >
+                  {showPreview ? 'Edit' : 'Preview'}
+                </button>
+              </div>
+              {showPreview ? (
+                <div className="w-full rounded-lg border border-white/10 bg-white/5 p-4">
+                  <pre className="whitespace-pre-wrap font-mono text-sm text-white/90">
+                    {promptData.content || 'No content yet'}
+                  </pre>
+                </div>
+              ) : (
+                <textarea
+                  id="content"
+                  name="content"
+                  value={promptData.content}
+                  onChange={handleChange}
+                  required
+                  rows={8}
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary font-mono"
+                  placeholder="Enter your prompt content here"
+                />
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="category" className="block text-sm font-medium mb-1">
+                <label htmlFor="category" className="block text-sm font-medium text-white/70 mb-2">
                   Category
                 </label>
                 <select
@@ -223,10 +242,10 @@ export default function SubmitPage() {
                   value={promptData.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   {categories.map((category) => (
-                    <option key={category} value={category}>
+                    <option key={category} value={category} className="bg-surface text-white">
                       {category}
                     </option>
                   ))}
@@ -234,7 +253,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label htmlFor="visibility" className="block text-sm font-medium mb-1">
+                <label htmlFor="visibility" className="block text-sm font-medium text-white/70 mb-2">
                   Visibility
                 </label>
                 <select
@@ -242,21 +261,36 @@ export default function SubmitPage() {
                   name="visibility"
                   value={promptData.visibility}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-surface rounded-md border border-surface-light focus:outline-none focus:ring-2 focus:ring-primary-accent"
+                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="public">Public - Share with everyone</option>
-                  <option value="private">Private - Only visible to you</option>
+                  <option value="public" className="bg-surface text-white">Public - Share with everyone</option>
+                  <option value="private" className="bg-surface text-white">Private - Only visible to you</option>
                 </select>
+                <p className="mt-2 text-sm text-white/50">
+                  {promptData.visibility === 'private' 
+                    ? 'Only you can see this prompt'
+                    : 'Everyone can see and use this prompt'}
+                </p>
               </div>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex justify-end pt-6">
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full sm:w-auto"
+                className="bg-primary hover:bg-primary-accent text-white px-6 py-2 rounded-lg transition-colors"
               >
-                {isLoading ? 'Submitting...' : 'Submit Prompt'}
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </div>
+                ) : (
+                  'Submit Prompt'
+                )}
               </Button>
             </div>
           </form>

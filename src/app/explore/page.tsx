@@ -1,180 +1,179 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Card from '@/components/ui/Card';
-import { PromptCategory, Prompt } from '@/types/prompt';
-import { ref, get, query, orderByChild, equalTo } from 'firebase/database';
-import { db } from '@/lib/firebase';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import { ref, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
+import { Anton } from 'next/font/google';
 
-const categories: PromptCategory[] = ['General Prompts'];
+const anton = Anton({ 
+  weight: '400',
+  subsets: ['latin'],
+});
+
+interface CategoryItem {
+  name: string;
+  description: string;
+  icon: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  items: CategoryItem[];
+}
+
+interface Prompt {
+  id: string;
+  title: string;
+  category: string;
+  visibility: string;
+}
 
 export default function ExplorePage() {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [totalPrompts, setTotalPrompts] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<PromptCategory | 'all'>('all');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPrompts = async () => {
+    const fetchData = async () => {
       try {
-        const promptsRef = ref(db, 'prompts');
-        const publicPromptsQuery = query(
-          promptsRef,
-          orderByChild('visibility'),
-          equalTo('public')
-        );
+        // Fetch categories
+        const categoriesRef = ref(db, 'categories');
+        const categoriesSnapshot = await get(categoriesRef);
         
-        const snapshot = await get(publicPromptsQuery);
-        if (snapshot.exists()) {
-          const promptsData = Object.entries(snapshot.val()).map(([id, data]) => ({
+        if (categoriesSnapshot.exists()) {
+          const categoriesData = Object.entries(categoriesSnapshot.val()).map(([id, data]: [string, any]) => ({
             id,
-            ...(data as Omit<Prompt, 'id'>),
-          }));
-          setPrompts(promptsData);
+            ...data
+          })) as Category[];
+          setCategories(categoriesData);
+        } else {
+          setCategories([]);
         }
-      } catch (error) {
-        console.error('Error fetching prompts:', error);
+
+        // Fetch total prompts
+        const promptsRef = ref(db, 'prompts');
+        const promptsSnapshot = await get(promptsRef);
+        
+        if (promptsSnapshot.exists()) {
+          const prompts = Object.values(promptsSnapshot.val()) as Prompt[];
+          const publicPrompts = prompts.filter(prompt => prompt.visibility === 'public');
+          setTotalPrompts(publicPrompts.length);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPrompts();
+    fetchData();
   }, []);
-
-  const filteredPrompts = selectedCategory === 'all'
-    ? prompts
-    : prompts.filter(prompt => prompt.category === selectedCategory);
-
-  const promptsByCategory = categories.reduce((acc, category) => {
-    acc[category] = prompts.filter(prompt => prompt.category === category);
-    return acc;
-  }, {} as Record<PromptCategory, Prompt[]>);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary-accent"></div>
+      <div className="container mx-auto px-4 py-8">
+        <Card className="p-8 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#2563eb]"></div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="p-8 text-center bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20">
+          <p className="text-red-500">{error}</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="p-8 text-center bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20">
+          <p className="text-white/70">No categories available yet.</p>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Explore Prompts</h1>
-      
-      {/* Category Filter */}
-      <div className="mb-8 overflow-hidden">
-        <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-          <button
-            onClick={() => setSelectedCategory('all')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-none ${
-              selectedCategory === 'all'
-                ? 'bg-primary-accent text-white'
-                : 'bg-surface-light hover:bg-surface-light/80 text-text'
-            }`}
-          >
-            All
-          </button>
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-none ${
-                selectedCategory === category
-                  ? 'bg-primary-accent text-white'
-                  : 'bg-surface-light hover:bg-surface-light/80 text-text'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+      {/* Header Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/10">
+          <h3 className="text-sm font-medium text-white/70">Total Categories</h3>
+          <p className="text-2xl font-bold mt-2">{categories.length}</p>
+        </Card>
+        <Card className="p-6 bg-gradient-to-br from-green-500/10 to-teal-500/10 border border-white/10">
+          <h3 className="text-sm font-medium text-white/70">Total Prompts</h3>
+          <p className="text-2xl font-bold mt-2">{totalPrompts}</p>
+        </Card>
+        <Card className="p-6 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-white/10">
+          <h3 className="text-sm font-medium text-white/70">Active Users</h3>
+          <p className="text-2xl font-bold mt-2">100+</p>
+        </Card>
+        <Card className="p-6 bg-gradient-to-br from-pink-500/10 to-red-500/10 border border-white/10">
+          <h3 className="text-sm font-medium text-white/70">Downloads</h3>
+          <p className="text-2xl font-bold mt-2">1000+</p>
+        </Card>
       </div>
 
-      {selectedCategory === 'all' ? (
-        // Show all categories with their prompts
-        <div className="space-y-12">
-          {categories.map((category) => {
-            const categoryPrompts = promptsByCategory[category];
-            if (categoryPrompts.length === 0) return null;
+      {/* Categories Grid */}
+      <div className="space-y-8">
+        {categories.map((category) => (
+          <div key={category.id}>
+            <div className="mb-4">
+              <Link href={`/category/${category.id}`} className="group inline-block">
+                <h2 className={`${anton.className} text-2xl bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent group-hover:from-[#2563eb] group-hover:to-[#4f46e5] transition-all duration-300`}>
+                  {category.name}
+                </h2>
+                <p className="text-sm text-white/70">{category.description}</p>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {category.items?.map((item) => (
+                <Link
+                  key={item.name}
+                  href={`/category/${category.id}/${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  <Card className="group h-full p-4 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20 hover:bg-[#0f172a] hover:border-[#2563eb]/40 transition-all duration-300 hover:scale-105">
+                    <div className="flex flex-col h-full">
+                      <div className="text-2xl mb-2 transform group-hover:scale-110 transition-transform duration-300">{item.icon}</div>
+                      <h3 className="text-sm font-semibold text-white mb-1">{item.name}</h3>
+                      <p className="text-xs text-white/70 line-clamp-2">{item.description}</p>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
 
-            return (
-              <section key={category}>
-                <h2 className="text-2xl font-bold mb-6">{category}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryPrompts.map((prompt) => (
-                    <Link key={prompt.id} href={`/prompts/${prompt.id}`}>
-                      <Card className="h-full group cursor-pointer hover:border-primary-accent/30 transition-all duration-200">
-                        <div className="p-6">
-                          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary-accent transition-colors">
-                            {prompt.title}
-                          </h3>
-                          <p className="text-text-muted mb-4 line-clamp-2">
-                            {prompt.description}
-                          </p>
-                          <div className="flex flex-wrap gap-2 mb-4">
-                            {prompt.tags?.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-1 bg-surface-light text-text-muted rounded-full text-sm"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="flex justify-between items-center text-sm text-text-muted">
-                            <span>{prompt.userName}</span>
-                            <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </Card>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-      ) : (
-        // Show filtered prompts for selected category
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPrompts.map((prompt) => (
-            <Link key={prompt.id} href={`/prompts/${prompt.id}`}>
-              <Card className="h-full group cursor-pointer hover:border-primary-accent/30 transition-all duration-200">
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2 group-hover:text-primary-accent transition-colors">
-                    {prompt.title}
-                  </h3>
-                  <p className="text-text-muted mb-4 line-clamp-2">
-                    {prompt.description}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {prompt.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-surface-light text-text-muted rounded-full text-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex justify-between items-center text-sm text-text-muted">
-                    <span>{prompt.userName}</span>
-                    <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {prompts.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-text-muted">No prompts found. Be the first to submit one!</p>
-        </div>
-      )}
+      {/* Call to Action */}
+      <Card className="mt-8 p-8 bg-gradient-to-br from-[#2563eb]/10 to-[#4f46e5]/10 border border-[#2563eb]/20 text-center">
+        <h2 className={`${anton.className} text-2xl bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent mb-4`}>
+          CONTRIBUTE TO THE COMMUNITY
+        </h2>
+        <p className="text-white/70 mb-6 max-w-2xl mx-auto">
+          Share your expertise and help others build better applications. Submit your own prompts to the community.
+        </p>
+        <Link href="/submit">
+          <Button className="px-8 py-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-lg transition-all duration-300 hover:scale-105">
+            Submit a Prompt
+          </Button>
+        </Link>
+      </Card>
     </div>
   );
 }

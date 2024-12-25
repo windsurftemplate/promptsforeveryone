@@ -1,22 +1,28 @@
 {
   "rules": {
     ".read": true,
-    "users": {
-      "$uid": {
-        ".write": "$uid === auth.uid",
-        ".read": true
-      }
-    },
+    ".write": "auth != null",
     "prompts": {
-      ".write": "auth != null",
+      ".indexOn": ["category", "userId", "visibility"],
       ".read": true,
+      ".write": "auth != null",
       "$promptId": {
+        ".read": true,
         ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
       }
     },
-    "howToStart": {
+    "categories": {
       ".read": true,
-      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      ".indexOn": ["id", "name"]
+    },
+    "users": {
+      ".read": true,
+      ".write": "auth != null",
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && $uid === auth.uid"
+      }
     }
   }
 }
