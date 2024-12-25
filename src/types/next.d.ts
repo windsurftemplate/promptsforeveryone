@@ -1,8 +1,2 @@
-import { Metadata } from 'next';
-
-declare module 'next' {
-  export interface PageProps {
-    params: { [key: string]: string };
-    searchParams?: { [key: string]: string | string[] | undefined };
-  }
-}
+// Add any custom type declarations for Next.js here if needed
+// But do not override the built-in PageProps type

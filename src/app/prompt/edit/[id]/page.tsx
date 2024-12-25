@@ -8,7 +8,7 @@ import { ref, get, update } from 'firebase/database';
 import { Prompt, PromptCategory } from '@/types/prompt';
 import Button from '@/components/ui/Button';
 
-export default function EditPromptPage({ params }: { params: { id: string } }) {
+export default async function EditPromptPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { user } = useAuth();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
@@ -24,6 +24,9 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
     visibility: 'private' as 'public' | 'private',
   });
 
+  // Await params to access id
+  const { id } = await params;
+
   useEffect(() => {
     if (!user) {
       router.push('/login');
@@ -32,7 +35,7 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
 
     const fetchPrompt = async () => {
       try {
-        const promptRef = ref(db, `prompts/${params.id}`);
+        const promptRef = ref(db, `prompts/${id}`);
         const snapshot = await get(promptRef);
         
         if (!snapshot.exists()) {
@@ -63,7 +66,7 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
     };
 
     fetchPrompt();
-  }, [params.id, user, router]);
+  }, [id, user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +74,7 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
 
     try {
       setSaving(true);
-      const promptRef = ref(db, `prompts/${params.id}`);
+      const promptRef = ref(db, `prompts/${id}`);
       
       await update(promptRef, {
         ...formData,
@@ -120,6 +123,7 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Prompt</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Title */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">
             Title
@@ -135,6 +139,7 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
           />
         </div>
 
+        {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             Description
@@ -150,60 +155,7 @@ export default function EditPromptPage({ params }: { params: { id: string } }) {
           />
         </div>
 
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-            Content
-          </label>
-          <textarea
-            name="content"
-            id="content"
-            rows={10}
-            value={formData.content}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm font-mono"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            Category
-          </label>
-          <select
-            name="category"
-            id="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            <option value="General Prompts">General Prompts</option>
-            <option value="Project Initialization & Setup">Project Initialization & Setup</option>
-            <option value="Frontend Design & Development">Frontend Design & Development</option>
-            <option value="Backend Development">Backend Development</option>
-            <option value="Database Design & Integration">Database Design & Integration</option>
-            <option value="Full-Stack Features">Full-Stack Features</option>
-            <option value="Styling & Theming">Styling & Theming</option>
-            <option value="Responsive Design">Responsive Design</option>
-            <option value="Forms & User Input Handling">Forms & User Input Handling</option>
-            <option value="API Integration & Development">API Integration & Development</option>
-            <option value="Animations & Interactivity">Animations & Interactivity</option>
-            <option value="E-Commerce Features">E-Commerce Features</option>
-            <option value="Authentication & Security">Authentication & Security</option>
-            <option value="Testing & Debugging">Testing & Debugging</option>
-            <option value="Performance Optimization">Performance Optimization</option>
-            <option value="DevOps & Deployment">DevOps & Deployment</option>
-            <option value="Internationalization & Localization">Internationalization & Localization</option>
-            <option value="Real-Time Features">Real-Time Features</option>
-            <option value="Documentation & Knowledge Sharing">Documentation & Knowledge Sharing</option>
-            <option value="Accessibility & Compliance">Accessibility & Compliance</option>
-            <option value="Workflow Automation">Workflow Automation</option>
-            <option value="Third-Party Integration">Third-Party Integration</option>
-            <option value="Algorithm & Data Structures">Algorithm & Data Structures</option>
-            <option value="Custom Components & Utilities">Custom Components & Utilities</option>
-          </select>
-        </div>
-
+        {/* Visibility */}
         <div>
           <label htmlFor="visibility" className="block text-sm font-medium text-gray-700">
             Visibility
