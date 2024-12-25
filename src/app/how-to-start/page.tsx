@@ -142,6 +142,35 @@ export default function HowToStartPage() {
           </div>
         </div>
       </Card>
+
+      <div className="mt-8">
+        <Card className="p-6">
+          <h2 className="text-2xl font-bold mb-4">Ready to Deploy?</h2>
+          <p className="text-gray-400 mb-4">
+            Once you've built your application, follow our comprehensive guide to deploy it on Vercel
+            and set up Firebase authentication.
+          </p>
+          <Link 
+            href="/deployment-guide"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            View Deployment Guide
+            <svg
+              className="ml-2 w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
+            </svg>
+          </Link>
+        </Card>
+      </div>
     </div>
   );
 }
