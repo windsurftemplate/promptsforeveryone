@@ -8,6 +8,7 @@ import { db } from '../../lib/firebase';
 import Link from 'next/link';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
+import { useDashboard } from '@/contexts/DashboardContext';
 
 interface Prompt {
   id: string;
@@ -27,21 +28,12 @@ type TabType = 'all' | 'public' | 'private';
 export default function DashboardPage() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const { filterTag } = useDashboard();
   const [activeTab, setActiveTab] = useState<TabType>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [sortBy, setSortBy] = useState<'date' | 'likes' | 'downloads' | 'title'>('date');
-  const [categories, setCategories] = useState<string[]>([
-    'Code Generation',
-    'Debugging',
-    'API Development',
-    'Automation',
-    'Frontend',
-    'Backend',
-  ]);
-  const [newCategory, setNewCategory] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [filterTag, setFilterTag] = useState<string>('');
 
   useEffect(() => {
     if (!user) {
@@ -90,11 +82,11 @@ export default function DashboardPage() {
   }, [user, router, isLoading]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Render a loading state
+    return <div>Loading...</div>;
   }
 
   if (!user) {
-    return null; // Redirecting
+    return null;
   }
 
   // Update stats based on actual prompts data
@@ -152,17 +144,6 @@ export default function DashboardPage() {
     });
   };
 
-  const handleAddCategory = () => {
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories([...categories, newCategory]);
-      setNewCategory('');
-    }
-  };
-
-  const handleDeleteCategory = (category: string) => {
-    setCategories(categories.filter((cat) => cat !== category));
-  };
-
   const filteredPrompts = filterTag
     ? prompts.filter((prompt) => prompt.category === filterTag)
     : activeTab === 'public'
@@ -176,7 +157,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="p-8">
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <Card className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/10">
@@ -196,50 +177,6 @@ export default function DashboardPage() {
           <p className="text-2xl font-bold mt-2">{userStats.savedPrompts}</p>
         </Card>
       </div>
-
-      {/* Category Management */}
-      <Card className="mb-8 p-6">
-        <h2 className="text-xl font-bold mb-4">Manage Categories</h2>
-        <div className="flex gap-4 mb-6">
-          <input
-            type="text"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
-            placeholder="Add new category"
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <Button 
-            onClick={handleAddCategory}
-            className="bg-primary hover:bg-primary-accent text-white px-6 py-2 rounded-lg transition-colors"
-          >
-            Add Category
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div 
-            className="cursor-pointer p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-center"
-            onClick={() => setFilterTag('')}
-          >
-            All Prompts
-          </div>
-          {categories.map((category) => (
-            <div key={category} className="relative group">
-              <div 
-                className="cursor-pointer p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-center"
-                onClick={() => setFilterTag(category)}
-              >
-                {category}
-              </div>
-              <button
-                onClick={() => handleDeleteCategory(category)}
-                className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      </Card>
 
       {/* Sorting and Filtering */}
       <Card className="mb-8 p-6">
@@ -281,13 +218,13 @@ export default function DashboardPage() {
       </Card>
 
       {/* Prompts Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {sortedAndFilteredPrompts.map((prompt) => (
           <Card 
             key={prompt.id}
-            className="group relative hover:transform hover:scale-[1.02] transition-all duration-200 h-full"
+            className="group relative hover:transform hover:scale-[1.02] transition-all duration-200 h-[200px]"
           >
-            <div className="p-4 space-y-2 flex flex-col h-full">
+            <div className="p-4 space-y-3 flex flex-col h-full">
               <div className="flex items-start justify-between">
                 <h3 className="text-sm font-semibold text-white truncate flex-1 pr-2">{prompt.title}</h3>
                 <button
@@ -299,7 +236,11 @@ export default function DashboardPage() {
                   </svg>
                 </button>
               </div>
-              <p className="text-xs text-white/70 line-clamp-4 flex-1">{prompt.content}</p>
+              <p className="text-xs text-white/70 line-clamp-3 flex-1">{prompt.content}</p>
+              <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/10">
+                <span>{prompt.category}</span>
+                <span>{prompt.visibility}</span>
+              </div>
             </div>
           </Card>
         ))}
