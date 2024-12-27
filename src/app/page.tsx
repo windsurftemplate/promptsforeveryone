@@ -267,8 +267,11 @@ export default function Home() {
               <div className="space-y-6">
                 <div className="text-center">
                   <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>
-                  <div className="text-4xl font-bold text-white mb-4">
-                    $19<span className="text-lg text-white/60">/month</span>
+                  <div className="text-4xl font-bold text-white mb-1">
+                    $5<span className="text-lg text-white/60">/month</span>
+                  </div>
+                  <div className="text-sm text-white/60">
+                    or $50/year (save $10)
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -290,20 +293,16 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/70">Advanced analytics</span>
+                    <span className="text-white/70">Early access to features</span>
                   </div>
                 </div>
-                <Link href="/pro-plan" className="block">
-                  <Button 
-                    className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-3 rounded-lg transition-all duration-300 relative overflow-hidden group"
-                  >
-                    <span className="relative z-10">Learn More About Pro</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#3b82f6] to-[#2563eb] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-                </Button>
-              </Link>
-                <p className="text-center text-white/40 text-sm">Unlock the full potential</p>
-            </div>
-          </Card>
+                <Link href="/pro-plan">
+                  <Button className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-4 rounded-lg transition-all duration-300 text-lg font-semibold">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            </Card>
           </div>
         </div>
       </div>
