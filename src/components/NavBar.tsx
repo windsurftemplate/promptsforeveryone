@@ -43,26 +43,33 @@ export default function NavBar() {
   ];
 
   return (
-    <nav className="bg-surface border-b border-surface-light/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-14">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0f172a]/70 backdrop-blur-lg border-b border-white/5">
+      {/* Light effect */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.1),_transparent_50%)]"></div>
+      </div>
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
           {/* Left side - Logo and main navigation */}
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="flex items-center space-x-2">
-                <span className="text-xl font-bold text-primary-accent">Windsurf Prompts</span>
+                <span className="text-xl font-bold text-white hover:text-[#2563eb] transition-colors duration-300">
+                  Windsurf Prompts
+                </span>
               </Link>
             </div>
 
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-4">
+            <div className="hidden sm:ml-8 sm:flex sm:space-x-1">
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`relative inline-flex items-center px-4 py-2 text-sm font-medium transition-colors duration-300 rounded-lg ${
                     pathname === href 
-                      ? 'text-primary-accent bg-primary-accent/10 rounded-md' 
-                      : 'text-text-muted hover:text-text hover:bg-surface-light/80 rounded-md'
+                      ? 'text-[#2563eb]' 
+                      : 'text-white/70 hover:text-white'
                   }`}
                 >
                   {label}
@@ -75,28 +82,27 @@ export default function NavBar() {
           <div className="hidden sm:flex sm:items-center sm:space-x-4">
             {user ? (
               <>
-                <span className="text-sm text-text-muted">
+                <span className="text-sm text-white/70">
                   {user.displayName || user.email}
                 </span>
-                <Button
+                <button
                   onClick={handleSignOut}
-                  variant="secondary"
-                  className="text-sm"
+                  className="px-4 py-2 text-sm bg-white/[0.05] hover:bg-white/[0.1] text-white rounded-lg transition-all duration-300 hover:scale-105"
                 >
                   Sign Out
-                </Button>
+                </button>
               </>
             ) : (
               <>
                 <Link href="/signin">
-                  <Button variant="secondary" className="text-sm">
+                  <button className="px-4 py-2 text-sm bg-white/[0.05] hover:bg-white/[0.1] text-white rounded-lg transition-all duration-300 hover:scale-105">
                     Sign In
-                  </Button>
+                  </button>
                 </Link>
                 <Link href="/signup">
-                  <Button variant="primary" className="text-sm">
+                  <button className="px-4 py-2 text-sm bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] hover:opacity-90 text-white rounded-lg transition-all duration-300 hover:scale-105">
                     Sign Up
-                  </Button>
+                  </button>
                 </Link>
               </>
             )}
@@ -106,12 +112,11 @@ export default function NavBar() {
           <div className="sm:hidden flex items-center">
             <button
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-text-muted hover:text-text hover:bg-surface-light/80"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/[0.05] transition-all duration-300"
               aria-controls="mobile-menu"
               aria-expanded="false"
             >
               <span className="sr-only">Open main menu</span>
-              {/* Icon for menu button */}
               <svg
                 className="block h-6 w-6"
                 xmlns="http://www.w3.org/2000/svg"
@@ -139,10 +144,10 @@ export default function NavBar() {
             <Link
               key={href}
               href={href}
-              className={`block px-3 py-2 rounded-md text-base font-medium ${
+              className={`block px-4 py-2 rounded-lg text-base font-medium transition-all duration-300 ${
                 pathname === href
-                  ? 'text-primary-accent bg-primary-accent/10'
-                  : 'text-text-muted hover:text-text hover:bg-surface-light/80'
+                  ? 'text-white bg-[#2563eb]/20'
+                  : 'text-white/70 hover:text-white hover:bg-white/[0.05]'
               }`}
             >
               {label}
@@ -150,15 +155,15 @@ export default function NavBar() {
           ))}
           {!user && (
             <div className="mt-4 px-3 space-y-2">
-              <Link href="/signin">
-                <Button variant="secondary" className="w-full">
+              <Link href="/signin" className="block">
+                <button className="w-full px-4 py-2 text-sm bg-white/[0.05] hover:bg-white/[0.1] text-white rounded-lg transition-all duration-300">
                   Sign In
-                </Button>
+                </button>
               </Link>
-              <Link href="/signup">
-                <Button variant="primary" className="w-full">
+              <Link href="/signup" className="block">
+                <button className="w-full px-4 py-2 text-sm bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] hover:opacity-90 text-white rounded-lg transition-all duration-300">
                   Sign Up
-                </Button>
+                </button>
               </Link>
             </div>
           )}

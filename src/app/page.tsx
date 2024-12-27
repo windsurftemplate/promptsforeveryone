@@ -14,7 +14,9 @@ const anton = Anton({
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const promptSectionRef = useRef<HTMLDivElement>(null);
   const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
 
   const titles = [
     'RIDE THE INTERNET',
@@ -47,17 +49,50 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (promptSectionRef.current) {
+      observer.observe(promptSectionRef.current);
+    }
+
+    return () => {
+      if (promptSectionRef.current) {
+        observer.unobserve(promptSectionRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="relative">
       {/* Hero Section with Parallax */}
-      <div className="relative h-[70vh] overflow-hidden">
+      <div className="relative h-[calc(70vh+160px)] overflow-hidden">
+        {/* Light effects */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-radial from-blue-500/20 via-transparent to-transparent opacity-30 animate-pulse-slow"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[120%] h-[120%] bg-gradient-radial from-purple-500/20 via-transparent to-transparent opacity-30 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+        </div>
+        
         <div 
           ref={heroRef}
           className="absolute inset-0"
           style={{ transform: 'translate3d(0, 0, 0)' }}
         >
           <div className="absolute inset-0 bg-[url('/hero.png')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 to-[#1e293b]/90"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 to-[#1e293b]/90">
+            {/* Additional light rays */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.1),_transparent_70%)]"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(147,51,234,0.1),_transparent_70%)]"></div>
+          </div>
         </div>
         
         <div className="absolute inset-0 flex items-center justify-center">
@@ -160,9 +195,18 @@ export default function Home() {
       </div>
 
       {/* Prompt Engineering For Everyone */}
-      <div className="py-20">
+      <div 
+        ref={promptSectionRef}
+        className={`py-20 transform transition-all duration-[2000ms] ${
+          isVisible 
+            ? 'opacity-100 translate-y-0 scale-100' 
+            : 'opacity-0 translate-y-32 scale-90'
+        }`}
+      >
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent animate-fade-in">Prompt Engineering For Everyone</h2>
+          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent">
+            Prompt Engineering For Everyone
+          </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* For Researchers */}
@@ -479,11 +523,11 @@ export default function Home() {
         @keyframes fade-in-up {
           from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(20px) scale(0.95);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
           }
         }
 
@@ -543,7 +587,7 @@ export default function Home() {
         }
 
         .animate-fade-in-up {
-          animation: fade-in-up 1s ease-out forwards;
+          animation: fade-in-up 0.8s ease-out forwards;
         }
 
         .animate-slide-in-left {
@@ -566,6 +610,23 @@ export default function Home() {
           animation: pulse-subtle 2s ease-in-out infinite;
         }
       `}</style>
+
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+              }
+            });
+          }, { threshold: 0.1 });
+
+          const section = document.getElementById('prompt-engineering-section');
+          if (section) {
+            observer.observe(section);
+          }
+        `
+      }} />
     </div>
   );
 }
