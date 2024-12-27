@@ -129,7 +129,7 @@ export default function ExplorePage() {
       </div>
 
       {/* Categories Grid */}
-      <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((category) => (
           <div key={category.id}>
             <div className="mb-4">
@@ -140,7 +140,7 @@ export default function ExplorePage() {
                 <p className="text-sm text-white/70">{category.description}</p>
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {category.items?.map((item) => (
                 <Link
                   key={item.name}

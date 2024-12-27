@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -16,8 +16,15 @@ export default function SignUpPage() {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp, signInWithGoogle } = useAuth();
+  const { signUp, signInWithGoogle, user } = useAuth();
   const router = useRouter();
+
+  // Redirect to dashboard if already signed in
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +45,7 @@ export default function SignUpPage() {
           displayName: displayName
         });
       }
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
@@ -52,13 +59,23 @@ export default function SignUpPage() {
 
     try {
       await signInWithGoogle();
-      router.push('/');
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Show loading state while checking authentication
+  if (user === undefined) {
+    return <div>Loading...</div>;
+  }
+
+  // Don't render the signup form if user is already signed in
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">

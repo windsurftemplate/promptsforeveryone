@@ -1,231 +1,339 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/firebase';
+import { ref, get, update } from 'firebase/database';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { updateProfile } from 'firebase/auth';
+import { redirectToCheckout } from '@/lib/stripe';
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [profileData, setProfileData] = useState({
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [isPro, setIsPro] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState({
     displayName: '',
-    photoURL: '',
+    bio: '',
+    website: '',
+    twitter: '',
+    github: ''
   });
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      setProfileData({
-        displayName: user.displayName || '',
-        photoURL: user.photoURL || '',
-      });
-    } else if (!isLoading) {
-      router.push('/');
-    }
-    setIsLoading(false);
-  }, [user, router, isLoading]);
+    const loadUserData = async () => {
+      if (!user?.uid) return;
 
-  if (isLoading || !user) {
-    return null; // Return null while loading or redirecting
+      try {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
+        
+        setIsPro(userData?.plan === 'pro');
+        setSubscriptionStatus(userData?.subscriptionStatus || 'free');
+        
+        setEditedProfile({
+          displayName: userData?.displayName || user.displayName || '',
+          bio: userData?.bio || '',
+          website: userData?.website || '',
+          twitter: userData?.twitter || '',
+          github: userData?.github || ''
+        });
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        setError('Failed to load user data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUserData();
+  }, [user?.uid, user?.displayName]);
+
+  const handleUpgradeClick = async () => {
+    if (!user) {
+      setError('You must be logged in to upgrade');
+      return;
+    }
+
+    try {
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID;
+      if (!priceId) {
+        setError('Configuration error: Price ID is missing');
+        return;
+      }
+      await redirectToCheckout(priceId, user.uid);
+    } catch (error) {
+      console.error('Error redirecting to checkout:', error);
+      setError('Failed to start checkout process');
+    }
+  };
+
+  const handleCancelSubscription = async () => {
+    setError('Please contact support to cancel your subscription');
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user?.uid) return;
+
+    setIsSaving(true);
+    try {
+      const userRef = ref(db, `users/${user.uid}`);
+      await update(userRef, {
+        ...editedProfile,
+        updatedAt: new Date().toISOString()
+      });
+      setIsEditing(false);
+      setError(null);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      setError('Failed to save profile changes');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage(null);
-
-    try {
-      await updateProfile(user, {
-        displayName: profileData.displayName,
-        photoURL: profileData.photoURL,
-      });
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      router.push('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      setMessage({ type: 'error', text: 'Failed to sign out. Please try again.' });
-    }
-  };
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
-          <p className="mt-2 text-white/70">Manage your account settings and preferences</p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-8 text-white">Settings</h1>
 
-        {message && (
-          <div className={`p-4 rounded-lg ${
-            message.type === 'success' 
-              ? 'bg-green-500/10 border border-green-500/20 text-green-500' 
-              : 'bg-red-500/10 border border-red-500/20 text-red-500'
-          }`}>
-            {message.text}
+      <div className="grid gap-6">
+        {/* Account Section */}
+        <Card className="p-6 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20">
+          <div className="flex justify-between items-start mb-6">
+            <h2 className="text-xl font-semibold text-white">Account</h2>
+            {!isEditing && (
+              <Button variant="ghost" onClick={() => setIsEditing(true)} 
+                      className="hover:bg-[#2563eb]/10">
+                Edit Profile
+              </Button>
+            )}
           </div>
-        )}
-
-        {/* Profile Section */}
-        <Card className="bg-white/[0.03] border border-white/10">
-          <form onSubmit={handleProfileUpdate} className="p-6 space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-white">Profile Information</h2>
-              <p className="text-white/70">Update your profile details</p>
+          
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-3 text-sm mb-4">
+              {error}
             </div>
+          )}
 
-            <div className="grid grid-cols-1 gap-6">
+          {isEditing ? (
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/70 mb-2">Email</label>
-                <p className="text-white/90 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
-                  {user.email}
-                </p>
-              </div>
-
-              <div>
-                <label htmlFor="displayName" className="block text-sm font-medium text-white/70 mb-2">
-                  Display Name
-                </label>
+                <label className="block text-sm font-medium text-white/70 mb-1">Display Name</label>
                 <input
                   type="text"
-                  id="displayName"
-                  name="displayName"
-                  value={profileData.displayName}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, displayName: e.target.value }))}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your display name"
+                  value={editedProfile.displayName}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, displayName: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
                 />
               </div>
-
               <div>
-                <label htmlFor="photoURL" className="block text-sm font-medium text-white/70 mb-2">
-                  Profile Picture URL
-                </label>
+                <label className="block text-sm font-medium text-white/70 mb-1">Bio</label>
+                <textarea
+                  value={editedProfile.bio}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, bio: e.target.value }))}
+                  rows={3}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-1">Website</label>
                 <input
                   type="url"
-                  id="photoURL"
-                  name="photoURL"
-                  value={profileData.photoURL}
-                  onChange={(e) => setProfileData(prev => ({ ...prev, photoURL: e.target.value }))}
-                  className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter URL for your profile picture"
+                  value={editedProfile.website}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, website: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
                 />
-                {profileData.photoURL && (
-                  <div className="mt-4 flex items-center space-x-4">
-                    <img
-                      src={profileData.photoURL}
-                      alt="Profile preview"
-                      className="w-16 h-16 rounded-full object-cover ring-2 ring-white/10"
-                      onError={(e) => {
-                        const img = e.target as HTMLImageElement;
-                        img.src = 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
-                      }}
-                    />
-                    <p className="text-sm text-white/50">Profile picture preview</p>
-                  </div>
-                )}
               </div>
-
-              <div className="pt-4">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  variant="primary"
-                  className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-2"
-                >
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      <span>Saving Changes...</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6a1 1 0 10-2 0v5.586l-1.293-1.293z" />
-                      </svg>
-                      <span>Save Changes</span>
-                    </>
-                  )}
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-1">Twitter</label>
+                <input
+                  type="text"
+                  value={editedProfile.twitter}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, twitter: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-1">GitHub</label>
+                <input
+                  type="text"
+                  value={editedProfile.github}
+                  onChange={(e) => setEditedProfile(prev => ({ ...prev, github: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                />
+              </div>
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button variant="ghost" onClick={() => setIsEditing(false)}
+                        className="hover:bg-[#2563eb]/10">
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveProfile} disabled={isSaving}
+                        className="bg-[#2563eb] hover:bg-[#2563eb]/90">
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
             </div>
-          </form>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-white/70 mb-1">Email</h3>
+                <p className="text-white">{user?.email}</p>
+              </div>
+              <div>
+                <h3 className="font-medium text-white/70 mb-1">Display Name</h3>
+                <p className="text-white">{editedProfile.displayName || 'Not set'}</p>
+              </div>
+              {editedProfile.bio && (
+                <div>
+                  <h3 className="font-medium text-white/70 mb-1">Bio</h3>
+                  <p className="text-white">{editedProfile.bio}</p>
+                </div>
+              )}
+              {editedProfile.website && (
+                <div>
+                  <h3 className="font-medium text-white/70 mb-1">Website</h3>
+                  <a href={editedProfile.website} target="_blank" rel="noopener noreferrer" 
+                     className="text-[#2563eb] hover:text-[#2563eb]/80">
+                    {editedProfile.website}
+                  </a>
+                </div>
+              )}
+              {editedProfile.twitter && (
+                <div>
+                  <h3 className="font-medium text-white/70 mb-1">Twitter</h3>
+                  <a href={`https://twitter.com/${editedProfile.twitter}`} target="_blank" rel="noopener noreferrer"
+                     className="text-[#2563eb] hover:text-[#2563eb]/80">
+                    @{editedProfile.twitter}
+                  </a>
+                </div>
+              )}
+              {editedProfile.github && (
+                <div>
+                  <h3 className="font-medium text-white/70 mb-1">GitHub</h3>
+                  <a href={`https://github.com/${editedProfile.github}`} target="_blank" rel="noopener noreferrer"
+                     className="text-[#2563eb] hover:text-[#2563eb]/80">
+                    {editedProfile.github}
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </Card>
+
+        {/* Subscription Section */}
+        <Card className="p-6 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20">
+          <h2 className="text-xl font-semibold mb-4 text-white">Subscription</h2>
+          
+          <div className="space-y-4">
+            <div className="flex justify-between items-center pb-4 border-b border-[#2563eb]/20">
+              <div>
+                <h3 className="font-medium text-white">Current Plan</h3>
+                <p className="text-white/70 text-sm">
+                  {isPro ? 'Pro Plan' : 'Free Plan'}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-white/70">
+                  Status: <span className="capitalize">{subscriptionStatus}</span>
+                </p>
+              </div>
+            </div>
+
+            {isPro ? (
+              <div>
+                <h3 className="font-medium text-white mb-2">Pro Features</h3>
+                <ul className="space-y-2 text-sm text-white/70">
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Unlimited private prompts
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Custom categories
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Priority support
+                  </li>
+                </ul>
+
+                <div className="mt-6">
+                  <Button variant="ghost" onClick={handleCancelSubscription}
+                          className="hover:bg-[#2563eb]/10">
+                    Cancel Subscription
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-medium text-white mb-2">Upgrade to Pro</h3>
+                <p className="text-sm text-white/70 mb-4">
+                  Get access to unlimited private prompts, custom categories, and priority support.
+                </p>
+                <Button onClick={handleUpgradeClick}
+                        className="bg-[#2563eb] hover:bg-[#2563eb]/90">
+                  Upgrade Now
+                </Button>
+              </div>
+            )}
+          </div>
         </Card>
 
         {/* Preferences Section */}
-        <Card className="bg-white/[0.03] border border-white/10">
-          <div className="p-6 space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-white">Preferences</h2>
-              <p className="text-white/70">Customize your experience</p>
+        <Card className="p-6 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20">
+          <h2 className="text-xl font-semibold mb-4 text-white">Preferences</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="flex items-center space-x-2 text-white cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="form-checkbox rounded border-[#2563eb]/20 text-[#2563eb] focus:ring-[#2563eb] bg-[#1e293b]"
+                />
+                <span>Email notifications for new features</span>
+              </label>
             </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/10">
-                <div>
-                  <label className="block text-sm font-medium text-white">Email Notifications</label>
-                  <p className="text-sm text-white/50">Receive updates about your prompts</p>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    type="button"
-                    className={`
-                      relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent
-                      transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary
-                      ${true ? 'bg-primary' : 'bg-white/10'}
-                    `}
-                  >
-                    <span className={`
-                      pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0
-                      transition duration-200 ease-in-out
-                      ${true ? 'translate-x-5' : 'translate-x-0'}
-                    `} />
-                  </button>
-                </div>
-              </div>
+            <div>
+              <label className="flex items-center space-x-2 text-white cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="form-checkbox rounded border-[#2563eb]/20 text-[#2563eb] focus:ring-[#2563eb] bg-[#1e293b]"
+                />
+                <span>Email notifications for prompt interactions</span>
+              </label>
             </div>
           </div>
         </Card>
 
-        {/* Account Actions */}
-        <Card className="bg-white/[0.03] border border-white/10">
-          <div className="p-6 space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold text-white">Account Actions</h2>
-              <p className="text-white/70">Manage your account access</p>
-            </div>
-
-            <div className="flex flex-col space-y-4">
-              <Button
-                onClick={handleLogout}
-                variant="secondary"
-                className="w-full sm:w-auto bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Signing out...' : 'Sign Out'}
-              </Button>
-              <p className="text-sm text-white/50">
-                Warning: Signing out will end your current session
-              </p>
-            </div>
+        {/* Danger Zone */}
+        <Card className="p-6 bg-[#0f172a]/80 backdrop-blur-lg border border-red-500/20">
+          <h2 className="text-xl font-semibold mb-4 text-red-500">Danger Zone</h2>
+          <div className="space-y-4">
+            <p className="text-sm text-white/70">
+              Once you delete your account, there is no going back. Please be certain.
+            </p>
+            <Button variant="ghost" 
+                    className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20">
+              Delete Account
+            </Button>
           </div>
         </Card>
       </div>

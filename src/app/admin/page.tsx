@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ref, get, update, remove, set } from 'firebase/database';
+import { ref, get, update, remove, set, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
 
 interface User {
@@ -23,16 +23,39 @@ interface Prompt {
   createdAt: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  items: {
+    name: string;
+    description: string;
+    icon: string;
+  }[];
+}
+
 export default function AdminPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'users' | 'prompts' | 'pages'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'prompts' | 'pages' | 'categories'>('users');
   const [pageContent, setPageContent] = useState('');
   const [editingPage, setEditingPage] = useState(false);
   const [savingPage, setSavingPage] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [newCategory, setNewCategory] = useState({
+    name: '',
+    description: '',
+    items: []
+  });
+  const [newItem, setNewItem] = useState({
+    name: '',
+    description: '',
+    icon: ''
+  });
 
   useEffect(() => {
     const checkAdminAccess = async () => {
@@ -75,6 +98,16 @@ export default function AdminPage() {
           ...data,
         }));
         setPrompts(formattedPrompts);
+
+        // Fetch categories
+        const categoriesRef = ref(db, 'categories');
+        const categoriesSnapshot = await get(categoriesRef);
+        const categoriesData = categoriesSnapshot.val() || {};
+        const formattedCategories = Object.entries(categoriesData).map(([id, data]: [string, any]) => ({
+          id,
+          ...data,
+        }));
+        setCategories(formattedCategories);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -151,6 +184,81 @@ export default function AdminPage() {
     }
   };
 
+  const addCategory = async () => {
+    try {
+      const categoriesRef = ref(db, 'categories');
+      const newCategoryRef = push(categoriesRef);
+      await set(newCategoryRef, {
+        name: newCategory.name,
+        description: newCategory.description,
+        items: []
+      });
+      
+      setCategories([...categories, { 
+        id: newCategoryRef.key as string, 
+        ...newCategory 
+      }]);
+      setNewCategory({ name: '', description: '', items: [] });
+    } catch (error) {
+      console.error('Error adding category:', error);
+    }
+  };
+
+  const updateCategory = async (categoryId: string, updatedData: Partial<Category>) => {
+    try {
+      const categoryRef = ref(db, `categories/${categoryId}`);
+      await update(categoryRef, updatedData);
+      setCategories(categories.map(cat => 
+        cat.id === categoryId ? { ...cat, ...updatedData } : cat
+      ));
+      setEditingCategory(null);
+    } catch (error) {
+      console.error('Error updating category:', error);
+    }
+  };
+
+  const deleteCategory = async (categoryId: string) => {
+    try {
+      await remove(ref(db, `categories/${categoryId}`));
+      setCategories(categories.filter(cat => cat.id !== categoryId));
+    } catch (error) {
+      console.error('Error deleting category:', error);
+    }
+  };
+
+  const addItemToCategory = async (categoryId: string) => {
+    try {
+      const category = categories.find(cat => cat.id === categoryId);
+      if (!category) return;
+
+      const updatedItems = [...(category.items || []), newItem];
+      await update(ref(db, `categories/${categoryId}`), { items: updatedItems });
+      
+      setCategories(categories.map(cat => 
+        cat.id === categoryId ? { ...cat, items: updatedItems } : cat
+      ));
+      setNewItem({ name: '', description: '', icon: '' });
+    } catch (error) {
+      console.error('Error adding item to category:', error);
+    }
+  };
+
+  const deleteItemFromCategory = async (categoryId: string, itemIndex: number) => {
+    try {
+      const category = categories.find(cat => cat.id === categoryId);
+      if (!category) return;
+
+      const updatedItems = category.items.filter((_, index) => index !== itemIndex);
+      await update(ref(db, `categories/${categoryId}`), { items: updatedItems });
+      
+      setCategories(categories.map(cat => 
+        cat.id === categoryId ? { ...cat, items: updatedItems } : cat
+      ));
+    } catch (error) {
+      console.error('Error deleting item from category:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -194,6 +302,16 @@ export default function AdminPage() {
           }`}
         >
           Pages
+        </button>
+        <button
+          onClick={() => setActiveTab('categories')}
+          className={`px-4 py-2 rounded-md ${
+            activeTab === 'categories'
+              ? 'bg-[#2563eb] text-white'
+              : 'bg-white/[0.03] hover:bg-white/[0.06]'
+          }`}
+        >
+          Categories
         </button>
       </div>
 
@@ -325,6 +443,162 @@ export default function AdminPage() {
                 View Page →
               </Link>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Categories Management */}
+      {activeTab === 'categories' && (
+        <div className="space-y-6">
+          {/* Add New Category */}
+          <div className="bg-white/[0.03] rounded-xl p-6">
+            <h3 className="text-xl font-semibold mb-4">Add New Category</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-1">Name</label>
+                <input
+                  type="text"
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-white/70 mb-1">Description</label>
+                <input
+                  type="text"
+                  value={newCategory.description}
+                  onChange={(e) => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                />
+              </div>
+              <button
+                onClick={addCategory}
+                className="px-4 py-2 bg-[#2563eb] text-white rounded-md hover:bg-[#2563eb]/90"
+              >
+                Add Category
+              </button>
+            </div>
+          </div>
+
+          {/* Categories List */}
+          <div className="space-y-4">
+            {categories.map((category) => (
+              <div key={category.id} className="bg-white/[0.03] rounded-xl p-6">
+                {editingCategory?.id === category.id ? (
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      value={editingCategory.name}
+                      onChange={(e) => setEditingCategory(prev => ({ ...prev!, name: e.target.value }))}
+                      className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                    />
+                    <input
+                      type="text"
+                      value={editingCategory.description}
+                      onChange={(e) => setEditingCategory(prev => ({ ...prev!, description: e.target.value }))}
+                      className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                    />
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => updateCategory(category.id, editingCategory)}
+                        className="px-4 py-2 bg-[#2563eb] text-white rounded-md hover:bg-[#2563eb]/90"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingCategory(null)}
+                        className="px-4 py-2 bg-white/[0.06] text-white rounded-md hover:bg-white/[0.1]"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">{category.name}</h3>
+                        <p className="text-white/70">{category.description}</p>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => setEditingCategory(category)}
+                          className="text-[#2563eb] hover:text-[#2563eb]/80"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteCategory(category.id)}
+                          className="text-red-500 hover:text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Items List */}
+                    <div className="mt-4">
+                      <h4 className="text-md font-medium text-white mb-2">Items</h4>
+                      <div className="space-y-2">
+                        {category.items?.map((item, index) => (
+                          <div key={index} className="flex justify-between items-center bg-white/[0.02] p-3 rounded-lg">
+                            <div>
+                              <span className="text-2xl mr-2">{item.icon}</span>
+                              <span className="text-white">{item.name}</span>
+                              <p className="text-white/70 text-sm">{item.description}</p>
+                            </div>
+                            <button
+                              onClick={() => deleteItemFromCategory(category.id, index)}
+                              className="text-red-500 hover:text-red-400"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Add New Item */}
+                      <div className="mt-4 space-y-3 bg-white/[0.02] p-4 rounded-lg">
+                        <div>
+                          <label className="block text-sm font-medium text-white/70 mb-1">Item Name</label>
+                          <input
+                            type="text"
+                            value={newItem.name}
+                            onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                            className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white/70 mb-1">Description</label>
+                          <input
+                            type="text"
+                            value={newItem.description}
+                            onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                            className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white/70 mb-1">Icon (emoji)</label>
+                          <input
+                            type="text"
+                            value={newItem.icon}
+                            onChange={(e) => setNewItem(prev => ({ ...prev, icon: e.target.value }))}
+                            className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
+                          />
+                        </div>
+                        <button
+                          onClick={() => addItemToCategory(category.id)}
+                          className="px-4 py-2 bg-[#2563eb] text-white rounded-md hover:bg-[#2563eb]/90"
+                        >
+                          Add Item
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
