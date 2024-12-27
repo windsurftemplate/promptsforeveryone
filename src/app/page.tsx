@@ -53,9 +53,12 @@ export default function Home() {
       <div className="relative h-[70vh] overflow-hidden">
         <div 
           ref={heroRef}
-          className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 to-[#1e293b]/90"
+          className="absolute inset-0"
           style={{ transform: 'translate3d(0, 0, 0)' }}
-        />
+        >
+          <div className="absolute inset-0 bg-[url('/hero.png')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 to-[#1e293b]/90"></div>
+        </div>
         
         <div className="absolute inset-0 flex items-center justify-center">
           <div 
