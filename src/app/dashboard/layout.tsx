@@ -17,6 +17,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const [filterTag, setFilterTag] = useState('');
   const [isPro, setIsPro] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     const checkProStatus = async () => {
@@ -39,8 +40,32 @@ export default function DashboardLayout({
   return (
     <DashboardContext.Provider value={{ filterTag, setFilterTag }}>
       <div className="flex min-h-screen bg-[#0f172a]">
-        <Sidebar onFilterChange={setFilterTag} />
-        <div className={`flex-1 ${!isPro ? 'pl-0' : ''}`}>
+        <div className="relative h-screen sticky top-0">
+          {isCollapsed && (
+            <button
+              onClick={() => setIsCollapsed(false)}
+              className="absolute left-0 top-4 bg-surface hover:bg-surface-hover p-2 rounded-r-lg transition-colors border border-l-0 border-white/10"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+
+          <div className={`h-screen transition-all duration-300 ${isCollapsed ? 'w-0 opacity-0' : 'w-64 opacity-100'}`}>
+            {!isCollapsed && (
+              <div className="h-full">
+                <Sidebar 
+                  onFilterChange={setFilterTag} 
+                  isCollapsed={isCollapsed}
+                  onToggle={() => setIsCollapsed(!isCollapsed)}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className={`flex-1 transition-all duration-300 ${!isPro ? 'pl-0' : ''}`}>
           {children}
         </div>
       </div>

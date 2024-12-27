@@ -1,35 +1,97 @@
-# Windsurf Prompts Repository
+# Prompt Repository
 
-A community-driven platform for sharing and discovering prompts specifically designed for Windsurf IDE's AI assistant. Enhance your development workflow with curated prompts for code review, testing, refactoring, and more.
-
-![Windsurf Prompts](public/preview.png)
+A modern web application for managing and sharing AI prompts, built with Next.js 13, Firebase, and Stripe integration.
 
 ## Features
 
-- 🎨 **Modern Design System**: Clean, themed interface with consistent colors and typography
-- 🔍 **Category-based Navigation**: Browse prompts by categories for easy discovery
-- 💻 **Development-Focused**: Prompts specifically designed for software development
-- 🌟 **Community Curated**: High-quality prompts shared by the developer community
-- 🔒 **Privacy Controls**: Choose to make your prompts public or private
-- 📱 **Responsive Design**: Seamless experience across all devices
-- 🔄 **Real-time Updates**: Instant updates using Firebase Realtime Database
-- 👥 **Role-Based Access**: Admin dashboard for content moderation and user management
-- 🔐 **Secure Authentication**: Multiple sign-in options with Firebase Auth
+### User Management
+- Email and Google authentication
+- User profiles with customizable display names and social links
+- Subscription management (Free and Pro tiers)
+
+### Prompt Management
+- Create, read, update, and delete prompts
+- Public and private prompt visibility
+- Category-based organization
+- Rich text editor for prompt content
+- Search and filter functionality
+
+### Categories
+- Public categories for all users
+- Private categories for Pro users
+- Drag-and-drop category reordering
+- Subcategory support
+- Category management in admin panel
+
+### Dashboard
+- Personal prompt library
+- Category-based filtering
+- Grid layout with uniform card sizes
+- Modal-based prompt editing
+- Quick actions for prompt management
+
+### Explore Page
+- Browse public prompts
+- Category-based navigation
+- Grid layout for easy browsing
+- Search functionality
+
+### Pro Features
+- Private categories
+- Advanced prompt management
+- Priority support
+- Ad-free experience
+
+### Admin Panel
+- User management
+- Category CRUD operations
+- Prompt moderation
+- Analytics dashboard
+
+## Tech Stack
+
+- **Frontend**: Next.js 13, React, TypeScript, Tailwind CSS
+- **Backend**: Firebase (Authentication, Firestore, Cloud Functions)
+- **Payment**: Stripe integration
+- **State Management**: React Context
+- **UI Components**: Custom components with Tailwind CSS
+- **Authentication**: Firebase Auth with multiple providers
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18.x or later
+- Node.js 16.x or later
 - npm or yarn
 - Firebase account
+- Stripe account
 
-### Environment Setup
+### Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=your_stripe_secret_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+NEXT_PUBLIC_STRIPE_PRICE_ID=your_stripe_price_id
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+```
+
+### Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/windsurf-prompts.git
-cd windsurf-prompts
+git clone https://github.com/yourusername/prompt-repository.git
+cd prompt-repository
 ```
 
 2. Install dependencies:
@@ -39,141 +101,85 @@ npm install
 yarn install
 ```
 
-3. Create a `.env.local` file with your Firebase configuration:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://your-project.firebaseio.com
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-measurement-id
-```
-
-4. Run the development server:
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
 ```
 
-## Authentication
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-The application uses Firebase Authentication with multiple providers:
+### Firebase Setup
 
-- Email/Password authentication
-- Google Sign-In
-- Role-based access control (User/Admin)
+1. Create a new Firebase project
+2. Enable Authentication with Email/Password and Google providers
+3. Create a Firestore database
+4. Set up Firebase security rules
+5. Configure Firebase hosting (optional)
 
-### User Roles
+### Stripe Setup
 
-- **User**: Can create, edit, and delete their own prompts
-- **Admin**: Additional access to:
-  - User management
-  - Content moderation
-  - Category management
-  - Analytics dashboard
-
-## Tech Stack
-
-- **Framework**: Next.js 14 with App Router
-- **Styling**: Tailwind CSS with custom design system
-- **Authentication**: Firebase Auth with Google Sign-in
-- **Database**: Firebase Realtime Database
-- **Fonts**: Inter (text) & JetBrains Mono (code)
-- **Icons**: Custom SVG icons
-- **State Management**: React Context API
-- **Form Handling**: React Hook Form
-- **Data Validation**: Zod
+1. Create a Stripe account
+2. Set up a subscription product
+3. Configure webhook endpoints
+4. Add price ID to environment variables
 
 ## Project Structure
 
 ```
-prompt-repository/
-├── src/
-│   ├── app/                 # Next.js app router pages
-│   ├── components/          # Reusable React components
-│   ├── contexts/            # React contexts (Auth, Theme)
-│   ├── lib/                 # Utility functions and Firebase setup
-│   ├── types/              # TypeScript type definitions
-│   └── styles/             # Global styles and Tailwind config
-├── public/                 # Static assets
-└── scripts/               # Utility scripts
+src/
+├── app/                    # Next.js 13 app directory
+│   ├── admin/             # Admin panel pages
+│   ├── api/               # API routes
+│   ├── category/          # Category pages
+│   ├── dashboard/         # User dashboard
+│   ├── explore/          # Public explore page
+│   ├── settings/         # User settings
+│   ├── signin/           # Authentication pages
+│   └── signup/           # User registration
+├── components/            # React components
+│   ├── dashboard/        # Dashboard components
+│   ├── layout/           # Layout components
+│   └── ui/               # Reusable UI components
+├── contexts/             # React contexts
+├── lib/                  # Utility functions
+└── styles/              # Global styles
 ```
 
-## Design System
+## Development
 
-### Colors
+### Code Style
 
-```typescript
-colors: {
-  primary: {
-    DEFAULT: '#0F172A',  // Deep blue-gray
-    light: '#1E293B',
-    dark: '#020617',
-    accent: '#3B82F6'    // Bright blue
-  },
-  surface: {
-    DEFAULT: '#1E293B',  // Darker background
-    light: '#334155',
-    dark: '#0F172A'
-  },
-  text: {
-    DEFAULT: '#F8FAFC',  // Light text
-    muted: '#94A3B8',
-    accent: '#60A5FA'
-  }
-}
+- TypeScript for type safety
+- ESLint for code linting
+- Prettier for code formatting
+- Tailwind CSS for styling
+
+### Testing
+
+- Jest for unit testing
+- React Testing Library for component testing
+- Cypress for end-to-end testing
+
+### Deployment
+
+1. Build the application:
+```bash
+npm run build
+# or
+yarn build
 ```
+
+2. Deploy to hosting platform of choice (Vercel recommended)
 
 ## Contributing
 
 1. Fork the repository
-2. Create a new branch: `git checkout -b feature/your-feature`
-3. Make your changes
-4. Run tests: `npm run test`
-5. Submit a pull request
-
-### Contribution Guidelines
-
-- Follow the existing code style and conventions
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting PR
-
-## Firebase Setup
-
-1. Create a new Firebase project
-2. Enable Authentication providers:
-   - Email/Password
-   - Google
-3. Set up Realtime Database
-4. Configure security rules
-5. Add authorized domains for authentication
-
-### Security Rules
-
-```javascript
-{
-  "rules": {
-    "users": {
-      "$uid": {
-        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'"
-      }
-    },
-    "prompts": {
-      ".read": true,
-      ".write": "auth != null",
-      "$promptId": {
-        ".write": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')"
-      }
-    }
-  }
-}
-```
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
 
 ## License
 
@@ -181,4 +187,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For support, email support@windsurf.dev or join our [Discord community](https://discord.gg/windsurf).
+For support, email support@promptrepository.com or join our Discord community.
+
+## Acknowledgments
+
+- Next.js team for the amazing framework
+- Firebase team for the backend infrastructure
+- Stripe team for payment processing
+- All contributors and users of the platform

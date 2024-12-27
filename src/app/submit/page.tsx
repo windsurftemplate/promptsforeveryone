@@ -1,22 +1,17 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
-import { db } from '@/lib/firebase';
-import { ref, push, set, get } from 'firebase/database';
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { ref, get, push, set } from 'firebase/database';
+import { db } from '@/lib/firebase';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
 interface Category {
   id: string;
   name: string;
-  description: string;
-  items: {
-    name: string;
-    description: string;
-    icon: string;
-  }[];
+  items?: { name: string }[];
 }
 
 export default function SubmitPage() {
@@ -145,159 +140,164 @@ export default function SubmitPage() {
   const subcategories = currentCategory?.items || [];
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <div className="p-6 space-y-6">
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-3 text-sm">
-            {error}
-          </div>
-        )}
+    <div className="container mx-auto px-4 py-8">
+      <Card className="max-w-4xl mx-auto">
+        <div className="p-6 space-y-6">
+          <h1 className="text-2xl font-bold text-white mb-8">Submit a Prompt</h1>
 
-        {successMessage && (
-          <div className="bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg p-3 text-sm">
-            {successMessage}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium mb-1">
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={promptData.title}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Give your prompt a clear, descriptive title"
-              />
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-3 text-sm">
+              {error}
             </div>
+          )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {successMessage && (
+            <div className="bg-green-500/10 border border-green-500/20 text-green-500 rounded-lg p-3 text-sm">
+              {successMessage}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
               <div>
-                <label htmlFor="categoryId" className="block text-sm font-medium mb-1">
-                  Category
+                <label htmlFor="title" className="block text-sm font-medium mb-1 text-white">
+                  Title
                 </label>
-                <select
-                  id="categoryId"
-                  name="categoryId"
-                  value={promptData.categoryId}
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={promptData.title}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label htmlFor="subcategory" className="block text-sm font-medium mb-1">
-                  Subcategory
-                </label>
-                <select
-                  id="subcategory"
-                  name="subcategory"
-                  value={promptData.subcategory}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  {subcategories.map((item) => (
-                    <option key={item.name} value={item.name}>
-                      {item.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={promptData.description}
-                onChange={handleChange}
-                required
-                rows={3}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Explain what your prompt does and how to use it effectively"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label htmlFor="content" className="block text-sm font-medium">
-                  Prompt Content
-                </label>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="text-sm"
-                >
-                  {showPreview ? 'Edit' : 'Preview'}
-                </Button>
-              </div>
-              {showPreview ? (
-                <div className="w-full rounded-lg border border-white/10 bg-white/5 p-4">
-                  <pre className="whitespace-pre-wrap font-mono text-sm text-white/90">
-                    {promptData.content || 'No content yet'}
-                  </pre>
-                </div>
-              ) : (
-                <textarea
-                  id="content"
-                  name="content"
-                  value={promptData.content}
-                  onChange={handleChange}
-                  required
-                  rows={8}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary font-mono"
-                  placeholder="Enter your prompt content here"
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Give your prompt a clear, descriptive title"
                 />
-              )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="categoryId" className="block text-sm font-medium mb-1 text-white">
+                    Category
+                  </label>
+                  <select
+                    id="categoryId"
+                    name="categoryId"
+                    value={promptData.categoryId}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id} className="bg-[#1e293b] text-white">
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="subcategory" className="block text-sm font-medium mb-1 text-white">
+                    Subcategory
+                  </label>
+                  <select
+                    id="subcategory"
+                    name="subcategory"
+                    value={promptData.subcategory}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    {subcategories.map((item) => (
+                      <option key={item.name} value={item.name} className="bg-[#1e293b] text-white">
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium mb-1 text-white">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={promptData.description}
+                  onChange={handleChange}
+                  required
+                  rows={3}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Explain what your prompt does and how to use it effectively"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label htmlFor="content" className="block text-sm font-medium text-white">
+                    Prompt Content
+                  </label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setShowPreview(!showPreview)}
+                    className="text-sm"
+                  >
+                    {showPreview ? 'Edit' : 'Preview'}
+                  </Button>
+                </div>
+                {showPreview ? (
+                  <div className="w-full rounded-lg border border-white/10 bg-white/5 p-4">
+                    <pre className="whitespace-pre-wrap font-mono text-sm text-white/90">
+                      {promptData.content || 'No content yet'}
+                    </pre>
+                  </div>
+                ) : (
+                  <textarea
+                    id="content"
+                    name="content"
+                    value={promptData.content}
+                    onChange={handleChange}
+                    required
+                    rows={8}
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary font-mono"
+                    placeholder="Enter your prompt content here"
+                  />
+                )}
+              </div>
+
+              <div>
+                <label htmlFor="tags" className="block text-sm font-medium mb-1 text-white">
+                  Tags
+                </label>
+                <input
+                  type="text"
+                  id="tags"
+                  name="tags"
+                  value={promptData.tags}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Add tags separated by commas (e.g., coding, python, ai)"
+                />
+                <p className="mt-1 text-sm text-white/50">
+                  Tags help others find your prompt
+                </p>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="tags" className="block text-sm font-medium mb-1">
-                Tags
-              </label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                value={promptData.tags}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Add tags separated by commas (e.g., coding, python, ai)"
-              />
-              <p className="mt-1 text-sm text-white/50">
-                Tags help others find your prompt
-              </p>
+            <div className="flex justify-end pt-6">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white"
+              >
+                {isLoading ? 'Saving...' : 'Save Prompt'}
+              </Button>
             </div>
-          </div>
-
-          <div className="flex justify-end pt-6">
-            <Button
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : 'Save Prompt'}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </Card>
+          </form>
+        </div>
+      </Card>
+    </div>
   );
 }

@@ -26,12 +26,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     checkProStatus();
   }, [user]);
 
-  const showSidebar = user && pathname !== '/' && !isPro;
+  // Don't show the black navigation sidebar on any pages except when explicitly needed
+  const showSidebar = false; // Removing sidebar from all pages as it's not needed
 
   return (
     <div className="relative min-h-screen">
       <div className="flex h-screen">
-        {/* Sidebar */}
+        {/* Black Navigation Sidebar */}
         {showSidebar && (
           <div className="w-64 shrink-0 border-r border-white/[0.06]">
             <SideNav />
