@@ -5,6 +5,10 @@ import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Anton } from 'next/font/google';
+import dynamic from 'next/dynamic';
+
+const TwitterIcon = dynamic(() => import('@/components/icons/TwitterIcon'), { ssr: false });
+const GitHubIcon = dynamic(() => import('@/components/icons/GitHubIcon'), { ssr: false });
 
 const anton = Anton({ 
   weight: '400',
@@ -15,8 +19,10 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const promptSectionRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
   const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
 
   const titles = [
     'RIDE THE INTERNET',
@@ -72,14 +78,44 @@ export default function Home() {
     };
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsFeaturesVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (featuresRef.current) {
+      observer.observe(featuresRef.current);
+    }
+
+    return () => {
+      if (featuresRef.current) {
+        observer.unobserve(featuresRef.current);
+      }
+    };
+  }, []);
+
   return (
     <div className="relative">
-      {/* Hero Section with Parallax */}
-      <div className="relative h-[calc(70vh+160px)] overflow-hidden">
+      {/* Hero Section */}
+      <div className="relative h-[calc(85vh+160px)] overflow-hidden -mt-24">
+        <div 
+          className="absolute inset-0"
+          style={{ transform: 'translate3d(0, 0, 0)' }}
+        >
+          <div className="absolute inset-0 bg-black"></div>
+        </div>
+        
         {/* Light effects */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-radial from-blue-500/20 via-transparent to-transparent opacity-30 animate-pulse-slow"></div>
-          <div className="absolute top-[-10%] right-[-10%] w-[120%] h-[120%] bg-gradient-radial from-purple-500/20 via-transparent to-transparent opacity-30 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-radial from-[#00ff00]/30 via-transparent to-transparent opacity-30 animate-pulse-slow"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[120%] h-[120%] bg-gradient-radial from-[#00ffff]/20 via-transparent to-transparent opacity-30 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
         </div>
         
         <div 
@@ -87,12 +123,7 @@ export default function Home() {
           className="absolute inset-0"
           style={{ transform: 'translate3d(0, 0, 0)' }}
         >
-          <div className="absolute inset-0 bg-[url('/hero.png')] bg-cover bg-center"></div>
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 to-[#1e293b]/90">
-            {/* Additional light rays */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(59,130,246,0.1),_transparent_70%)]"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(147,51,234,0.1),_transparent_70%)]"></div>
-          </div>
+          <div className="absolute inset-0 bg-black"></div>
         </div>
         
         <div className="absolute inset-0 flex items-center justify-center">
@@ -103,22 +134,22 @@ export default function Home() {
           >
             <div className={anton.className}>
               <h1 className="text-6xl md:text-[8rem] leading-none">
-                <span className="block bg-gradient-to-r from-[#0ea5e9] via-[#2563eb] to-[#4f46e5] bg-clip-text text-transparent animate-gradient">
+                <span className="block bg-gradient-to-r from-[#00ff00] via-[#00ffff] to-[#00ffff] bg-clip-text text-transparent animate-gradient drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
                   {titles[currentTitleIndex]}
                 </span>
               </h1>
             </div>
             <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-              Save Time and Code Smarter with Prompts for <span className="text-green-400 animate-pulse-subtle drop-shadow-[0_0_6px_rgba(74,222,128,0.6)]">Windsurf IDE</span>
+              Save Time and Code Smarter with Prompts for <span className="text-[#00ff00] animate-pulse-subtle drop-shadow-[0_0_8px_rgba(0,255,0,0.7)]">Windsurf IDE</span>
             </p>
             <div className="flex gap-6 justify-center">
               <Link href="/explore">
-                <Button className="px-8 py-4 text-lg bg-[#2563eb] hover:bg-[#1d4ed8] text-white rounded-lg transition-all duration-300 hover:scale-105">
+                <Button className="px-8 py-4 text-lg bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold rounded-lg transition-all duration-300 hover:scale-105 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
                   Start Your Journey
                 </Button>
               </Link>
               <Link href="/how-to-start">
-                <Button className="px-8 py-4 text-lg bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-300 hover:scale-105">
+                <Button className="px-8 py-4 text-lg bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 hover:scale-105 border border-[#00ffff]/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]">
                   Learn More
                 </Button>
               </Link>
@@ -133,29 +164,39 @@ export default function Home() {
               <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
             </defs>
             <g className="wave1">
-              <use href="#wave" x="50" y="3" fill="rgba(37, 99, 235, 0.1)" />
+              <use href="#wave" x="50" y="3" fill="rgba(0, 255, 255, 0.1)" />
             </g>
             <g className="wave2">
-              <use href="#wave" x="50" y="0" fill="rgba(37, 99, 235, 0.2)" />
+              <use href="#wave" x="50" y="0" fill="rgba(0, 255, 255, 0.2)" />
             </g>
             <g className="wave3">
-              <use href="#wave" x="50" y="9" fill="rgba(37, 99, 235, 0.3)" />
+              <use href="#wave" x="50" y="9" fill="rgba(0, 255, 255, 0.3)" />
             </g>
           </svg>
         </div>
       </div>
 
       {/* Features Section */}
-      <div className="relative z-10 -mt-20 pb-20">
+      <div 
+        ref={featuresRef} 
+        className={`relative z-10 py-20 bg-black transform transition-all duration-[2000ms] ${
+          isFeaturesVisible 
+            ? 'opacity-100 translate-y-0 scale-100' 
+            : 'opacity-0 translate-y-32 scale-90'
+        }`}
+      >
         <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+            Explore Our Features
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="p-8 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20 transform hover:scale-105 transition-all duration-300">
+            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
               <div className="relative">
-                <div className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br from-[#2563eb]/20 to-[#4f46e5]/20 rounded-lg flex items-center justify-center text-3xl">
+                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00ffff]/20 to-[#00ffff]/10 rounded-lg flex items-center justify-center text-3xl">
                   🌊
                 </div>
-                <div className="pt-12">
-                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent mb-4">Your Go-To Destination</h3>
+                <div>
+                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Your Go-To Destination</h3>
                   <p className="text-white/70 leading-relaxed">
                     Welcome to WindsurfPrompts.com, your go-to destination for windsurfing inspiration, tips, and strategies—designed to help you ride the wind like never before. Whether you're a total beginner or a seasoned pro, our expertly curated prompts and in-depth guides will supercharge your skills.
                   </p>
@@ -163,13 +204,13 @@ export default function Home() {
               </div>
             </Card>
 
-            <Card className="p-8 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20 transform hover:scale-105 transition-all duration-300">
+            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
               <div className="relative">
-                <div className="absolute -top-4 -left-4 w-16 h-16 bg-gradient-to-br from-[#2563eb]/20 to-[#4f46e5]/20 rounded-lg flex items-center justify-center text-3xl">
+                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00ffff]/20 to-[#00ffff]/10 rounded-lg flex items-center justify-center text-3xl">
                   📚
                 </div>
-                <div className="pt-12">
-                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent mb-4">Extensive Resources</h3>
+                <div>
+                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Extensive Resources</h3>
                   <p className="text-white/70 leading-relaxed">
                     Dive into our extensive library of tutorials, discover new techniques, and connect with a global community of enthusiasts who share your passion for the sport. From selecting the perfect equipment to mastering advanced maneuvers, we're here to guide you.
                   </p>
@@ -183,12 +224,12 @@ export default function Home() {
       {/* Visual Divider Section */}
       <div className="relative h-[40vh] overflow-hidden">
         <div className="absolute inset-0 bg-[url('/prompt-engineering.webp')] bg-cover bg-center bg-fixed"></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/90 via-transparent to-[#1e293b]/90"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-transparent to-black/90"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center space-y-4 px-4 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold text-white">
+            <h2 className="text-4xl md:text-5xl font-bold">
               Master the Art of
-              <span className="bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent"> Prompt Engineering</span>
+              <span className="bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]"> Prompt Engineering</span>
             </h2>
           </div>
         </div>
@@ -204,7 +245,7 @@ export default function Home() {
         }`}
       >
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent">
+          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
             Prompt Engineering For Everyone
           </h2>
           
@@ -213,10 +254,10 @@ export default function Home() {
             <div className="group relative animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
               <div className="h-[300px] mb-6 rounded-xl overflow-hidden relative">
                 <div className="absolute inset-0 bg-[url('/research-bg.webp')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-6xl mb-4">🔬</span>
-                  <h3 className="text-2xl font-bold text-white mb-3">For Researchers</h3>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Researchers</h3>
                   <p className="text-white/90">
                     Accelerate your research with advanced prompt techniques. Perfect for data analysis, hypothesis testing, and academic writing.
                   </p>
@@ -228,12 +269,12 @@ export default function Home() {
             <div className="group relative animate-slide-in-right" style={{ animationDelay: '0.4s' }}>
               <div className="h-[300px] mb-6 rounded-xl overflow-hidden relative">
                 <div className="absolute inset-0 bg-[url('/business-bg.webp')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-6xl mb-4">💼</span>
-                  <h3 className="text-2xl font-bold text-white mb-3">For Business</h3>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Business</h3>
                   <p className="text-white/90">
-                    Scale your operations with AI. From customer service to content creation, streamline your business processes.
+                    Enhance your business communications and documentation with AI-powered prompts designed for professional excellence.
                   </p>
                 </div>
               </div>
@@ -243,12 +284,12 @@ export default function Home() {
             <div className="group relative animate-slide-in-right" style={{ animationDelay: '0.6s' }}>
               <div className="h-[300px] mb-6 rounded-xl overflow-hidden relative">
                 <div className="absolute inset-0 bg-[url('/developer-bg.webp')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-6xl mb-4">👨‍💻</span>
-                  <h3 className="text-2xl font-bold text-white mb-3">For Developers</h3>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Developers</h3>
                   <p className="text-white/90">
-                    Build better software faster. Leverage AI for code generation, debugging, and technical documentation.
+                    Streamline your development workflow with prompts tailored for coding, debugging, and technical documentation.
                   </p>
                 </div>
               </div>
@@ -258,20 +299,20 @@ export default function Home() {
       </div>
 
       {/* Pricing Section */}
-      <div className="py-20 bg-gradient-to-br from-[#0f172a] to-[#1e293b]">
+      <div className="py-20 bg-gradient-to-br from-black to-black">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-4 bg-gradient-to-r from-[#0ea5e9] to-[#2563eb] bg-clip-text text-transparent animate-fade-in">Choose Your Plan</h2>
+          <h2 className="text-3xl font-bold text-center mb-4 bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent animate-fade-in">Choose Your Plan</h2>
           <p className="text-white/70 text-center mb-12 max-w-2xl mx-auto">Select the perfect plan for your needs and start mastering prompt engineering today.</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <Card className="p-8 bg-[#0f172a]/80 backdrop-blur-lg border border-[#2563eb]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-left relative" style={{ animationDelay: '0.2s' }}>
+            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-left hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] relative" style={{ animationDelay: '0.2s' }}>
               <div className="absolute -top-4 right-4 bg-green-500 text-white px-4 py-1 rounded-full text-sm">
                 Always Free
               </div>
               <div className="space-y-6">
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-2">Free</h3>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-2">Free</h3>
                   <div className="text-4xl font-bold text-white mb-4">$0<span className="text-lg text-white/60">/month</span></div>
                 </div>
                 <div className="space-y-4">
@@ -306,178 +347,118 @@ export default function Home() {
             </Card>
 
             {/* Pro Plan */}
-            <Card className="p-8 bg-[#0f172a]/80 backdrop-blur-lg border-2 border-[#2563eb] transform hover:scale-105 transition-all duration-300 relative animate-slide-in-right" style={{ animationDelay: '0.4s' }}>
-              <div className="absolute -top-4 right-4 bg-[#2563eb] text-white px-4 py-1 rounded-full text-sm">
+            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-right hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] relative" style={{ animationDelay: '0.4s' }}>
+              <div className="absolute -top-4 right-4 bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-bold">
                 Most Popular
               </div>
-              <div className="absolute -right-16 -top-16 w-32 h-32 bg-[#2563eb]/20 rounded-full blur-2xl"></div>
               <div className="space-y-6">
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>
-                  <div className="text-4xl font-bold text-white mb-1">
-                    $5<span className="text-lg text-white/60">/month</span>
-                  </div>
-                  <div className="text-sm text-white/60">
-                    or $50/year (save $10)
-                  </div>
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-2">Pro</h3>
+                  <div className="text-4xl font-bold text-white mb-4">$10<span className="text-lg text-white/60">/month</span></div>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/70">Everything in Free</span>
+                    <span className="text-white/90">All Free features</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/70">Unlimited private prompts</span>
+                    <span className="text-white/90">Unlimited custom categories</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/70">Custom categories</span>
+                    <span className="text-white/90">Private prompts</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/70">Priority support</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-400">✓</span>
-                    <span className="text-white/70">Early access to features</span>
+                    <span className="text-white/90">Priority support</span>
                   </div>
                 </div>
-                <Link href="/pro-plan">
-                  <Button className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-4 rounded-lg transition-all duration-300 text-lg font-semibold">
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
-            </Card>
+                <div className="pt-6">
+                  <Link href="/pro-plan">
+                    <Button className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-3 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
+                      Upgrade to Pro
+                </Button>
+              </Link>
+                  <p className="text-center text-white/60 text-sm mt-4">Or save $20 with <span className="text-[#00ffff]">yearly billing</span></p>
+                </div>
+            </div>
+          </Card>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="bg-[#0f172a] border-t border-[#2563eb]/20 pt-20 pb-10">
+      <footer className="bg-black border-t border-[#00ffff]/20 pt-20 pb-10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Company Info */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-white">Windsurf IDE</h3>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">WindsurfPrompts</h3>
               <p className="text-white/60 leading-relaxed">
                 Empowering developers with advanced prompt engineering tools and AI-driven development solutions.
               </p>
               <div className="flex gap-4">
-                <a href="https://twitter.com" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                  </svg>
-                </a>
-                <a href="https://github.com" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
-                  </svg>
-                </a>
-                <a href="https://linkedin.com" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                  </svg>
-                </a>
+                <Link href="https://twitter.com/windsurfprompts" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                  <TwitterIcon className="w-6 h-6" />
+                </Link>
+                <Link href="https://github.com/windsurfprompts" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                  <GitHubIcon className="w-6 h-6" />
+                </Link>
               </div>
             </div>
 
             {/* Quick Links */}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-6">Quick Links</h3>
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">Quick Links</h3>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/explore" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Explore
-                  </Link>
+                  <Link href="/explore" className="text-white/60 hover:text-[#00ffff] transition-colors">Explore</Link>
                 </li>
                 <li>
-                  <Link href="/how-to-start" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    How to Start
-                  </Link>
+                  <Link href="/pro-plan" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link>
                 </li>
                 <li>
-                  <Link href="/pricing" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Blog
-                  </Link>
+                  <Link href="/dashboard" className="text-white/60 hover:text-[#00ffff] transition-colors">Dashboard</Link>
                 </li>
               </ul>
             </div>
 
             {/* Resources */}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-6">Resources</h3>
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">Resources</h3>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/docs" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Documentation
-                  </Link>
+                  <Link href="/how-to-start" className="text-white/60 hover:text-[#00ffff] transition-colors">How to Start</Link>
                 </li>
                 <li>
-                  <Link href="/guides" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Guides
-                  </Link>
+                  <Link href="/documentation" className="text-white/60 hover:text-[#00ffff] transition-colors">Documentation</Link>
                 </li>
                 <li>
-                  <Link href="/community" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Community
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/changelog" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Changelog
-                  </Link>
+                  <Link href="/blog" className="text-white/60 hover:text-[#00ffff] transition-colors">Blog</Link>
                 </li>
               </ul>
             </div>
 
             {/* Legal */}
-            <div>
-              <h3 className="text-lg font-semibold text-white mb-6">Legal</h3>
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">Legal</h3>
               <ul className="space-y-4">
                 <li>
-                  <Link href="/privacy" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Privacy Policy
-                  </Link>
+                  <Link href="/privacy" className="text-white/60 hover:text-[#00ffff] transition-colors">Privacy Policy</Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Terms of Service
-                  </Link>
+                  <Link href="/terms" className="text-white/60 hover:text-[#00ffff] transition-colors">Terms of Service</Link>
                 </li>
                 <li>
-                  <Link href="/security" className="text-white/60 hover:text-[#2563eb] transition-colors">
-                    Security
-                  </Link>
+                  <Link href="/contact" className="text-white/60 hover:text-[#00ffff] transition-colors">Contact Us</Link>
                 </li>
               </ul>
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="border-t border-[#2563eb]/10 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-white/40 text-sm">
-                © {new Date().getFullYear()} Windsurf IDE. All rights reserved.
-              </p>
-              <div className="flex gap-6">
-                <Link href="/privacy" className="text-white/40 hover:text-[#2563eb] text-sm transition-colors">
-                  Privacy
-                </Link>
-                <Link href="/terms" className="text-white/40 hover:text-[#2563eb] text-sm transition-colors">
-                  Terms
-                </Link>
-                <Link href="/cookies" className="text-white/40 hover:text-[#2563eb] text-sm transition-colors">
-                  Cookies
-                </Link>
-              </div>
-            </div>
+          <div className="text-center text-white/40 text-sm">
+            <p>© {new Date().getFullYear()} WindsurfPrompts. All rights reserved.</p>
           </div>
         </div>
       </footer>

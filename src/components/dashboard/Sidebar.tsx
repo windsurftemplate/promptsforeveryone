@@ -7,6 +7,7 @@ import { ref, get, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { redirectToCheckout } from '@/lib/stripe';
 import Link from 'next/link';
+import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface CategoryItem {
   name: string;
@@ -20,6 +21,7 @@ interface Category {
   description: string;
   items: CategoryItem[];
   isPro?: boolean;
+  isPrivate?: boolean;
 }
 
 interface SidebarProps {
@@ -38,70 +40,75 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Check Pro status
+  // Fetch user's pro status
   useEffect(() => {
-    const checkProStatus = async () => {
-      if (!user?.uid) return;
-      
-      try {
-        const userRef = ref(db, `users/${user.uid}`);
-        const snapshot = await get(userRef);
-        const userData = snapshot.val();
-        setIsPro(userData?.plan === 'pro');
-      } catch (error) {
-        console.error('Error checking pro status:', error);
-        setIsPro(false);
-      }
-    };
-
-    checkProStatus();
-  }, [user?.uid]);
-
-  // Load private categories from Firebase
-  useEffect(() => {
-    const loadCategories = async () => {
-      if (!user?.uid) return;
-      
-      try {
-        const userCategoriesRef = ref(db, `users/${user.uid}/categories`);
-        const snapshot = await get(userCategoriesRef);
-        
+    if (user?.uid) {
+      const userRef = ref(db, `users/${user.uid}`);
+      get(userRef).then((snapshot) => {
         if (snapshot.exists()) {
-          const categoriesData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-            id,
-            ...data
-          }));
-          setCategories(categoriesData);
+          const userData = snapshot.val();
+          setIsPro(userData.isPro === true || userData.stripeSubscriptionStatus === 'active');
         }
-      } catch (error) {
-        console.error('Error loading private categories:', error);
-      }
-    };
+      }).catch((error) => {
+        console.error('Error fetching pro status:', error);
+      });
+    }
+  }, [user]);
 
-    loadCategories();
-  }, [user?.uid]);
-
-  // Load public categories from Firebase
+  // Fetch private categories
   useEffect(() => {
-    const loadPublicCategories = async () => {
-      try {
-        const categoriesRef = ref(db, 'categories');
-        const snapshot = await get(categoriesRef);
-        
+    if (user?.uid) {
+      const userCategoriesRef = ref(db, `users/${user.uid}/categories`);
+      get(userCategoriesRef).then((snapshot) => {
         if (snapshot.exists()) {
-          const categoriesData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-            id,
-            ...data
+          const categoriesData = snapshot.val();
+          const categoriesArray = Object.keys(categoriesData).map(key => ({
+            id: key,
+            ...categoriesData[key],
+            isPrivate: true
           }));
-          setPublicCategories(categoriesData);
+          setCategories(categoriesArray);
         }
-      } catch (error) {
-        console.error('Error loading public categories:', error);
-      }
-    };
+      });
+    }
+  }, [user]);
 
-    loadPublicCategories();
+  // Fetch public categories
+  useEffect(() => {
+    const publicCategoriesRef = ref(db, 'categories');
+    get(publicCategoriesRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const categoriesData = snapshot.val();
+        const categoriesArray = Object.keys(categoriesData).map(key => ({
+          id: key,
+          ...categoriesData[key],
+          isPrivate: false
+        }));
+        setPublicCategories(categoriesArray);
+      }
+    });
   }, []);
+
+  // Save private categories when updated
+  useEffect(() => {
+    if (user?.uid && categories.length > 0) {
+      const userCategoriesRef = ref(db, `users/${user.uid}/categories`);
+      const categoriesObject = categories.reduce((acc, cat) => ({
+        ...acc,
+        [cat.id]: {
+          name: cat.name || '',
+          description: cat.description || '',
+          items: cat.items?.map(item => ({
+            name: item.name || '',
+            description: item.description || '',
+            icon: item.icon || '🔹'
+          })) || [],
+          isPro: cat.isPro || false
+        }
+      }), {});
+      set(userCategoriesRef, categoriesObject);
+    }
+  }, [categories, user]);
 
   const handleAddCategory = () => {
     if (newCategory && !categories.find(cat => cat.name === newCategory)) {
@@ -110,16 +117,16 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
         name: newCategory,
         description: '',
         items: [],
-        isPro: true
+        isPro: true,
+        isPrivate: true
       };
-      const updatedCategories = [...categories, newCat];
-      setCategories(updatedCategories);
+      setCategories([...categories, newCat]);
       setNewCategory('');
     }
   };
 
-  const handleDeleteCategory = (categoryName: string) => {
-    const updatedCategories = categories.filter(cat => cat.name !== categoryName);
+  const handleDeleteCategory = (categoryId: string) => {
+    const updatedCategories = categories.filter(cat => cat.id !== categoryId);
     setCategories(updatedCategories);
   };
 
@@ -164,7 +171,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
           items: [...(cat.items || []), {
             name: newSubcategory,
             description: '',
-            icon: '🔹' // Default icon
+            icon: '🔹'
           }]
         };
       }
@@ -190,30 +197,36 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
   };
 
   const renderCategoryList = (categoryList: Category[], isPublic: boolean = false) => (
-    <div className="space-y-2 mx-1">
+    <div className="space-y-2">
       {categoryList.map((category) => (
         <div key={category.id} className="space-y-1">
           <div className="relative group">
             <div 
-              className={`h-10 flex items-center justify-between cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm text-white/70 hover:text-white`}
+              className={`flex items-center justify-between cursor-pointer p-3 rounded-lg transition-all duration-300 ${
+                editingCategory === category.id
+                  ? 'bg-[#00ffff]/20 border border-[#00ffff]/40'
+                  : 'hover:bg-[#00ffff]/10 border border-transparent'
+              }`}
               onClick={() => {
-                setEditingCategory(editingCategory === category.name ? null : category.name);
-                if (!isEditing || isPublic) {
+                if (isEditing && !isPublic) {
+                  setEditingCategory(editingCategory === category.id ? null : category.id);
+                } else {
                   onFilterChange(category.name);
+                  setEditingCategory(editingCategory === category.id ? null : category.id);
                 }
               }}
             >
               <div className="flex items-center gap-2">
-                <span>{category.name}</span>
+                <span className="text-white hover:text-[#00ffff] transition-colors">{category.name}</span>
                 {category.isPro && (
-                  <span className="px-1.5 py-0.5 text-[10px] font-medium bg-[#2563eb]/20 text-[#2563eb] rounded">
+                  <span className="px-1.5 py-0.5 text-[10px] font-medium bg-[#00ffff]/20 text-[#00ffff] rounded">
                     PRO
                   </span>
                 )}
               </div>
               {category.items?.length > 0 && (
                 <svg
-                  className={`w-4 h-4 transition-transform ${editingCategory === category.name ? 'rotate-180' : ''}`}
+                  className={`w-4 h-4 text-[#00ffff] transition-transform ${editingCategory === category.id ? 'rotate-180' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -226,7 +239,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDeleteCategory(category.name);
+                  handleDeleteCategory(category.id);
                 }}
                 className="absolute -top-1 -right-1 bg-red-500 text-white w-5 h-5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity text-xs flex items-center justify-center"
               >
@@ -234,7 +247,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
               </button>
             )}
           </div>
-          {editingCategory === category.name && (
+          {editingCategory === category.id && (
             <div className="ml-4 space-y-1">
               {!isPublic && isEditing && (
                 <div className="flex flex-col gap-2 mb-2">
@@ -243,11 +256,11 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
                     value={newSubcategory}
                     onChange={(e) => setNewSubcategory(e.target.value)}
                     placeholder="Add subcategory"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full bg-[#00ffff]/5 border border-[#00ffff]/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50"
                   />
                   <Button 
                     onClick={() => handleAddSubcategory(category.name)}
-                    className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2 rounded-lg transition-colors text-sm"
+                    className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-4 py-2 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,255,255,0.5)]"
                   >
                     Add Subcategory
                   </Button>
@@ -256,7 +269,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
               {category.items?.map((item) => (
                 <div key={item.name} className="relative group">
                   <div 
-                    className="h-10 flex items-center cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/70 transition-colors cursor-pointer"
+                    className="flex items-center p-3 rounded-lg bg-[#00ffff]/5 hover:bg-[#00ffff]/10 transition-all duration-300 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       onFilterChange(item.name);
@@ -264,7 +277,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{item.icon}</span>
-                      <span>{item.name}</span>
+                      <span className="text-white hover:text-[#00ffff] transition-colors">{item.name}</span>
                     </div>
                   </div>
                   {!isPublic && isEditing && (
@@ -288,11 +301,11 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
   );
 
   return (
-    <div className="h-screen sticky top-0 bg-surface p-5 relative flex flex-col w-[280px]">
+    <div className="h-screen sticky top-0 bg-black/80 backdrop-blur-lg border-r border-[#00ffff]/20 p-4 relative flex flex-col w-[280px]">
       {/* User Tier Badge */}
-      <div className="mb-4 mx-1">
+      <div className="mb-4">
         <span className={`px-3 py-2 rounded-lg text-sm font-medium ${
-          isPro ? 'bg-[#2563eb]/20 text-[#2563eb]' : 'bg-white/10 text-white/70'
+          isPro ? 'bg-[#00ffff]/20 text-[#00ffff]' : 'bg-white/10 text-white/70'
         }`}>
           {isPro ? 'Pro' : 'Free'}
         </span>
@@ -301,7 +314,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
       {/* Toggle Button */}
       <button
         onClick={onToggle}
-        className="absolute -right-3 top-4 p-1.5 bg-surface hover:bg-surface-hover rounded-full border border-white/10 transition-colors"
+        className="absolute -right-3 top-4 p-1.5 bg-black/80 hover:bg-[#00ffff]/10 rounded-full border border-[#00ffff]/20 transition-colors text-[#00ffff]"
       >
         {isCollapsed ? (
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,87 +329,63 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
 
       {/* Categories Section */}
       <div className="flex-grow overflow-y-auto">
-        {isPro ? (
+        {isPro && (
           <>
-            {/* Pro User Content */}
-            <div className="mx-1">
-              <Button
-                onClick={() => setIsEditing(!isEditing)}
-                className="mb-4 w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2 rounded-lg transition-colors text-sm"
-              >
-                {isEditing ? 'Done Editing' : 'Edit Categories'}
-              </Button>
-            </div>
+            {/* Edit Categories Button */}
+            <Button 
+              onClick={() => setIsEditing(!isEditing)}
+              className="w-full bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-lg transition-all duration-300 border border-[#00ffff]/30 mb-4"
+            >
+              {isEditing ? 'Done Editing' : 'Edit Categories'}
+            </Button>
 
-            {/* Private Categories */}
-            <div className="space-y-4 mx-1">
-              <div className="flex flex-col gap-2">
+            {/* Add Category Input */}
+            {isEditing && (
+              <div className="flex flex-col gap-2 mb-4">
                 <input
                   type="text"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                   placeholder="Add new category"
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full bg-[#00ffff]/5 border border-[#00ffff]/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50"
                 />
-                <Button 
+                <Button
                   onClick={handleAddCategory}
-                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2 rounded-lg transition-colors text-sm"
+                  className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-4 py-2 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,255,255,0.5)]"
                 >
                   Add Category
                 </Button>
               </div>
+            )}
+
+            {/* Private Categories */}
+            <div className="space-y-4">
               <div 
-                className={`h-10 flex items-center cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm text-white/70 hover:text-white`}
+                className="p-3 rounded-lg bg-[#00ffff]/10 hover:bg-[#00ffff]/20 transition-all duration-300 cursor-pointer text-[#00ffff]"
                 onClick={() => onFilterChange('')}
               >
                 All Prompts
               </div>
               {renderCategoryList(categories)}
             </div>
-
-            {/* Public Categories */}
-            {publicCategories.length > 0 && (
-              <div className="mt-8 mx-1">
-                <Button 
-                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2 rounded-lg transition-colors text-sm mb-4"
-                  onClick={() => {}}
-                >
-                  Public Categories
-                </Button>
-                {renderCategoryList(publicCategories.filter(category => !category.isPro))}
-              </div>
-            )}
           </>
-        ) : (
-          <div className="flex flex-col h-full mx-1">
-            <div className="space-y-2">
-              <div 
-                className={`h-10 flex items-center cursor-pointer p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm text-white/70 hover:text-white`}
-                onClick={() => onFilterChange('')}
-              >
-                All Prompts
-              </div>
-              {renderCategoryList(publicCategories.filter(category => !category.isPro))}
-            </div>
-            <div className="mt-auto pt-4">
-              <div className="text-white/70 text-sm text-center">
-                Upgrade to Pro to create and manage custom categories
-              </div>
-              <Button
-                onClick={handleUpgradeClick}
-                className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2 rounded-lg transition-colors text-sm mt-2"
-              >
-                Upgrade to Pro
-              </Button>
-            </div>
-          </div>
         )}
+
+        {/* Public Categories */}
+        <div className="mt-8">
+          <Button 
+            className="w-full bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-lg transition-all duration-300 border border-[#00ffff]/30 mb-4"
+          >
+            Public Categories
+          </Button>
+          {renderCategoryList(publicCategories, true)}
+        </div>
       </div>
 
       {/* Bottom Actions */}
-      <div className="pt-4 mt-4 border-t border-white/10 space-y-2 mx-1">
+      <div className="pt-4 mt-4 border-t border-[#00ffff]/20 space-y-2">
         <Link href="/settings" className="block">
-          <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
+          <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-[#00ffff] hover:bg-[#00ffff]/10 rounded-lg transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -406,7 +395,7 @@ export default function Sidebar({ onFilterChange, isCollapsed, onToggle }: Sideb
         </Link>
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-white/70 hover:text-[#00ffff] hover:bg-[#00ffff]/10 rounded-lg transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -40,7 +40,9 @@ export default function RootLayout({
       <body className={`${inter.className} bg-[#0A0A0B] min-h-screen text-white`}>
         <AuthProvider>
           <ClientLayout>
-            {children}
+            <main className="pt-24">
+              {children}
+            </main>
           </ClientLayout>
         </AuthProvider>
       </body>
