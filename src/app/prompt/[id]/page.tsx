@@ -139,172 +139,158 @@ export default function PromptPage({ params: { id } }: Props) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00ffff]"></div>
       </div>
     );
   }
 
   if (error || !prompt) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12 text-white/60">
         <p className="text-red-500">{error || 'An error occurred'}</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="max-w-4xl mx-auto">
-        <div className="p-6 space-y-6">
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-3 text-sm">
-              {error}
-            </div>
-          )}
+    <div className="min-h-screen bg-black py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto bg-black/50 border border-[#00ffff]/20 rounded-lg">
+          <div className="p-8 space-y-6">
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg p-3 text-sm">
+                {error}
+              </div>
+            )}
 
-          <div className="flex justify-between items-center">
-            <div>
-              {isEditing ? (
-                <input
-                  type="text"
-                  value={editedPrompt?.title}
-                  onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, title: e.target.value } : null)}
-                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              ) : (
-                <h1 className="text-2xl font-bold">{prompt.title}</h1>
-              )}
+            <div className="flex justify-between items-center">
+              <div className="flex-1">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedPrompt?.title}
+                    onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, title: e.target.value } : null)}
+                    className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                  />
+                ) : (
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+                    {prompt.title}
+                  </h1>
+                )}
+              </div>
+              <div className="flex gap-3 ml-4">
+                {prompt.userId === user?.uid && (
+                  <>
+                    {isEditing ? (
+                      <>
+                        <button
+                          onClick={handleSave}
+                          className="px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setIsEditing(false)}
+                          className="px-4 py-2 bg-black/50 hover:bg-black/70 text-white/60 hover:text-white rounded-lg transition-all duration-300 border border-white/10"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setIsEditing(true)}
+                          className="px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={handleDelete}
+                          className="px-4 py-2 bg-black/50 hover:bg-red-500/20 text-white/60 hover:text-red-500 rounded-lg transition-all duration-300 border border-white/10"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
-            <div className="flex space-x-2">
-              {prompt.userId === user?.uid && (
+
+            <div className="space-y-6">
+              {isEditing ? (
                 <>
-                  {isEditing ? (
-                    <>
-                      <Button onClick={handleSave}>Save</Button>
-                      <Button variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button onClick={() => setIsEditing(true)}>Edit</Button>
-                      <Button variant="ghost" onClick={handleDelete}>Delete</Button>
-                    </>
-                  )}
+                  <div>
+                    <label className="block text-[#00ffff] text-sm font-medium mb-2">Description</label>
+                    <textarea
+                      value={editedPrompt?.description}
+                      onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, description: e.target.value } : null)}
+                      rows={3}
+                      className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#00ffff] text-sm font-medium mb-2">Content</label>
+                    <textarea
+                      value={editedPrompt?.content}
+                      onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, content: e.target.value } : null)}
+                      rows={8}
+                      className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white font-mono focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[#00ffff] text-sm font-medium mb-2">Category</label>
+                    <select
+                      value={editedPrompt?.category}
+                      onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, category: e.target.value as PromptCategory } : null)}
+                      className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                    >
+                      {privateCategories.length > 0 && (
+                        <optgroup label="Private Categories" className="bg-black text-white">
+                          {privateCategories.map((category) => (
+                            <option key={category.name} value={category.name}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                      <optgroup label="Public Categories" className="bg-black text-white">
+                        {publicCategories.map((category: PromptCategory) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <h2 className="text-[#00ffff] text-sm font-medium mb-2">Description</h2>
+                    <p className="text-white/80">{prompt.description}</p>
+                  </div>
+
+                  <div>
+                    <h2 className="text-[#00ffff] text-sm font-medium mb-2">Content</h2>
+                    <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-4">
+                      <pre className="whitespace-pre-wrap font-mono text-white/80">{prompt.content}</pre>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h2 className="text-[#00ffff] text-sm font-medium mb-2">Category</h2>
+                    <p className="text-white/80">{prompt.category}</p>
+                  </div>
                 </>
               )}
             </div>
           </div>
-
-          <div className="space-y-4">
-            {isEditing ? (
-              <>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Description</label>
-                  <textarea
-                    value={editedPrompt?.description}
-                    onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, description: e.target.value } : null)}
-                    rows={3}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Content</label>
-                  <textarea
-                    value={editedPrompt?.content}
-                    onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, content: e.target.value } : null)}
-                    rows={8}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
-                  <select
-                    value={editedPrompt?.category}
-                    onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, category: e.target.value as PromptCategory } : null)}
-                    className="w-full px-3 py-2 bg-[#0f172a] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    {privateCategories.length > 0 && (
-                      <optgroup label="Private Categories">
-                        {privateCategories.map((category) => (
-                          <option key={category.name} value={category.name}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                    <optgroup label="Public Categories">
-                      {publicCategories.map((category: PromptCategory) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">Tags</label>
-                  <input
-                    type="text"
-                    value={editedPrompt?.tags?.join(', ') || ''}
-                    onChange={(e) => setEditedPrompt(prev => prev ? { ...prev, tags: e.target.value.split(',').map(tag => tag.trim()) } : null)}
-                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary"
-                    placeholder="Enter tags separated by commas"
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div>
-                  <h2 className="text-lg font-medium mb-2">Description</h2>
-                  <p className="text-white/70">{prompt.description}</p>
-                </div>
-
-                <div>
-                  <h2 className="text-lg font-medium mb-2">Content</h2>
-                  <pre className="whitespace-pre-wrap font-mono text-sm bg-white/5 p-4 rounded-lg">
-                    {prompt.content}
-                  </pre>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h2 className="text-lg font-medium mb-2">Category</h2>
-                    <p className="text-white/70">{prompt.category}</p>
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-medium mb-2">Visibility</h2>
-                    <p className="text-white/70 capitalize">{prompt.visibility}</p>
-                  </div>
-                </div>
-
-                {prompt.tags && prompt.tags.length > 0 && (
-                  <div>
-                    <h2 className="text-lg font-medium mb-2">Tags</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {prompt.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-1 bg-white/5 text-white/70 rounded-full text-sm"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          <div className="text-sm text-white/50">
-            <p>Created by {prompt.userName} on {new Date(prompt.createdAt).toLocaleDateString()}</p>
-            <p>Last updated: {new Date(prompt.updatedAt).toLocaleDateString()}</p>
-          </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

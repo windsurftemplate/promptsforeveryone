@@ -125,21 +125,17 @@ export default function ExplorePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {PUBLIC_CATEGORIES.map((category) => (
-            <div
+            <Link
               key={category.name}
-              onClick={() => setSelectedCategory(category.name)}
-              className={`
-                cursor-pointer p-6 rounded-lg border transition-all duration-300
-                ${selectedCategory === category.name
-                  ? 'bg-[#00ffff]/10 border-[#00ffff] shadow-[0_0_15px_rgba(0,255,255,0.3)]'
-                  : 'bg-black/50 border-[#00ffff]/20 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.1)]'
-                }
-              `}
+              href={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+              className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300"
             >
-              <div className="text-4xl mb-4">{category.icon}</div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-2">{category.name}</h3>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-4xl">{category.icon}</span>
+                <h2 className="text-xl font-semibold text-white">{category.name}</h2>
+              </div>
               <p className="text-white/60">{category.description}</p>
-            </div>
+            </Link>
           ))}
         </div>
 
