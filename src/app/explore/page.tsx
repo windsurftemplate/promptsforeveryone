@@ -110,7 +110,7 @@ export default function ExplorePage() {
 
   const filteredPrompts = selectedCategory
     ? prompts.filter(prompt => 
-        prompt.categories?.some(category => 
+        prompt.categories?.some((category: string) => 
           category.toLowerCase() === selectedCategory.toLowerCase()
         )
       )

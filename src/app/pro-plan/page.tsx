@@ -30,8 +30,8 @@ export default function ProPlanPage() {
         return;
       }
 
-      const priceId = interval === 'month' 
-        ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY_ID 
+      const priceId = interval === 'month'
+        ? process.env.NEXT_PUBLIC_STRIPE_PRICE_MONTHLY_ID
         : process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY_ID;
 
       if (!priceId) {
@@ -40,8 +40,13 @@ export default function ProPlanPage() {
         return;
       }
 
-      const { redirectToCheckout } = await import('@/lib/stripe');
-      await redirectToCheckout(priceId, user.uid);
+      try {
+        const { redirectToCheckout } = await import('@/lib/stripe');
+        await redirectToCheckout(priceId, user.uid);
+      } catch (checkoutError) {
+        console.error('Checkout error:', checkoutError);
+        alert('Failed to start checkout process. Please try again later.');
+      }
     } catch (error) {
       console.error('Error:', error);
       alert('Sorry, there was an error initiating the checkout. Please try again later.');

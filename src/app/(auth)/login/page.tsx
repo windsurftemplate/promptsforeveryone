@@ -38,10 +38,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
             Sign in to your account
           </h2>
         </div>
@@ -58,7 +58,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 placeholder-white/50 text-white rounded-t-md focus:outline-none focus:ring-[#00ffff]/50 focus:border-[#00ffff] focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -74,7 +74,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 placeholder-white/50 text-white rounded-b-md focus:outline-none focus:ring-[#00ffff]/50 focus:border-[#00ffff] focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -83,7 +83,7 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm text-center">
+            <div className="text-red-400 text-sm text-center">
               {error}
             </div>
           )}
@@ -91,7 +91,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-black bg-[#00ffff] hover:bg-[#00ffff]/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00ffff] transition-colors duration-200 shadow-[0_0_15px_rgba(0,255,255,0.5)]"
             >
               Sign in with Email
             </button>
@@ -99,7 +99,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={handleGoogleSignIn}
-              className="group relative w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-[#00ffff]/20 text-sm font-medium rounded-md text-white bg-black/50 hover:bg-[#00ffff]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00ffff] transition-colors duration-200"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -124,11 +124,11 @@ export default function LoginPage() {
           </div>
         </form>
         <div className="text-center">
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-white/60">
             Don&apos;t have an account?{' '}
             <a 
               href="/signup" 
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
             >
               Sign up
             </a>

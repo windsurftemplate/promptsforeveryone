@@ -253,7 +253,7 @@ export default function Home() {
             {/* For Researchers */}
             <div className="group relative animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
               <div className="h-[300px] mb-6 rounded-xl overflow-hidden relative">
-                <div className="absolute inset-0 bg-[url('/research-bg.webp')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-black/40 transform group-hover:bg-black/60 transition-all duration-700"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-6xl mb-4">🔬</span>
@@ -268,7 +268,7 @@ export default function Home() {
             {/* For Business */}
             <div className="group relative animate-slide-in-right" style={{ animationDelay: '0.4s' }}>
               <div className="h-[300px] mb-6 rounded-xl overflow-hidden relative">
-                <div className="absolute inset-0 bg-[url('/business-bg.webp')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-black/40 transform group-hover:bg-black/60 transition-all duration-700"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-6xl mb-4">💼</span>
@@ -283,7 +283,7 @@ export default function Home() {
             {/* For Developers */}
             <div className="group relative animate-slide-in-right" style={{ animationDelay: '0.6s' }}>
               <div className="h-[300px] mb-6 rounded-xl overflow-hidden relative">
-                <div className="absolute inset-0 bg-[url('/developer-bg.webp')] bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-black/40 transform group-hover:bg-black/60 transition-all duration-700"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
                   <span className="text-6xl mb-4">👨‍💻</span>
@@ -366,7 +366,7 @@ export default function Home() {
                     <span className="text-white/90">Unlimited custom categories</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-green-400">✓</span>
+                    <span className="text-green-400">���</span>
                     <span className="text-white/90">Private prompts</span>
                   </div>
                   <div className="flex items-center gap-3">

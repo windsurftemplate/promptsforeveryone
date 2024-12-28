@@ -11,14 +11,7 @@ import { PencilIcon, TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/2
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 
-interface Prompt {
-  id: string;
-  title: string;
-  description: string;
-  categories: string[];
-  visibility: 'public' | 'private';
-  userId: string;
-}
+import { Prompt } from '../../types/prompt';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -78,7 +71,8 @@ export default function DashboardPage() {
     setSelectedPrompt(null);
   };
 
-  const handleDelete = async (promptId: string) => {
+  const handleDelete = async (promptId: string | undefined) => {
+    if (!promptId) return;
     if (window.confirm('Are you sure you want to delete this prompt?')) {
       try {
         const promptRef = ref(db, `prompts/${promptId}`);
@@ -100,9 +94,7 @@ export default function DashboardPage() {
 
   const filteredPrompts = filterTag
     ? prompts.filter(prompt => 
-        prompt.categories?.some(category => 
-          category.toLowerCase() === filterTag.toLowerCase()
-        )
+        prompt.category.toLowerCase() === filterTag.toLowerCase()
       )
     : prompts;
 
@@ -173,12 +165,18 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-white/60 mb-4 line-clamp-3">{prompt.description}</p>
                 <div className="flex flex-wrap gap-2">
-                  {prompt.categories?.map((category, index) => (
+                  <span
+                    key={prompt.category}
+                    className="text-sm px-3 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30"
+                  >
+                    {prompt.category}
+                  </span>
+                  {prompt.tags?.map((tag: string, index: number) => (
                     <span
-                      key={index}
+                      key={`${tag}-${index}`}
                       className="text-sm px-3 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30"
                     >
-                      {category}
+                      {tag}
                     </span>
                   ))}
                 </div>
@@ -187,9 +185,9 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {selectedPrompt && (
+        {selectedPrompt && selectedPrompt.id && (
           <PromptModal
-            prompt={selectedPrompt}
+            prompt={selectedPrompt as Required<Pick<Prompt, 'id' | 'title' | 'description' | 'content' | 'category' | 'createdAt'>>}
             onClose={handleCloseModal}
             onEdit={handleEditInModal}
             onDelete={handleDelete}
