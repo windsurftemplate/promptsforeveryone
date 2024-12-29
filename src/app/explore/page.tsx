@@ -6,106 +6,72 @@ import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const PUBLIC_CATEGORIES = [
-  {
-    name: "Code Generation",
-    description: "AI-powered code generation prompts for various programming languages and frameworks",
-    icon: "💻"
-  },
-  {
-    name: "Debugging",
-    description: "Prompts to help identify and fix bugs in your code",
-    icon: "🐛"
-  },
-  {
-    name: "API Development",
-    description: "Create and document APIs with helpful prompts",
-    icon: "🔌"
-  },
-  {
-    name: "Testing",
-    description: "Generate test cases and improve code coverage",
-    icon: "🧪"
-  },
-  {
-    name: "Documentation",
-    description: "Create clear and comprehensive documentation",
-    icon: "📝"
-  },
-  {
-    name: "Database",
-    description: "Database design, queries, and optimization prompts",
-    icon: "🗄️"
-  },
-  {
-    name: "Security",
-    description: "Security best practices and vulnerability detection",
-    icon: "🔒"
-  },
-  {
-    name: "Performance",
-    description: "Optimize code and improve application performance",
-    icon: "⚡"
-  },
-  {
-    name: "UI/UX",
-    description: "Design user interfaces and enhance user experience",
-    icon: "🎨"
-  },
-  {
-    name: "DevOps",
-    description: "Streamline development and deployment processes",
-    icon: "🚀"
-  },
-  {
-    name: "Mobile Development",
-    description: "Create mobile applications for iOS and Android",
-    icon: "📱"
-  },
-  {
-    name: "Web Development",
-    description: "Build modern web applications and websites",
-    icon: "🌐"
-  },
-  {
-    name: "Machine Learning",
-    description: "Develop AI and machine learning solutions",
-    icon: "🤖"
-  },
-  {
-    name: "Data Analysis",
-    description: "Process and analyze data effectively",
-    icon: "📊"
-  },
-  {
-    name: "Cloud Computing",
-    description: "Cloud infrastructure and services management",
-    icon: "☁️"
-  }
-];
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
 
 export default function ExplorePage() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch public categories and prompts
   useEffect(() => {
-    const fetchPrompts = async () => {
-      const promptsRef = ref(db, 'prompts');
-      const snapshot = await get(promptsRef);
-      if (snapshot.exists()) {
-        const promptsData = Object.entries(snapshot.val())
-          .map(([id, data]: [string, any]) => ({
-            id,
-            ...data,
-            categories: data.categories || [],
-          }))
-          .filter(prompt => prompt.visibility !== 'private');
-        setPrompts(promptsData);
+    const fetchData = async () => {
+      try {
+        // Fetch categories
+        const categoriesRef = ref(db, 'categories');
+        const categoriesSnapshot = await get(categoriesRef);
+        if (categoriesSnapshot.exists()) {
+          const categoriesData = categoriesSnapshot.val();
+          console.log('Raw categories data:', categoriesData);
+          
+          const categoriesArray = Object.entries(categoriesData)
+            .map(([id, data]: [string, any]) => {
+              console.log('Processing category:', id, data);
+              if (!data || !data.name) {
+                console.warn('Category missing required data:', id, data);
+                return null;
+              }
+              return {
+                id,
+                name: data.name,
+                description: data.description || '',
+                icon: data.icon || '📝'
+              };
+            })
+            .filter((category): category is Category => category !== null);
+          
+          console.log('Processed categories:', categoriesArray);
+          setCategories(categoriesArray);
+        }
+
+        // Fetch prompts
+        const promptsRef = ref(db, 'prompts');
+        const promptsSnapshot = await get(promptsRef);
+        if (promptsSnapshot.exists()) {
+          const promptsData = Object.entries(promptsSnapshot.val())
+            .map(([id, data]: [string, any]) => ({
+              id,
+              ...data,
+              categories: data.categories || [],
+            }))
+            .filter(prompt => prompt.visibility !== 'private');
+          setPrompts(promptsData);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchPrompts();
+    fetchData();
   }, []);
 
   const filteredPrompts = selectedCategory
@@ -116,6 +82,14 @@ export default function ExplorePage() {
       )
     : [];
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00ffff]"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
@@ -124,17 +98,17 @@ export default function ExplorePage() {
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {PUBLIC_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <Link
-              key={category.name}
-              href={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+              key={category.id}
+              href={`/category/${category.name?.toLowerCase().replace(/\s+/g, '-') || category.id}`}
               className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300"
             >
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-4xl">{category.icon}</span>
-                <h2 className="text-xl font-semibold text-white">{category.name}</h2>
+                <span className="text-4xl">{category.icon || '📝'}</span>
+                <h2 className="text-xl font-semibold text-white">{category.name || 'Unnamed Category'}</h2>
               </div>
-              <p className="text-white/60">{category.description}</p>
+              <p className="text-white/60">{category.description || 'No description available'}</p>
             </Link>
           ))}
         </div>
@@ -148,10 +122,10 @@ export default function ExplorePage() {
               {filteredPrompts.map((prompt) => (
                 <div
                   key={prompt.id}
-                  className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300"
+                  className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 transition-all duration-300"
                 >
                   <h3 className="text-xl font-semibold text-white mb-2">{prompt.title}</h3>
-                  <p className="text-white/60 mb-4 line-clamp-2">{prompt.description}</p>
+                  <p className="text-white/60 mb-4">{prompt.description}</p>
                   <Link
                     href={`/prompt/${prompt.id}`}
                     className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
@@ -160,17 +134,6 @@ export default function ExplorePage() {
                   </Link>
                 </div>
               ))}
-              {filteredPrompts.length === 0 && (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-white/60 mb-4">No prompts found in this category yet.</p>
-                  <Link
-                    href="/submit"
-                    className="inline-block bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-6 py-2 rounded-lg transition-all duration-300 border border-[#00ffff]/30"
-                  >
-                    Submit the First Prompt
-                  </Link>
-                </div>
-              )}
             </div>
           </div>
         )}

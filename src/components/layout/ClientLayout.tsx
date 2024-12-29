@@ -12,6 +12,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const { user } = useAuth();
   const [isPro, setIsPro] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     const checkProStatus = async () => {
@@ -35,7 +36,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {/* Black Navigation Sidebar */}
         {showSidebar && (
           <div className="w-64 shrink-0 border-r border-white/[0.06]">
-            <SideNav />
+            <SideNav isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
           </div>
         )}
 

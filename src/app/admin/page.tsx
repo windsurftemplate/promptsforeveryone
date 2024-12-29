@@ -24,14 +24,9 @@ interface Prompt {
 }
 
 interface Category {
-  id: string;
   name: string;
   description: string;
-  items: {
-    name: string;
-    description: string;
-    icon: string;
-  }[];
+  icon: string;
 }
 
 export default function AdminPage() {
@@ -46,12 +41,7 @@ export default function AdminPage() {
   const [savingPage, setSavingPage] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [newCategory, setNewCategory] = useState({
-    name: '',
-    description: '',
-    items: []
-  });
-  const [newItem, setNewItem] = useState({
+  const [newCategory, setNewCategory] = useState<Category>({
     name: '',
     description: '',
     icon: ''
@@ -103,11 +93,7 @@ export default function AdminPage() {
         const categoriesRef = ref(db, 'categories');
         const categoriesSnapshot = await get(categoriesRef);
         const categoriesData = categoriesSnapshot.val() || {};
-        const formattedCategories = Object.entries(categoriesData).map(([id, data]: [string, any]) => ({
-          id,
-          ...data,
-        }));
-        setCategories(formattedCategories);
+        setCategories(Object.values(categoriesData));
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -188,76 +174,272 @@ export default function AdminPage() {
     try {
       const categoriesRef = ref(db, 'categories');
       const newCategoryRef = push(categoriesRef);
-      await set(newCategoryRef, {
-        name: newCategory.name,
-        description: newCategory.description,
-        items: []
-      });
-      
-      setCategories([...categories, { 
-        id: newCategoryRef.key as string, 
-        ...newCategory 
-      }]);
-      setNewCategory({ name: '', description: '', items: [] });
+      await set(newCategoryRef, newCategory);
+      setNewCategory({ name: '', description: '', icon: '' });
+      // Refresh categories
+      const snapshot = await get(categoriesRef);
+      if (snapshot.exists()) {
+        setCategories(Object.values(snapshot.val()));
+      }
     } catch (error) {
       console.error('Error adding category:', error);
     }
   };
 
-  const updateCategory = async (categoryId: string, updatedData: Partial<Category>) => {
+  const updateCategory = async (categoryId: string, updatedData: Category) => {
     try {
       const categoryRef = ref(db, `categories/${categoryId}`);
       await update(categoryRef, updatedData);
-      setCategories(categories.map(cat => 
-        cat.id === categoryId ? { ...cat, ...updatedData } : cat
-      ));
       setEditingCategory(null);
+      // Refresh categories
+      const categoriesRef = ref(db, 'categories');
+      const snapshot = await get(categoriesRef);
+      if (snapshot.exists()) {
+        setCategories(Object.values(snapshot.val()));
+      }
     } catch (error) {
       console.error('Error updating category:', error);
     }
   };
 
   const deleteCategory = async (categoryId: string) => {
-    try {
-      await remove(ref(db, `categories/${categoryId}`));
-      setCategories(categories.filter(cat => cat.id !== categoryId));
-    } catch (error) {
-      console.error('Error deleting category:', error);
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      try {
+        const categoryRef = ref(db, `categories/${categoryId}`);
+        await remove(categoryRef);
+        // Refresh categories
+        const categoriesRef = ref(db, 'categories');
+        const snapshot = await get(categoriesRef);
+        if (snapshot.exists()) {
+          setCategories(Object.values(snapshot.val()));
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error('Error deleting category:', error);
+      }
     }
   };
 
-  const addItemToCategory = async (categoryId: string) => {
-    try {
-      const category = categories.find(cat => cat.id === categoryId);
-      if (!category) return;
+  const renderCategoriesTab = () => (
+    <div className="space-y-6">
+      <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-[#00ffff] mb-4">Add New Category</h2>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[#00ffff] text-sm font-medium mb-2">Name</label>
+            <input
+              type="text"
+              value={newCategory.name}
+              onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+              className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+            />
+          </div>
+          <div>
+            <label className="block text-[#00ffff] text-sm font-medium mb-2">Description</label>
+            <input
+              type="text"
+              value={newCategory.description}
+              onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+              className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+            />
+          </div>
+          <div>
+            <label className="block text-[#00ffff] text-sm font-medium mb-2">Icon (emoji)</label>
+            <input
+              type="text"
+              value={newCategory.icon}
+              onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
+              className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+            />
+          </div>
+          <button
+            onClick={addCategory}
+            className="px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+          >
+            Add Category
+          </button>
+        </div>
+      </div>
 
-      const updatedItems = [...(category.items || []), newItem];
-      await update(ref(db, `categories/${categoryId}`), { items: updatedItems });
-      
-      setCategories(categories.map(cat => 
-        cat.id === categoryId ? { ...cat, items: updatedItems } : cat
-      ));
-      setNewItem({ name: '', description: '', icon: '' });
-    } catch (error) {
-      console.error('Error adding item to category:', error);
-    }
-  };
+      <div className="space-y-4">
+        {categories.map((category, index) => (
+          <div key={index} className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
+            {editingCategory === category ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[#00ffff] text-sm font-medium mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={category.name}
+                    onChange={(e) => setCategories(categories.map((c, i) => i === index ? { ...c, name: e.target.value } : c))}
+                    className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#00ffff] text-sm font-medium mb-2">Description</label>
+                  <input
+                    type="text"
+                    value={category.description}
+                    onChange={(e) => setCategories(categories.map((c, i) => i === index ? { ...c, description: e.target.value } : c))}
+                    className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[#00ffff] text-sm font-medium mb-2">Icon</label>
+                  <input
+                    type="text"
+                    value={category.icon}
+                    onChange={(e) => setCategories(categories.map((c, i) => i === index ? { ...c, icon: e.target.value } : c))}
+                    className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => updateCategory(index.toString(), category)}
+                    className="px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingCategory(null)}
+                    className="px-4 py-2 bg-black/50 hover:bg-black/70 text-white/60 hover:text-white rounded-lg transition-all duration-300 border border-white/10"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-4xl">{category.icon}</span>
+                    <h3 className="text-xl font-semibold text-white">{category.name}</h3>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setEditingCategory(category)}
+                      className="px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteCategory(index.toString())}
+                      className="px-4 py-2 bg-black/50 hover:bg-red-500/20 text-white/60 hover:text-red-500 rounded-lg transition-all duration-300 border border-white/10"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <p className="text-white/60">{category.description}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 
-  const deleteItemFromCategory = async (categoryId: string, itemIndex: number) => {
-    try {
-      const category = categories.find(cat => cat.id === categoryId);
-      if (!category) return;
+  const renderUsersTab = () => (
+    <div className="space-y-6">
+      <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-black/50">
+            <tr>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Email</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Role</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Created At</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#00ffff]/10">
+            {users.map((user) => (
+              <tr key={user.uid} className="hover:bg-black/30">
+                <td className="px-6 py-4 text-sm text-white/80">{user.email}</td>
+                <td className="px-6 py-4 text-sm text-white/80">{user.role}</td>
+                <td className="px-6 py-4 text-sm text-white/80">
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 text-sm">
+                  <select
+                    value={user.role}
+                    onChange={(e) => updateUserRole(user.uid, e.target.value)}
+                    className="bg-black/50 text-white border border-[#00ffff]/30 rounded-lg px-3 py-1 focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                    <option value="moderator">Moderator</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
-      const updatedItems = category.items.filter((_, index) => index !== itemIndex);
-      await update(ref(db, `categories/${categoryId}`), { items: updatedItems });
-      
-      setCategories(categories.map(cat => 
-        cat.id === categoryId ? { ...cat, items: updatedItems } : cat
-      ));
-    } catch (error) {
-      console.error('Error deleting item from category:', error);
-    }
-  };
+  const renderPromptsTab = () => (
+    <div className="space-y-6">
+      <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-black/50">
+            <tr>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Title</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Author</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Status</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Created At</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-[#00ffff]">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#00ffff]/10">
+            {prompts.map((prompt) => (
+              <tr key={prompt.id} className="hover:bg-black/30">
+                <td className="px-6 py-4 text-sm text-white/80">{prompt.title}</td>
+                <td className="px-6 py-4 text-sm text-white/80">{prompt.authorId}</td>
+                <td className="px-6 py-4 text-sm">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      prompt.status === 'approved'
+                        ? 'bg-green-100 text-green-800'
+                        : prompt.status === 'rejected'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {prompt.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 text-sm text-white/80">
+                  {new Date(prompt.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 text-sm space-x-2">
+                  <button
+                    onClick={() => updatePromptStatus(prompt.id, 'approved')}
+                    className="text-[#00ffff] hover:text-[#00ffff]/80"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => updatePromptStatus(prompt.id, 'rejected')}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => deletePrompt(prompt.id)}
+                    className="text-white/60 hover:text-white/80"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
@@ -268,340 +450,49 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+    <div className="min-h-screen bg-black py-12">
+      <div className="container mx-auto px-4">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-8">
+          Admin Dashboard
+        </h1>
 
-      {/* Tabs */}
-      <div className="flex space-x-4 mb-6">
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`px-4 py-2 rounded-md ${
-            activeTab === 'users'
-              ? 'bg-primary text-white'
-              : 'bg-surface hover:bg-surface-hover'
-          }`}
-        >
-          Users
-        </button>
-        <button
-          onClick={() => setActiveTab('prompts')}
-          className={`px-4 py-2 rounded-md ${
-            activeTab === 'prompts'
-              ? 'bg-primary text-white'
-              : 'bg-surface hover:bg-surface-hover'
-          }`}
-        >
-          Prompts
-        </button>
-        <button
-          onClick={() => setActiveTab('pages')}
-          className={`px-4 py-2 rounded-md ${
-            activeTab === 'pages'
-              ? 'bg-primary text-white'
-              : 'bg-surface hover:bg-surface-hover'
-          }`}
-        >
-          Pages
-        </button>
-        <button
-          onClick={() => setActiveTab('categories')}
-          className={`px-4 py-2 rounded-md ${
-            activeTab === 'categories'
-              ? 'bg-[#2563eb] text-white'
-              : 'bg-white/[0.03] hover:bg-white/[0.06]'
-          }`}
-        >
-          Categories
-        </button>
+        <div className="flex gap-4 mb-8">
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              activeTab === 'users'
+                ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                : 'text-white/60 hover:text-white hover:bg-white/[0.06]'
+            }`}
+          >
+            Users
+          </button>
+          <button
+            onClick={() => setActiveTab('prompts')}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              activeTab === 'prompts'
+                ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                : 'text-white/60 hover:text-white hover:bg-white/[0.06]'
+            }`}
+          >
+            Prompts
+          </button>
+          <button
+            onClick={() => setActiveTab('categories')}
+            className={`px-4 py-2 rounded-lg transition-all duration-300 ${
+              activeTab === 'categories'
+                ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                : 'text-white/60 hover:text-white hover:bg-white/[0.06]'
+            }`}
+          >
+            Categories
+          </button>
+        </div>
+
+        {activeTab === 'users' && renderUsersTab()}
+        {activeTab === 'prompts' && renderPromptsTab()}
+        {activeTab === 'categories' && renderCategoriesTab()}
       </div>
-
-      {/* Users Table */}
-      {activeTab === 'users' && (
-        <div className="bg-white/[0.03] rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-white/[0.06]">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Email</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Role</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Created At</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.06]">
-              {users.map((user) => (
-                <tr key={user.uid} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-4 text-sm text-white/70">{user.email}</td>
-                  <td className="px-6 py-4 text-sm text-white/70">{user.role}</td>
-                  <td className="px-6 py-4 text-sm text-white/70">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-sm">
-                    <select
-                      value={user.role}
-                      onChange={(e) => updateUserRole(user.uid, e.target.value)}
-                      className="bg-white/[0.06] text-white border border-white/[0.1] rounded-lg px-3 py-1"
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                      <option value="moderator">Moderator</option>
-                    </select>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Prompts Table */}
-      {activeTab === 'prompts' && (
-        <div className="bg-white/[0.03] rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-white/[0.06]">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Title</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Author</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Created At</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-white">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.06]">
-              {prompts.map((prompt) => (
-                <tr key={prompt.id} className="hover:bg-white/[0.02]">
-                  <td className="px-6 py-4 text-sm text-white/70">{prompt.title}</td>
-                  <td className="px-6 py-4 text-sm text-white/70">{prompt.authorId}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        prompt.status === 'approved'
-                          ? 'bg-green-100 text-green-800'
-                          : prompt.status === 'rejected'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                    >
-                      {prompt.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-white/70">
-                    {new Date(prompt.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-6 py-4 text-sm space-x-2">
-                    <button
-                      onClick={() => updatePromptStatus(prompt.id, 'approved')}
-                      className="text-green-400 hover:text-green-300"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => updatePromptStatus(prompt.id, 'rejected')}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      Reject
-                    </button>
-                    <button
-                      onClick={() => deletePrompt(prompt.id)}
-                      className="text-white/60 hover:text-white/80"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Pages */}
-      {activeTab === 'pages' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Page Management</h2>
-            <div className="space-x-4">
-              <Link
-                href="/how-to-start/edit"
-                className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-accent"
-              >
-                Edit How to Start Page
-              </Link>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-6">
-            <div className="bg-white/[0.03] rounded-xl p-6">
-              <h3 className="text-xl font-semibold mb-4">How to Start Page</h3>
-              <p className="text-white/70 mb-4">
-                This page contains the getting started guide for new users. It supports markdown formatting
-                and can be edited to update the onboarding experience.
-              </p>
-              <Link
-                href="/how-to-start"
-                className="text-primary hover:text-primary-accent"
-              >
-                View Page →
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Categories Management */}
-      {activeTab === 'categories' && (
-        <div className="space-y-6">
-          {/* Add New Category */}
-          <div className="bg-white/[0.03] rounded-xl p-6">
-            <h3 className="text-xl font-semibold mb-4">Add New Category</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">Name</label>
-                <input
-                  type="text"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-white/70 mb-1">Description</label>
-                <input
-                  type="text"
-                  value={newCategory.description}
-                  onChange={(e) => setNewCategory(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                />
-              </div>
-              <button
-                onClick={addCategory}
-                className="px-4 py-2 bg-[#2563eb] text-white rounded-md hover:bg-[#2563eb]/90"
-              >
-                Add Category
-              </button>
-            </div>
-          </div>
-
-          {/* Categories List */}
-          <div className="space-y-4">
-            {categories.map((category) => (
-              <div key={category.id} className="bg-white/[0.03] rounded-xl p-6">
-                {editingCategory?.id === category.id ? (
-                  <div className="space-y-4">
-                    <input
-                      type="text"
-                      value={editingCategory.name}
-                      onChange={(e) => setEditingCategory(prev => ({ ...prev!, name: e.target.value }))}
-                      className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                    />
-                    <input
-                      type="text"
-                      value={editingCategory.description}
-                      onChange={(e) => setEditingCategory(prev => ({ ...prev!, description: e.target.value }))}
-                      className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                    />
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => updateCategory(category.id, editingCategory)}
-                        className="px-4 py-2 bg-[#2563eb] text-white rounded-md hover:bg-[#2563eb]/90"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingCategory(null)}
-                        className="px-4 py-2 bg-white/[0.06] text-white rounded-md hover:bg-white/[0.1]"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-white">{category.name}</h3>
-                        <p className="text-white/70">{category.description}</p>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => setEditingCategory(category)}
-                          className="text-[#2563eb] hover:text-[#2563eb]/80"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteCategory(category.id)}
-                          className="text-red-500 hover:text-red-400"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Items List */}
-                    <div className="mt-4">
-                      <h4 className="text-md font-medium text-white mb-2">Items</h4>
-                      <div className="space-y-2">
-                        {category.items?.map((item, index) => (
-                          <div key={index} className="flex justify-between items-center bg-white/[0.02] p-3 rounded-lg">
-                            <div>
-                              <span className="text-2xl mr-2">{item.icon}</span>
-                              <span className="text-white">{item.name}</span>
-                              <p className="text-white/70 text-sm">{item.description}</p>
-                            </div>
-                            <button
-                              onClick={() => deleteItemFromCategory(category.id, index)}
-                              className="text-red-500 hover:text-red-400"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Add New Item */}
-                      <div className="mt-4 space-y-3 bg-white/[0.02] p-4 rounded-lg">
-                        <div>
-                          <label className="block text-sm font-medium text-white/70 mb-1">Item Name</label>
-                          <input
-                            type="text"
-                            value={newItem.name}
-                            onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-white/70 mb-1">Description</label>
-                          <input
-                            type="text"
-                            value={newItem.description}
-                            onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
-                            className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-white/70 mb-1">Icon (emoji)</label>
-                          <input
-                            type="text"
-                            value={newItem.icon}
-                            onChange={(e) => setNewItem(prev => ({ ...prev, icon: e.target.value }))}
-                            className="w-full px-3 py-2 bg-[#1e293b] border border-[#2563eb]/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb] text-white"
-                          />
-                        </div>
-                        <button
-                          onClick={() => addItemToCategory(category.id)}
-                          className="px-4 py-2 bg-[#2563eb] text-white rounded-md hover:bg-[#2563eb]/90"
-                        >
-                          Add Item
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

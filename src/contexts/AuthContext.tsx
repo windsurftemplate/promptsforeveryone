@@ -126,7 +126,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setError(null);
       await firebaseSignOut(auth);
-      router.push('/login');
+      router.push('/');
     } catch (err: any) {
       setError(err.message || 'Failed to sign out');
     }

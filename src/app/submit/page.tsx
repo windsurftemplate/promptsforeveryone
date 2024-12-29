@@ -1,29 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { ref, push, get, update } from 'firebase/database';
+import { ref, push, get, update, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import Button from '@/components/ui/Button';
 
-const PUBLIC_CATEGORIES = [
-  "Code Generation",
-  "Debugging",
-  "API Development",
-  "Testing",
-  "Documentation",
-  "Database",
-  "Security",
-  "Performance",
-  "UI/UX",
-  "DevOps",
-  "Mobile Development",
-  "Web Development",
-  "Machine Learning",
-  "Data Analysis",
-  "Cloud Computing"
-];
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
 
 const PRIVATE_CATEGORIES = [
   "Personal Projects",
@@ -49,8 +38,41 @@ export default function SubmitPage() {
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  React.useEffect(() => {
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categoriesRef = ref(db, 'categories');
+        const snapshot = await get(categoriesRef);
+        if (snapshot.exists()) {
+          const categoriesData = snapshot.val();
+          const categoriesArray = Object.entries(categoriesData)
+            .map(([id, data]: [string, any]) => ({
+              id,
+              name: data.name,
+              description: data.description || '',
+              icon: data.icon || '📝'
+            }))
+            .filter(category => category.name);
+          setCategories(categoriesArray);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Load prompt data if editing
+  useEffect(() => {
     if (editId) {
       const promptRef = ref(db, `prompts/${editId}`);
       get(promptRef).then((snapshot) => {
@@ -65,35 +87,52 @@ export default function SubmitPage() {
     }
   }, [editId]);
 
+  useEffect(() => {
+    // Check for draft prompt data when component mounts
+    const draftPrompt = localStorage.getItem('draftPrompt');
+    if (draftPrompt) {
+      const promptData = JSON.parse(draftPrompt);
+      setTitle(promptData.title || '');
+      setDescription(promptData.description || '');
+      setContent(promptData.content || '');
+      if (promptData.categories) {
+        setSelectedCategories(promptData.categories);
+      }
+      // Clear the draft data after loading
+      localStorage.removeItem('draftPrompt');
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-
     setIsSubmitting(true);
-    try {
-      const promptData = {
-        title,
-        description,
-        content,
-        category,
-        userId: user.uid,
-        createdAt: new Date().toISOString(),
-      };
+    setError('');
 
-      if (editId) {
-        const promptRef = ref(db, `prompts/${editId}`);
-        await update(promptRef, {
-          ...promptData,
-          updatedAt: new Date().toISOString(),
-        });
-      } else {
-        const promptsRef = ref(db, 'prompts');
-        await push(promptsRef, promptData);
+    try {
+      if (!user) {
+        throw new Error('You must be logged in to submit a prompt');
       }
 
-      router.push('/dashboard');
-    } catch (error) {
+      const promptRef = push(ref(db, 'prompts'));
+      await set(promptRef, {
+        title,
+        content,
+        description,
+        categories: selectedCategories,
+        userId: user.uid,
+        createdAt: new Date().toISOString()
+      });
+
+      // After successful submission, redirect back to chat if we came from there
+      const draftPrompt = localStorage.getItem('draftPrompt');
+      if (draftPrompt) {
+        window.location.href = '/chat';
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
       console.error('Error submitting prompt:', error);
+      setError(error.message || 'Failed to submit prompt');
     } finally {
       setIsSubmitting(false);
     }
@@ -102,6 +141,14 @@ export default function SubmitPage() {
   if (!user) {
     router.push('/login');
     return null;
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-black">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00ffff]"></div>
+      </div>
+    );
   }
 
   return (
@@ -169,9 +216,9 @@ export default function SubmitPage() {
             >
               <option value="" disabled className="bg-black text-[#00ffff]">Select a category</option>
               <optgroup label="Public Categories" className="bg-black text-[#00ffff]">
-                {PUBLIC_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat} className="bg-black text-[#00ffff]">
-                    {cat}
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name} className="bg-black text-[#00ffff]">
+                    {cat.name}
                   </option>
                 ))}
               </optgroup>

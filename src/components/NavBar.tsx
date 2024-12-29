@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ref, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
 
 const protectedRoutes = ['/dashboard', '/submit'];
 
@@ -13,15 +15,34 @@ export default function NavBar() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const checkProStatus = async () => {
+      if (!user) return;
+      
+      try {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          setIsPro(userData.isPro === true || userData.stripeSubscriptionStatus === 'active');
+        }
+      } catch (error) {
+        console.error('Error checking pro status:', error);
+      }
+    };
+
+    checkProStatus();
+  }, [user]);
+
   const handleSignOut = async () => {
     try {
       await signOut();
-      window.location.href = '/';
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -29,12 +50,16 @@ export default function NavBar() {
 
   const navLinks = [
     { href: '/explore', label: 'Explore' },
+    { href: '/how-to-start', label: 'Tutorial' },
+    { href: '/jobs', label: 'Jobs' },
     { href: '/dashboard', label: 'Dashboard', protected: true },
+    { href: '/chat', label: 'AI Chat', protected: true, proOnly: true },
     { href: '/pro-plan', label: 'Pricing' },
   ];
 
   const filteredNavLinks = navLinks.filter(link => 
-    !link.protected || (link.protected && user)
+    (!link.protected || (link.protected && user)) &&
+    (!link.proOnly || (link.proOnly && isPro))
   );
 
   if (!mounted) return null;
@@ -110,10 +135,7 @@ export default function NavBar() {
               ))}
               {user ? (
                 <button
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={handleSignOut}
                   className="block w-full text-left text-white hover:text-[#00ffff] transition-colors"
                 >
                   Sign Out
