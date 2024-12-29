@@ -18,16 +18,29 @@
         "updatedAt": { ".validate": "newData.isString()" }
       }
     },
+    "categories": {
+      ".read": true,
+      ".write": false,
+      ".indexOn": ["name"],
+      "$categoryId": {
+        ".validate": "newData.hasChildren(['name'])",
+        "name": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "description": { ".validate": "newData.isString()" },
+        "icon": { ".validate": "newData.isString()" }
+      }
+    },
     "prompts": {
       ".read": true,
       ".write": "auth != null",
+      ".indexOn": ["category", "userId", "visibility"],
       "$promptId": {
-        ".validate": "newData.hasChildren(['title', 'description', 'content', 'category', 'userId', 'createdAt'])",
+        ".validate": "newData.hasChildren(['title', 'description', 'content', 'category', 'userId', 'createdAt', 'visibility'])",
         "title": { ".validate": "newData.isString() && newData.val().length > 0" },
         "description": { ".validate": "newData.isString()" },
         "content": { ".validate": "newData.isString() && newData.val().length > 0" },
         "category": { ".validate": "newData.isString()" },
         "userId": { ".validate": "newData.val() === auth.uid" },
+        "visibility": { ".validate": "newData.isString() && (newData.val() === 'public' || newData.val() === 'private')" },
         "createdAt": { ".validate": "newData.isString()" },
         "updatedAt": { ".validate": "newData.isString()" }
       }
