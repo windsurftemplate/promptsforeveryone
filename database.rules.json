@@ -18,6 +18,22 @@
         "updatedAt": { ".validate": "newData.isString()" }
       }
     },
+    "blog": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      "$postId": {
+        ".validate": "newData.hasChildren(['title', 'content'])",
+        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "content": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "excerpt": { ".validate": "newData.isString()" },
+        "author": { ".validate": "newData.isString()" },
+        "date": { ".validate": "newData.isString()" },
+        "category": { ".validate": "newData.isString()" },
+        "readTime": { ".validate": "newData.isString()" },
+        "featured": { ".validate": "newData.isBoolean()" },
+        "createdAt": { ".validate": "newData.isString()" }
+      }
+    },
     "categories": {
       ".read": true,
       ".write": false,
@@ -47,19 +63,19 @@
     },
     "chats": {
       "$uid": {
-        ".read": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true",
-        ".write": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true",
-        "$chatId": {
-          ".validate": "newData.hasChildren(['messages', 'createdAt'])",
+        ".read": "auth != null && $uid === auth.uid",
+        ".write": "auth != null && $uid === auth.uid",
+        ".indexOn": ["createdAt"],
+        "$sessionId": {
+          ".validate": "newData.hasChildren(['messages'])",
           "messages": {
             "$messageId": {
               ".validate": "newData.hasChildren(['role', 'content'])",
-              "role": { ".validate": "newData.isString() && (newData.val() === 'user' || newData.val() === 'assistant')" },
+              "role": { ".validate": "newData.isString()" },
               "content": { ".validate": "newData.isString()" }
             }
           },
-          "createdAt": { ".validate": "newData.isString()" },
-          "updatedAt": { ".validate": "newData.isString()" }
+          "createdAt": { ".validate": "newData.isString()" }
         }
       }
     }

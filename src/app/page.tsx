@@ -25,10 +25,10 @@ export default function Home() {
   const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
 
   const titles = [
-    'RIDE THE INTERNET',
-    'MASTER THE WAVES',
-    'EMBRACE THE AI',
-    'SURF WITH CONFIDENCE'
+    'CODE FASTER BUILD SMARTER',
+    'ELEVATE YOUR CODING GAME',
+    'ENHANCE YOUR WORKFLOW WITH PROMPTS',
+    'LEVEL UP CODING IN WINDSURF IDE'
   ];
 
   useEffect(() => {
@@ -143,9 +143,9 @@ export default function Home() {
               Save Time and Code Smarter with Prompts for <span className="text-[#00ff00] animate-pulse-subtle drop-shadow-[0_0_8px_rgba(0,255,0,0.7)]">Windsurf IDE</span>
             </p>
             <div className="flex gap-6 justify-center">
-              <Link href="/explore">
+              <Link href="/signup">
                 <Button className="px-8 py-4 text-lg bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold rounded-lg transition-all duration-300 hover:scale-105 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
-                  Start Your Journey
+                  Sign Up Free
                 </Button>
               </Link>
               <Link href="/how-to-start">
@@ -210,9 +210,9 @@ export default function Home() {
                   📚
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Extensive Resources</h3>
+                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Why Use WindsurfPrompts.com?</h3>
                   <p className="text-white/70 leading-relaxed">
-                    Dive into our extensive library of tutorials, discover new techniques, and connect with a global community of enthusiasts who share your passion for the sport. From selecting the perfect equipment to mastering advanced maneuvers, we're here to guide you.
+                  Access a growing library of coding prompts and tutorials that help you write better code, faster. Whether you're troubleshooting, automating tasks, or learning new techniques, our resources make coding in Windsurf IDE easier and more efficient.
                   </p>
                 </div>
               </div>
@@ -259,7 +259,7 @@ export default function Home() {
                   <span className="text-6xl mb-4">🔬</span>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Researchers</h3>
                   <p className="text-white/90">
-                    Accelerate your research with advanced prompt techniques. Perfect for data analysis, hypothesis testing, and academic writing.
+                  Make research easier and faster with prompts that help you analyze data, test ideas, and improve your writing
                   </p>
                 </div>
               </div>
@@ -274,7 +274,7 @@ export default function Home() {
                   <span className="text-6xl mb-4">💼</span>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Business</h3>
                   <p className="text-white/90">
-                    Enhance your business communications and documentation with AI-powered prompts designed for professional excellence.
+                  Create smarter business apps and automate tasks with prompts designed to streamline workflows and boost productivity
                   </p>
                 </div>
               </div>
@@ -289,7 +289,7 @@ export default function Home() {
                   <span className="text-6xl mb-4">👨‍💻</span>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Developers</h3>
                   <p className="text-white/90">
-                    Streamline your development workflow with prompts tailored for coding, debugging, and technical documentation.
+                  Accelerate app development with prompts that simplify coding, debugging, and building powerful features in Windsurf IDE
                   </p>
                 </div>
               </div>
@@ -363,15 +363,19 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/90">Unlimited custom categories</span>
+                    <span className="text-white/90">Unlimited ustom categories</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-green-400">���</span>
+                    <span className="text-green-400">✓</span>
                     <span className="text-white/90">Private prompts</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-green-400">✓</span>
-                    <span className="text-white/90">Priority support</span>
+                    <span className="text-white/90">AI Chat to Create Prompts</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-400">✓</span>
+                    <span className="text-white/90">Download Private Prompts</span>
                   </div>
                 </div>
                 <div className="pt-6">
