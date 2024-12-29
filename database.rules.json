@@ -1,27 +1,53 @@
 {
   "rules": {
-    ".read": true,
-    ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
+        "favorites": {
+          ".read": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true",
+          ".write": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true"
+        },
+        ".validate": "newData.hasChildren(['email'])",
+        "email": { ".validate": "newData.isString()" },
+        "isPro": { ".validate": "newData.isBoolean()" },
+        "stripeCustomerId": { ".validate": "newData.isString()" },
+        "stripeSubscriptionId": { ".validate": "newData.isString() || newData.val() === null" },
+        "stripeSubscriptionStatus": { ".validate": "newData.isString()" },
+        "plan": { ".validate": "newData.isString() && (newData.val() === 'free' || newData.val() === 'pro')" },
+        "updatedAt": { ".validate": "newData.isString()" }
+      }
+    },
     "prompts": {
-      ".indexOn": ["category", "userId", "visibility"],
       ".read": true,
       ".write": "auth != null",
       "$promptId": {
-        ".read": true,
-        ".write": "auth != null && (!data.exists() || data.child('userId').val() === auth.uid)"
+        ".validate": "newData.hasChildren(['title', 'description', 'content', 'category', 'userId', 'createdAt'])",
+        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "description": { ".validate": "newData.isString()" },
+        "content": { ".validate": "newData.isString() && newData.val().length > 0" },
+        "category": { ".validate": "newData.isString()" },
+        "userId": { ".validate": "newData.val() === auth.uid" },
+        "createdAt": { ".validate": "newData.isString()" },
+        "updatedAt": { ".validate": "newData.isString()" }
       }
     },
-    "categories": {
-      ".read": true,
-      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
-      ".indexOn": ["id", "name"]
-    },
-    "users": {
-      ".read": true,
-      ".write": "auth != null",
+    "chats": {
       "$uid": {
-        ".read": true,
-        ".write": "auth != null && $uid === auth.uid"
+        ".read": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true",
+        ".write": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true",
+        "$chatId": {
+          ".validate": "newData.hasChildren(['messages', 'createdAt'])",
+          "messages": {
+            "$messageId": {
+              ".validate": "newData.hasChildren(['role', 'content'])",
+              "role": { ".validate": "newData.isString() && (newData.val() === 'user' || newData.val() === 'assistant')" },
+              "content": { ".validate": "newData.isString()" }
+            }
+          },
+          "createdAt": { ".validate": "newData.isString()" },
+          "updatedAt": { ".validate": "newData.isString()" }
+        }
       }
     }
   }
