@@ -33,7 +33,7 @@ export default function DashboardLayout({
   }, [user]);
 
   if (!user) {
-    router.push('/signin');
+    router.push('/login');
     return null;
   }
 

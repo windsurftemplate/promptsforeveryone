@@ -47,7 +47,7 @@ export default function ChatPage() {
   useEffect(() => {
     const checkProStatus = async () => {
       if (!user) {
-        router.push('/signin');
+        router.push('/login');
         return;
       }
       

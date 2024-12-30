@@ -70,7 +70,7 @@ export default function NavBar() {
         <div className="container mx-auto">
           <div className="flex items-center justify-between">
             <Link href="/" className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-              WindsurfPrompts
+              Prompts For Everyone
             </Link>
             
             {/* Desktop Navigation */}

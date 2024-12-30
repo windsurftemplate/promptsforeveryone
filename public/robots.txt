@@ -2,5 +2,5 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
-Sitemap: https://windsurfprompts.com/sitemap.xml 
+# Sitemap
+Sitemap: https://promptsforeveryone.com/sitemap.xml 

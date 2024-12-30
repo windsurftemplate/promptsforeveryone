@@ -140,7 +140,7 @@ export default function Home() {
               </h1>
             </div>
             <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-              Save Time and Code Smarter with Prompts for <span className="text-[#00ff00] animate-pulse-subtle drop-shadow-[0_0_8px_rgba(0,255,0,0.7)]">Windsurf IDE</span>
+              Welcome to Prompts For Everyone, your go-to destination for AI prompts and inspiration—designed to help you harness the power of AI like never before. Whether you're a beginner or an expert, our platform offers everything you need to succeed.
             </p>
             <div className="flex gap-6 justify-center">
               <Link href="/signup">
@@ -192,13 +192,17 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
               <div className="relative">
-                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00ffff]/20 to-[#00ffff]/10 rounded-lg flex items-center justify-center text-3xl">
-                  🌊
+                <div className="w-16 h-16 mb-6 relative">
+                  <div className="absolute inset-0 bg-[#00ffff]/10 rounded-lg"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/20 to-transparent rounded-lg animate-pulse"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-8 h-8 border-2 border-[#00ffff]/40 rounded-full animate-spin-slow"></div>
+                  </div>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Your Go-To Destination</h3>
                   <p className="text-white/70 leading-relaxed">
-                    Welcome to WindsurfPrompts.com, your go-to destination for windsurfing inspiration, tips, and strategies—designed to help you ride the wind like never before. Whether you're a total beginner or a seasoned pro, our expertly curated prompts and in-depth guides will supercharge your skills.
+                    Welcome to Prompts For Everyone, your go-to destination for AI prompts and inspiration—designed to help you harness the power of AI like never before. Whether you're a beginner or an expert, our expertly curated prompts and in-depth guides will supercharge your skills.
                   </p>
                 </div>
               </div>
@@ -206,13 +210,20 @@ export default function Home() {
 
             <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
               <div className="relative">
-                <div className="w-16 h-16 mb-6 bg-gradient-to-br from-[#00ffff]/20 to-[#00ffff]/10 rounded-lg flex items-center justify-center text-3xl">
-                  📚
+                <div className="w-16 h-16 mb-6 relative">
+                  <div className="absolute inset-0 bg-[#00ffff]/10 rounded-lg"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#00ffff]/20 to-transparent rounded-lg animate-pulse"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-8 h-8 relative">
+                      <div className="absolute inset-0 border-2 border-[#00ffff]/40 rounded animate-ping"></div>
+                      <div className="absolute inset-0 bg-[#00ffff]/20 rounded"></div>
+                    </div>
+                  </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Why Use WindsurfPrompts.com?</h3>
+                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Why Use Prompts For Everyone?</h3>
                   <p className="text-white/70 leading-relaxed">
-                  Access a growing library of coding prompts and tutorials that help you write better code, faster. Whether you're troubleshooting, automating tasks, or learning new techniques, our resources make coding in Windsurf IDE easier and more efficient.
+                    Access a growing library of coding prompts and tutorials that help you write better code, faster. Whether you're troubleshooting, automating tasks, or learning new techniques, our resources make coding easier and more efficient.
                   </p>
                 </div>
               </div>
@@ -246,7 +257,7 @@ export default function Home() {
       >
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
-            Prompt Engineering For Everyone
+            Prompts For Everyone
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -256,10 +267,20 @@ export default function Home() {
                 <div className="absolute inset-0 bg-black/40 transform group-hover:bg-black/60 transition-all duration-700"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                  <span className="text-6xl mb-4">🔬</span>
+                  <div className="w-20 h-20 mb-4 relative">
+                    <div className="absolute inset-0 bg-[#00ffff]/10 rounded-full"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/20 to-transparent rounded-full animate-pulse"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12">
+                        <div className="absolute inset-0 border-4 border-[#00ffff]/30 rounded-full"></div>
+                        <div className="absolute inset-0 border-4 border-[#00ffff]/40 rounded-full animate-spin-slow" style={{ animationDirection: 'reverse' }}></div>
+                        <div className="absolute inset-[25%] bg-[#00ffff]/20 rounded-full animate-pulse-slow"></div>
+                      </div>
+                    </div>
+                  </div>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Researchers</h3>
                   <p className="text-white/90">
-                  Make research easier and faster with prompts that help you analyze data, test ideas, and improve your writing
+                    Make research easier and faster with prompts that help you analyze data, test ideas, and improve your writing
                   </p>
                 </div>
               </div>
@@ -271,10 +292,19 @@ export default function Home() {
                 <div className="absolute inset-0 bg-black/40 transform group-hover:bg-black/60 transition-all duration-700"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                  <span className="text-6xl mb-4">💼</span>
+                  <div className="w-20 h-20 mb-4 relative">
+                    <div className="absolute inset-0 bg-[#00ffff]/10 rounded-lg rotate-45"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#00ffff]/20 to-transparent rounded-lg rotate-45 animate-pulse"></div>
+                    <div className="absolute inset-[15%] flex items-center justify-center">
+                      <div className="w-12 h-12 relative">
+                        <div className="absolute inset-0 border-4 border-[#00ffff]/30 rounded-sm rotate-45"></div>
+                        <div className="absolute inset-[25%] bg-[#00ffff]/20 rounded-sm rotate-45 animate-ping-slow"></div>
+                      </div>
+                    </div>
+                  </div>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Business</h3>
                   <p className="text-white/90">
-                  Create smarter business apps and automate tasks with prompts designed to streamline workflows and boost productivity
+                    Create smarter business apps and automate tasks with prompts designed to streamline workflows and boost productivity
                   </p>
                 </div>
               </div>
@@ -286,10 +316,20 @@ export default function Home() {
                 <div className="absolute inset-0 bg-black/40 transform group-hover:bg-black/60 transition-all duration-700"></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                  <span className="text-6xl mb-4">👨‍💻</span>
+                  <div className="w-20 h-20 mb-4 relative">
+                    <div className="absolute inset-0 bg-[#00ffff]/10 rounded-lg"></div>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#00ffff]/20 to-transparent rounded-lg animate-pulse"></div>
+                    <div className="absolute inset-[15%] flex items-center justify-center">
+                      <div className="w-12 h-12 relative">
+                        <div className="absolute inset-0 border-t-4 border-r-4 border-[#00ffff]/40 rounded-tr-lg animate-spin-slow"></div>
+                        <div className="absolute inset-0 border-b-4 border-l-4 border-[#00ffff]/20 rounded-bl-lg animate-spin-slow" style={{ animationDelay: '-2s' }}></div>
+                        <div className="absolute inset-[25%] bg-[#00ffff]/20 rounded-lg animate-pulse-slow"></div>
+                      </div>
+                    </div>
+                  </div>
                   <h3 className="text-2xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-3">For Developers</h3>
                   <p className="text-white/90">
-                  Accelerate app development with prompts that simplify coding, debugging, and building powerful features in Windsurf IDE
+                    Accelerate app development with prompts that simplify coding, debugging, and building powerful features
                   </p>
                 </div>
               </div>
@@ -462,7 +502,7 @@ export default function Home() {
           </div>
 
           <div className="text-center text-white/40 text-sm">
-            <p>© {new Date().getFullYear()} WindsurfPrompts. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Prompts For Everyone. All rights reserved.</p>
           </div>
         </div>
       </footer>

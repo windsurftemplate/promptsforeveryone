@@ -1,26 +1,40 @@
 {
   "rules": {
     "users": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      ".indexOn": ["role", "email", "plan"],
       "$uid": {
-        ".read": "$uid === auth.uid",
-        ".write": "$uid === auth.uid",
-        "favorites": {
-          ".read": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true",
-          ".write": "$uid === auth.uid && root.child('users').child(auth.uid).child('isPro').val() === true"
-        },
-        ".validate": "newData.hasChildren(['email'])",
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
         "email": { ".validate": "newData.isString()" },
-        "isPro": { ".validate": "newData.isBoolean()" },
-        "stripeCustomerId": { ".validate": "newData.isString()" },
-        "stripeSubscriptionId": { ".validate": "newData.isString() || newData.val() === null" },
-        "stripeSubscriptionStatus": { ".validate": "newData.isString()" },
-        "plan": { ".validate": "newData.isString() && (newData.val() === 'free' || newData.val() === 'pro')" },
-        "updatedAt": { ".validate": "newData.isString()" }
+        "role": { 
+          ".validate": "newData.isString() && (newData.val() === 'admin' || newData.val() === 'user' || newData.val() === 'moderator')",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        },
+        "plan": { 
+          ".validate": "newData.isString() && (newData.val() === 'free' || newData.val() === 'pro')",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        },
+        "isPro": { 
+          ".validate": "newData.isBoolean()",
+          ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+        },
+        "stripeCustomerId": { ".validate": "newData.isString() || !newData.exists()" },
+        "stripeSubscriptionId": { ".validate": "newData.isString() || !newData.exists()" },
+        "stripeSubscriptionStatus": { ".validate": "newData.isString() || !newData.exists()" },
+        "createdAt": { ".validate": "newData.isString()" },
+        "updatedAt": { ".validate": "newData.isString()" },
+        "favorites": {
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid"
+        }
       }
     },
     "blog": {
       ".read": true,
       ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      ".indexOn": ["createdAt", "category"],
       "$postId": {
         ".validate": "newData.hasChildren(['title', 'content'])",
         "title": { ".validate": "newData.isString() && newData.val().length > 0" },
@@ -36,7 +50,7 @@
     },
     "categories": {
       ".read": true,
-      ".write": false,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       ".indexOn": ["name"],
       "$categoryId": {
         ".validate": "newData.hasChildren(['name'])",
@@ -48,36 +62,49 @@
     "prompts": {
       ".read": true,
       ".write": "auth != null",
-      ".indexOn": ["category", "userId", "visibility"],
+      ".indexOn": ["category", "userId", "visibility", "status"],
       "$promptId": {
-        ".validate": "newData.hasChildren(['title', 'description', 'content', 'category', 'userId', 'createdAt', 'visibility'])",
+        ".validate": "newData.hasChildren(['title', 'description', 'content', 'category', 'userId'])",
+        ".write": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
         "title": { ".validate": "newData.isString() && newData.val().length > 0" },
         "description": { ".validate": "newData.isString()" },
         "content": { ".validate": "newData.isString() && newData.val().length > 0" },
         "category": { ".validate": "newData.isString()" },
-        "userId": { ".validate": "newData.val() === auth.uid" },
+        "userId": { ".validate": "newData.val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'" },
         "visibility": { ".validate": "newData.isString() && (newData.val() === 'public' || newData.val() === 'private')" },
+        "status": { ".validate": "newData.isString() && (newData.val() === 'pending' || newData.val() === 'approved' || newData.val() === 'rejected')" },
         "createdAt": { ".validate": "newData.isString()" },
         "updatedAt": { ".validate": "newData.isString()" }
       }
     },
     "chats": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       "$uid": {
-        ".read": "auth != null && $uid === auth.uid",
-        ".write": "auth != null && $uid === auth.uid",
+        ".read": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
         ".indexOn": ["createdAt"],
         "$sessionId": {
           ".validate": "newData.hasChildren(['messages'])",
           "messages": {
             "$messageId": {
               ".validate": "newData.hasChildren(['role', 'content'])",
-              "role": { ".validate": "newData.isString()" },
+              "role": { ".validate": "newData.isString() && (newData.val() === 'user' || newData.val() === 'assistant')" },
               "content": { ".validate": "newData.isString()" }
             }
           },
-          "createdAt": { ".validate": "newData.isString()" }
+          "title": { ".validate": "newData.isString()" },
+          "lastMessage": { ".validate": "newData.isString()" },
+          "createdAt": { ".validate": "newData.isString()" },
+          "updatedAt": { ".validate": "newData.isString()" }
         }
       }
+    },
+    "howToStart": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      "content": { ".validate": "newData.isString()" },
+      "updatedAt": { ".validate": "newData.isString()" },
+      "updatedBy": { ".validate": "newData.isString()" }
     }
   }
 }

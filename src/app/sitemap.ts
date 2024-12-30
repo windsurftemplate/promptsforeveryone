@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://windsurfprompts.com';
+  const baseUrl = 'https://promptsforeveryone.com';
 
   // Define your static routes
   const routes = [
