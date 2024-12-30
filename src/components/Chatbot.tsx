@@ -38,7 +38,7 @@ const Chatbot = forwardRef<ChatbotRef, ChatbotProps>(({ chatId }, ref) => {
       if (!chatId || !user) return;
       
       try {
-        const chatRef = dbRef(db, `chatHistory/${user.uid}/${chatId}`);
+        const chatRef = dbRef(db, `chats/${user.uid}/${chatId}`);
         const snapshot = await get(chatRef);
         if (snapshot.exists()) {
           const chatData = snapshot.val();
@@ -73,9 +73,9 @@ const Chatbot = forwardRef<ChatbotRef, ChatbotProps>(({ chatId }, ref) => {
       // If we have a chatId, update the existing chat
       // If not, create a new chat session
       const chatRef = chatId 
-        ? dbRef(db, `chatHistory/${user.uid}/${chatId}`)
-        : push(dbRef(db, `chatHistory/${user.uid}`));
-
+        ? dbRef(db, `chats/${user.uid}/${chatId}`)
+        : push(dbRef(db, `chats/${user.uid}`));
+      
       // Get the first user message for the title
       const firstUserMessage = newMessages.find(m => m.role === 'user');
       

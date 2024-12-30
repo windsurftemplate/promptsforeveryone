@@ -14,6 +14,8 @@ interface PromptModalProps {
     content: string;
     category: string;
     createdAt: string;
+    userId: string;
+    visibility: string;
   };
   onClose: () => void;
   onEdit: (prompt: any) => void;
@@ -62,16 +64,18 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete, onCopy 
       setIsSaving(true);
       const promptRef = ref(db, `prompts/${prompt.id}`);
       const updatedPrompt = {
-        ...prompt,
-        title: editedPrompt.title,
-        description: editedPrompt.description,
-        content: editedPrompt.content,
-        category: editedPrompt.category,
-        updatedAt: new Date().toISOString(),
+        title: editedPrompt.title || '',
+        description: editedPrompt.description || '',
+        content: editedPrompt.content || '',
+        category: editedPrompt.category || '',
+        userId: prompt.userId,
+        visibility: 'public',
+        createdAt: prompt.createdAt,
+        updatedAt: new Date().toISOString()
       };
       await update(promptRef, updatedPrompt);
       setIsSaving(false);
-      onClose();
+      window.location.reload();
     } catch (error) {
       console.error('Error updating prompt:', error);
       setIsSaving(false);

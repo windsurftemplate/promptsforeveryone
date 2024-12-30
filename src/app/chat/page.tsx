@@ -76,7 +76,7 @@ export default function ChatPage() {
     if (!user) return;
 
     const chatHistoryRef = query(
-      ref(db, `chatHistory/${user.uid}`),
+      ref(db, `chats/${user.uid}`),
       orderByChild('updatedAt')
     );
 

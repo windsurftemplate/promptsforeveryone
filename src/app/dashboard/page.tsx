@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
   const filteredPrompts = filterTag
     ? prompts.filter(prompt => 
-        prompt.category.toLowerCase() === filterTag.toLowerCase()
+        prompt.category?.toLowerCase() === filterTag.toLowerCase()
       )
     : prompts;
 

@@ -118,9 +118,11 @@ export default function SubmitPage() {
         title,
         content,
         description,
+        category,
         categories: selectedCategories,
         userId: user.uid,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        visibility: 'public'
       });
 
       // After successful submission, redirect back to chat if we came from there

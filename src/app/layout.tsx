@@ -23,7 +23,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        <meta name="impact-site-verification" content="e852defc-eaa3-40a9-bcf9-8cec6dea85f5" />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-KSPBY7FHN5"
           strategy="afterInteractive"
