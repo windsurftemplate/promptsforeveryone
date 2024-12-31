@@ -1,140 +1,105 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ref, get } from 'firebase/database';
-import { db } from '@/lib/firebase';
+import { useState } from 'react';
+import { promptCategories } from '@/lib/categories';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Card from '@/components/ui/Card';
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-}
+// Group categories by their group
+const groupedCategories = promptCategories.reduce((acc, category) => {
+  if (!acc[category.group]) {
+    acc[category.group] = [];
+  }
+  acc[category.group].push(category);
+  return acc;
+}, {} as Record<string, typeof promptCategories>);
 
 export default function ExplorePage() {
-  const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [prompts, setPrompts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
 
-  // Fetch public categories and prompts
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch categories
-        const categoriesRef = ref(db, 'categories');
-        const categoriesSnapshot = await get(categoriesRef);
-        if (categoriesSnapshot.exists()) {
-          const categoriesData = categoriesSnapshot.val();
-          console.log('Raw categories data:', categoriesData);
-          
-          const categoriesArray = Object.entries(categoriesData)
-            .map(([id, data]: [string, any]) => {
-              console.log('Processing category:', id, data);
-              if (!data || !data.name) {
-                console.warn('Category missing required data:', id, data);
-                return null;
-              }
-              return {
-                id,
-                name: data.name,
-                description: data.description || '',
-                icon: data.icon || '📝'
-              };
-            })
-            .filter((category): category is Category => category !== null);
-          
-          console.log('Processed categories:', categoriesArray);
-          setCategories(categoriesArray);
-        }
+  // Filter categories based on search term and selected group
+  const filteredCategories = promptCategories.filter(category => {
+    const matchesSearch = 
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesGroup = !selectedGroup || category.group === selectedGroup;
+    return matchesSearch && matchesGroup;
+  });
 
-        // Fetch prompts
-        const promptsRef = ref(db, 'prompts');
-        const promptsSnapshot = await get(promptsRef);
-        if (promptsSnapshot.exists()) {
-          const promptsData = Object.entries(promptsSnapshot.val())
-            .map(([id, data]: [string, any]) => ({
-              id,
-              ...data,
-              categories: data.categories || [],
-            }))
-            .filter(prompt => prompt.visibility !== 'private');
-          setPrompts(promptsData);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const filteredPrompts = selectedCategory
-    ? prompts.filter(prompt => 
-        prompt.categories?.some((category: string) => 
-          category.toLowerCase() === selectedCategory.toLowerCase()
-        )
-      )
-    : [];
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00ffff]"></div>
-      </div>
-    );
-  }
+  const groups = Object.keys(groupedCategories);
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-8">
-          Explore Prompts
-        </h1>
+    <div className="min-h-screen bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#00ffff] to-[#0099ff] text-transparent bg-clip-text">
+            Explore Categories
+          </h1>
+          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            Discover a wide range of prompt categories for every development need. From code generation to emerging technologies.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {categories.map((category) => (
-            <Link
+        {/* Search and Filter */}
+        <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-center">
+          <input
+            type="text"
+            placeholder="Search categories..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff] w-full sm:w-80"
+          />
+          <select
+            value={selectedGroup || ''}
+            onChange={(e) => setSelectedGroup(e.target.value || null)}
+            className="px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
+          >
+            <option value="">All Groups</option>
+            {groups.map(group => (
+              <option key={group} value={group}>{group}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCategories.map((category) => (
+            <Card 
               key={category.id}
-              href={`/category/${category.name?.toLowerCase().replace(/\s+/g, '-') || category.id}`}
-              className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.1)] transition-all duration-300"
+              className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer"
             >
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-4xl">{category.icon || '📝'}</span>
-                <h2 className="text-xl font-semibold text-white">{category.name || 'Unnamed Category'}</h2>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#00ffff]/10 to-[#0099ff]/10 border border-[#00ffff]/20">
+                  <span className="text-lg font-mono text-[#00ffff]">{category.icon}</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
+                    {category.name}
+                  </h3>
+                  <span className="text-sm text-white/50">{category.group}</span>
+                </div>
               </div>
-              <p className="text-white/60">{category.description || 'No description available'}</p>
-            </Link>
+              <p className="text-white/70 text-sm mb-4">
+                {category.description}
+              </p>
+              <div className="flex justify-end">
+                <Link 
+                  href={`/category/${category.id}`}
+                  className="text-[#00ffff] text-sm hover:text-[#0099ff] transition-colors"
+                >
+                  View Prompts →
+                </Link>
+              </div>
+            </Card>
           ))}
         </div>
 
-        {selectedCategory && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-bold text-[#00ffff] mb-6">
-              {selectedCategory} Prompts
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPrompts.map((prompt) => (
-                <div
-                  key={prompt.id}
-                  className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 transition-all duration-300"
-                >
-                  <h3 className="text-xl font-semibold text-white mb-2">{prompt.title}</h3>
-                  <p className="text-white/60 mb-4">{prompt.description}</p>
-                  <Link
-                    href={`/prompt/${prompt.id}`}
-                    className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
-                  >
-                    View Details →
-                  </Link>
-                </div>
-              ))}
-            </div>
+        {/* No Results */}
+        {filteredCategories.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-white/50">No categories found matching your search.</p>
           </div>
         )}
       </div>

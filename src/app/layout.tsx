@@ -1,16 +1,36 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import RootLayoutClient from '@/components/layout/RootLayoutClient';
 import './globals.css';
+import { Inter } from 'next/font/google';
+import { AuthProvider } from '@/contexts/AuthContext';
+import Navbar from '@/components/Navbar';
+import { Metadata } from 'next';
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Prompts For Everyone',
-  description: 'Your go-to destination for AI-crafted prompts and inspiration',
+  description: 'Your AI Prompt Management Platform',
+  openGraph: {
+    title: 'Prompts For Everyone',
+    description: 'Your AI Prompt Management Platform',
+    url: 'https://promptsforeveryone.vercel.app',
+    siteName: 'Prompts For Everyone',
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: 'Prompts For Everyone - Your AI Prompt Management Platform',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Prompts For Everyone',
+    description: 'Your AI Prompt Management Platform',
+    images: ['/api/og'],
+  },
 };
 
 export default function RootLayout({
@@ -19,8 +39,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <RootLayoutClient>{children}</RootLayoutClient>
+    <html lang="en">
+      <body className={inter.className}>
+        <AuthProvider>
+          <Navbar />
+          {children}
+        </AuthProvider>
+      </body>
     </html>
   );
 }

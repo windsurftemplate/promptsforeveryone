@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { Anton } from 'next/font/google';
 import dynamic from 'next/dynamic';
+import FeatureCarousel from '@/components/FeatureCarousel';
 
 const TwitterIcon = dynamic(() => import('@/components/icons/TwitterIcon'), { ssr: false });
 const GitHubIcon = dynamic(() => import('@/components/icons/GitHubIcon'), { ssr: false });
@@ -25,10 +26,10 @@ export default function Home() {
   const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
 
   const titles = [
-    'CODE FASTER BUILD SMARTER',
-    'ELEVATE YOUR CODING GAME',
-    'ENHANCE YOUR WORKFLOW WITH PROMPTS',
-    'LEVEL UP CODING IN WINDSURF IDE'
+    'UNLOCK NEW IDEAS',
+    'CREATE FASTER. SMARTER. EASIER.',
+    'PROMPTS FOR EVERYONE',
+    'FIND THE RIGHT PROMPT FOR YOU'
   ];
 
   useEffect(() => {
@@ -102,54 +103,46 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative min-h-screen">
       {/* Hero Section */}
-      <div className="relative h-[calc(85vh+160px)] overflow-hidden -mt-24">
-        <div 
-          className="absolute inset-0"
-          style={{ transform: 'translate3d(0, 0, 0)' }}
-        >
-          <div className="absolute inset-0 bg-black"></div>
-        </div>
+      <div className="relative h-screen overflow-hidden -mt-24">
+        {/* Background */}
+        <div className="absolute inset-0 z-0">
+          {/* Dark overlay */}
+          <div className="absolute inset-0 bg-black/80"></div>
         
         {/* Light effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-gradient-radial from-[#00ff00]/30 via-transparent to-transparent opacity-30 animate-pulse-slow"></div>
-          <div className="absolute top-[-10%] right-[-10%] w-[120%] h-[120%] bg-gradient-radial from-[#00ffff]/20 via-transparent to-transparent opacity-30 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute inset-0">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-full filter blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-l from-[#00ffff]/10 to-[#0099ff]/10 rounded-full filter blur-3xl"></div>
+        </div>
         </div>
         
-        <div 
-          ref={heroRef}
-          className="absolute inset-0"
-          style={{ transform: 'translate3d(0, 0, 0)' }}
-        >
-          <div className="absolute inset-0 bg-black"></div>
-        </div>
-        
-        <div className="absolute inset-0 flex items-center justify-center">
+        {/* Content wrapper */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
           <div 
             ref={textRef} 
-            className="text-center space-y-8 px-4"
+            className="text-center space-y-8 px-4 py-12 max-w-4xl mx-4"
             style={{ transform: 'translate3d(0, 0, 0)' }}
           >
             <div className={anton.className}>
               <h1 className="text-6xl md:text-[8rem] leading-none">
-                <span className="block bg-gradient-to-r from-[#00ff00] via-[#00ffff] to-[#00ffff] bg-clip-text text-transparent animate-gradient drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
+                <span className="block bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent animate-gradient drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
                   {titles[currentTitleIndex]}
                 </span>
               </h1>
             </div>
-            <p className="text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-              Welcome to Prompts For Everyone, your go-to destination for AI prompts and inspiration—designed to help you harness the power of AI like never before. Whether you're a beginner or an expert, our platform offers everything you need to succeed.
+            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            Unlock AI-driven prompts that save time and enhance creativity. Start for free today.
             </p>
             <div className="flex gap-6 justify-center">
               <Link href="/signup">
-                <Button className="px-8 py-4 text-lg bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold rounded-lg transition-all duration-300 hover:scale-105 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
+                <Button className="px-8 py-4 text-lg bg-gradient-to-r from-[#00ffff] to-[#0099ff] hover:from-[#00ffff]/90 hover:to-[#0099ff]/90 text-black font-bold rounded-lg transition-all duration-300 hover:scale-105 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
                   Sign Up Free
                 </Button>
               </Link>
               <Link href="/how-to-start">
-                <Button className="px-8 py-4 text-lg bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 hover:scale-105 border border-[#00ffff]/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+                <Button className="px-8 py-4 text-lg bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 hover:from-[#00ffff]/20 hover:to-[#0099ff]/20 text-[#00ffff] rounded-lg transition-all duration-300 hover:scale-105 border border-[#00ffff]/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]">
                   Learn More
                 </Button>
               </Link>
@@ -157,9 +150,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Animated Waves */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg className="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
+        {/* Animated Waves with glass effect */}
+        <div className="absolute bottom-0 left-0 right-0 z-10">
+          <div className="absolute inset-0 backdrop-blur-sm"></div>
+          <svg className="waves relative z-20" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none">
             <defs>
               <path id="wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
             </defs>
@@ -176,61 +170,245 @@ export default function Home() {
         </div>
       </div>
 
+      {/* After Hero Section */}
+
       {/* Features Section */}
-      <div 
-        ref={featuresRef} 
-        className={`relative z-10 py-20 bg-black transform transition-all duration-[2000ms] ${
-          isFeaturesVisible 
-            ? 'opacity-100 translate-y-0 scale-100' 
-            : 'opacity-0 translate-y-32 scale-90'
-        }`}
-      >
+      <section className="relative z-20 py-24 bg-black">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16 bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-bold text-center bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-6">
             Explore Our Features
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
-              <div className="relative">
-                <div className="w-16 h-16 mb-6 relative">
-                  <div className="absolute inset-0 bg-[#00ffff]/10 rounded-lg"></div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/20 to-transparent rounded-lg animate-pulse"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 border-2 border-[#00ffff]/40 rounded-full animate-spin-slow"></div>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Your Go-To Destination</h3>
-                  <p className="text-white/70 leading-relaxed">
-                    Welcome to Prompts For Everyone, your go-to destination for AI prompts and inspiration—designed to help you harness the power of AI like never before. Whether you're a beginner or an expert, our expertly curated prompts and in-depth guides will supercharge your skills.
-                  </p>
-                </div>
-              </div>
-            </Card>
+            <p className="text-white/60 text-center max-w-3xl mx-auto text-lg mb-4">
+              A comprehensive suite of tools designed to help you create, manage, and optimize your AI prompts
+            </p>
+            <p className="text-white/40 text-center max-w-2xl mx-auto text-base">
+              From basic prompt management to advanced optimization techniques, we provide everything you need to master prompt engineering
+            </p>
+          </div>
 
-            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
-              <div className="relative">
-                <div className="w-16 h-16 mb-6 relative">
-                  <div className="absolute inset-0 bg-[#00ffff]/10 rounded-lg"></div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#00ffff]/20 to-transparent rounded-lg animate-pulse"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 relative">
-                      <div className="absolute inset-0 border-2 border-[#00ffff]/40 rounded animate-ping"></div>
-                      <div className="absolute inset-0 bg-[#00ffff]/20 rounded"></div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">Why Use Prompts For Everyone?</h3>
-                  <p className="text-white/70 leading-relaxed">
-                    Access a growing library of coding prompts and tutorials that help you write better code, faster. Whether you're troubleshooting, automating tasks, or learning new techniques, our resources make coding easier and more efficient.
-                  </p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {/* Feature Cards */}
+            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
+                <span className="text-[#00ffff] font-bold">SAVE</span>
               </div>
-            </Card>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Store & Organize</h3>
+              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                Create your personal prompt library with intelligent organization, tags, and categories. Keep your valuable prompts secure and easily accessible.
+              </p>
+            </div>
+
+            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
+                <span className="text-[#00ffff] font-bold">SHARE</span>
+              </div>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Collaborate & Share</h3>
+              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                Share prompts with team members, collaborate in real-time, and build a knowledge base of effective prompts for your organization.
+              </p>
+            </div>
+
+            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
+                <span className="text-[#00ffff] font-bold">OPT</span>
+              </div>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Optimize & Improve</h3>
+              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                Use AI-powered suggestions to enhance your prompts. Get insights on performance and recommendations for improvements.
+              </p>
+            </div>
+
+            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
+                <span className="text-[#00ffff] font-bold">TEST</span>
+              </div>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Test & Validate</h3>
+              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                Thoroughly test your prompts across different scenarios. Ensure consistency and reliability before deployment.
+              </p>
+            </div>
+
+            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
+                <span className="text-[#00ffff] font-bold">VER</span>
+              </div>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Version Control</h3>
+              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                Track changes, maintain history, and roll back to previous versions. Never lose your prompt improvements.
+              </p>
+            </div>
+
+            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
+                <span className="text-[#00ffff] font-bold">API</span>
+              </div>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">API Integration</h3>
+              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                Connect with popular AI models and development tools. Seamlessly integrate prompts into your workflow.
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Carousel Section */}
+      <section className="relative z-20 bg-black/80">
+        <div className="py-12">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl font-semibold text-white/90 mb-4">
+              Discover More Capabilities
+            </h3>
+            <p className="text-white/60">
+              Explore our full range of features in action
+            </p>
+          </div>
+          <FeatureCarousel />
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="py-24 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
+              Why <span className="bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">Prompts Matter</span>
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+                <div className="w-16 h-16 mb-6 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg transform group-hover:scale-110 transition-transform duration-300"></div>
+                  <div className="absolute inset-0 flex items-center justify-center font-bold text-[#00ffff] group-hover:text-[#0099ff] transition-colors">FAST</div>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Accelerate Development</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                  Well-crafted prompts can reduce development time by up to 80%, allowing you to focus on what matters most - building great features.
+                </p>
+              </div>
+
+              <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+                <div className="w-16 h-16 mb-6 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg transform group-hover:scale-110 transition-transform duration-300"></div>
+                  <div className="absolute inset-0 flex items-center justify-center font-bold text-[#00ffff] group-hover:text-[#0099ff] transition-colors">UPD</div>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Enhance Code Quality</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                  Get consistent, high-quality code outputs that follow best practices and maintain your project's standards.
+                </p>
+              </div>
+
+              <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
+                <div className="w-16 h-16 mb-6 relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg transform group-hover:scale-110 transition-transform duration-300"></div>
+                  <div className="absolute inset-0 flex items-center justify-center font-bold text-[#00ffff] group-hover:text-[#0099ff] transition-colors">IMPRV</div>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Improve Accuracy</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
+                  Precise prompts lead to more accurate results, reducing the need for multiple iterations and revisions.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="py-24 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
+              Why Choose <span className="bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">Prompts For Everyone</span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div className="space-y-12">
+                <div className="flex gap-6 items-start group">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ffff]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00ffff]/20 transition-colors duration-300">
+                    <span className="font-bold text-[#00ffff] text-sm">EXP</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Expert-Crafted Prompts</h3>
+                    <p className="text-white/70 leading-relaxed">
+                      Access a curated library of prompts created by experienced developers and AI specialists, ensuring high-quality outputs every time.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 items-start group">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ffff]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00ffff]/20 transition-colors duration-300">
+                    <span className="font-bold text-[#00ffff] text-sm">UPD</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Regular Updates</h3>
+                    <p className="text-white/70 leading-relaxed">
+                      Our prompt library is continuously updated to keep pace with the latest AI models and development practices.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 items-start group">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ffff]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00ffff]/20 transition-colors duration-300">
+                    <span className="font-bold text-[#00ffff] text-sm">COM</span>
+                </div>
+                <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Community-Driven</h3>
+                  <p className="text-white/70 leading-relaxed">
+                      Join a thriving community of developers sharing insights and best practices for prompt engineering.
+                  </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-12">
+                <div className="flex gap-6 items-start group">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ffff]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00ffff]/20 transition-colors duration-300">
+                    <span className="font-bold text-[#00ffff] text-sm">PRV</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Private Workspace</h3>
+                    <p className="text-white/70 leading-relaxed">
+                      Keep your custom prompts secure in your private workspace while having the option to share with the community.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 items-start group">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ffff]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00ffff]/20 transition-colors duration-300">
+                    <span className="font-bold text-[#00ffff] text-sm">AI</span>
+                    </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff] mb-3">AI-Powered Assistant</h3>
+                    <p className="text-white/70 leading-relaxed">
+                      Get help creating and optimizing your prompts with our intelligent AI assistant, making prompt engineering easier than ever.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-6 items-start group">
+                  <div className="w-12 h-12 rounded-lg bg-[#00ffff]/10 flex items-center justify-center flex-shrink-0 group-hover:bg-[#00ffff]/20 transition-colors duration-300">
+                    <span className="font-bold text-[#00ffff] text-sm">PRO</span>
+                </div>
+                <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Analytics & Insights</h3>
+                  <p className="text-white/70 leading-relaxed">
+                      Track the performance of your prompts and get insights to improve their effectiveness over time.
+                  </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-16 text-center">
+              <Link href="/signup">
+                <Button className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
+                  Start Building Better Prompts
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Visual Divider Section */}
       <div className="relative h-[40vh] overflow-hidden">
@@ -346,7 +524,7 @@ export default function Home() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-left hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] relative" style={{ animationDelay: '0.2s' }}>
+            <Card className="p-8 bg-gradient-to-br from-black/80 to-[#0099ff]/5 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-left hover:border-[#0099ff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] relative" style={{ animationDelay: '0.2s' }}>
               <div className="absolute -top-4 right-4 bg-green-500 text-white px-4 py-1 rounded-full text-sm">
                 Always Free
               </div>
@@ -387,7 +565,7 @@ export default function Home() {
             </Card>
 
             {/* Pro Plan */}
-            <Card className="p-8 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-right hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] relative" style={{ animationDelay: '0.4s' }}>
+            <Card className="p-8 bg-gradient-to-br from-black/80 to-[#0099ff]/5 backdrop-blur-lg border border-[#00ffff]/20 transform hover:scale-105 transition-all duration-300 animate-slide-in-right hover:border-[#0099ff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] relative" style={{ animationDelay: '0.4s' }}>
               <div className="absolute -top-4 right-4 bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-bold">
                 Most Popular
               </div>
@@ -433,20 +611,28 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black border-t border-[#00ffff]/20 pt-20 pb-10">
+      <footer className="bg-gradient-to-b from-black via-[#001a1a] to-black border-t border-[#00ffff]/20 pt-20 pb-10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             {/* Company Info */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">WindsurfPrompts</h3>
-              <p className="text-white/60 leading-relaxed">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">
+                PromptsForEveryone
+              </h3>
+              <p className="text-white/70 leading-relaxed">
                 Empowering developers with advanced prompt engineering tools and AI-driven development solutions.
               </p>
               <div className="flex gap-4">
-                <Link href="https://twitter.com/windsurfprompts" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                <Link 
+                  href="https://twitter.com/windsurfprompts" 
+                  className="text-white/60 hover:text-[#00ffff] transition-all duration-300 transform hover:scale-110"
+                >
                   <TwitterIcon className="w-6 h-6" />
                 </Link>
-                <Link href="https://github.com/windsurfprompts" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                <Link 
+                  href="https://github.com/windsurfprompts" 
+                  className="text-white/60 hover:text-[#00ffff] transition-all duration-300 transform hover:scale-110"
+                >
                   <GitHubIcon className="w-6 h-6" />
                 </Link>
               </div>
@@ -454,55 +640,81 @@ export default function Home() {
 
             {/* Quick Links */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">Quick Links</h3>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">
+                Quick Links
+              </h3>
               <ul className="space-y-4">
-                <li>
-                  <Link href="/explore" className="text-white/60 hover:text-[#00ffff] transition-colors">Explore</Link>
+                {[
+                  ['explore', 'Explore'],
+                  ['pro-plan', 'Pricing'],
+                  ['dashboard', 'Dashboard']
+                ].map(([path, label]) => (
+                  <li key={path}>
+                    <Link 
+                      href={`/${path}`} 
+                      className="text-white/70 hover:text-[#00ffff] transition-all duration-300 relative group"
+                    >
+                      {label}
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#00ffff] to-[#0099ff] transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </Link>
                 </li>
-                <li>
-                  <Link href="/pro-plan" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link>
-                </li>
-                <li>
-                  <Link href="/dashboard" className="text-white/60 hover:text-[#00ffff] transition-colors">Dashboard</Link>
-                </li>
+                ))}
               </ul>
             </div>
 
             {/* Resources */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">Resources</h3>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">
+                Resources
+              </h3>
               <ul className="space-y-4">
-                <li>
-                  <Link href="/how-to-start" className="text-white/60 hover:text-[#00ffff] transition-colors">How to Start</Link>
+                {[
+                  ['how-to-start', 'How to Start'],
+                  ['documentation', 'Documentation'],
+                  ['blog', 'Blog']
+                ].map(([path, label]) => (
+                  <li key={path}>
+                    <Link 
+                      href={`/${path}`} 
+                      className="text-white/70 hover:text-[#00ffff] transition-all duration-300 relative group"
+                    >
+                      {label}
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#00ffff] to-[#0099ff] transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </Link>
                 </li>
-                <li>
-                  <Link href="/documentation" className="text-white/60 hover:text-[#00ffff] transition-colors">Documentation</Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="text-white/60 hover:text-[#00ffff] transition-colors">Blog</Link>
-                </li>
+                ))}
               </ul>
             </div>
 
             {/* Legal */}
             <div className="space-y-6">
-              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">Legal</h3>
+              <h3 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">
+                Legal
+              </h3>
               <ul className="space-y-4">
-                <li>
-                  <Link href="/privacy" className="text-white/60 hover:text-[#00ffff] transition-colors">Privacy Policy</Link>
+                {[
+                  ['privacy', 'Privacy Policy'],
+                  ['terms', 'Terms of Service'],
+                  ['contact', 'Contact Us']
+                ].map(([path, label]) => (
+                  <li key={path}>
+                    <Link 
+                      href={`/${path}`} 
+                      className="text-white/70 hover:text-[#00ffff] transition-all duration-300 relative group"
+                    >
+                      {label}
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#00ffff] to-[#0099ff] transition-all duration-300 group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </Link>
                 </li>
-                <li>
-                  <Link href="/terms" className="text-white/60 hover:text-[#00ffff] transition-colors">Terms of Service</Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-white/60 hover:text-[#00ffff] transition-colors">Contact Us</Link>
-                </li>
+                ))}
               </ul>
             </div>
           </div>
 
-          <div className="text-center text-white/40 text-sm">
-            <p>© {new Date().getFullYear()} Prompts For Everyone. All rights reserved.</p>
+          <div className="text-center">
+            <p className="text-white/50 text-sm">
+              © {new Date().getFullYear()} Prompts For Everyone. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>
@@ -633,6 +845,26 @@ export default function Home() {
 
         .animate-pulse-subtle {
           animation: pulse-subtle 2s ease-in-out infinite;
+        }
+
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 8s ease infinite;
+        }
+
+        @keyframes glow {
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.2); }
+        }
+
+        .animate-glow {
+          animation: glow 3s ease-in-out infinite;
         }
       `}</style>
 

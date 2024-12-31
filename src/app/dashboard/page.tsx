@@ -7,19 +7,24 @@ import { ref, query, orderByChild, equalTo, onValue, remove } from 'firebase/dat
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
-import { PencilIcon, TrashIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIcon, FolderIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 
-import { Prompt } from '../../types/prompt';
+import { Prompt } from '@/types';
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const { filterTag } = useDashboard();
+  const { selectedCategory, selectedSubcategory } = useDashboard();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+  const [userStats, setUserStats] = useState({
+    totalPrompts: 0,
+    privateCategories: 0,
+    publicPrompts: 0,
+  });
 
   useEffect(() => {
     if (!user) {
@@ -27,11 +32,41 @@ export default function DashboardPage() {
       return;
     }
 
-    const promptsRef = ref(db, 'prompts');
-    const userPromptsQuery = query(promptsRef, orderByChild('userId'), equalTo(user.uid));
+    // Fetch user stats
+    const userPromptsRef = ref(db, `users/${user.uid}/prompts`);
+    const privateCategoriesRef = ref(db, `users/${user.uid}/categories`);
+    const publicPromptsRef = ref(db, 'prompts');
+
+    const fetchStats = async () => {
+      onValue(userPromptsRef, (snapshot) => {
+        const totalPrompts = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        setUserStats(prev => ({ ...prev, totalPrompts }));
+      });
+
+      onValue(privateCategoriesRef, (snapshot) => {
+        const privateCategories = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        setUserStats(prev => ({ ...prev, privateCategories }));
+      });
+
+      onValue(publicPromptsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const publicPrompts = Object.values(snapshot.val()).filter((prompt: any) => prompt.userId === user.uid).length;
+          setUserStats(prev => ({ ...prev, publicPrompts }));
+        }
+      });
+    };
+
+    fetchStats();
+
+    let promptsRef;
+    if (selectedCategory?.isPrivate) {
+      promptsRef = ref(db, `users/${user.uid}/prompts`);
+    } else {
+      promptsRef = ref(db, 'prompts');
+    }
 
     const unsubscribe = onValue(
-      userPromptsQuery,
+      promptsRef,
       (snapshot) => {
         if (!snapshot.exists()) {
           setPrompts([]);
@@ -44,7 +79,14 @@ export default function DashboardPage() {
           ...data,
         }));
 
-        setPrompts(promptsData);
+        const filteredPrompts = promptsData.filter((prompt) => {
+          if (!selectedCategory) return true;
+          const categoryMatch = prompt.categoryId === selectedCategory.id;
+          if (!selectedSubcategory) return categoryMatch;
+          return categoryMatch && prompt.subcategoryId === selectedSubcategory.id;
+        });
+
+        setPrompts(filteredPrompts);
         setIsLoading(false);
       },
       (error) => {
@@ -56,7 +98,7 @@ export default function DashboardPage() {
     return () => {
       unsubscribe();
     };
-  }, [user]);
+  }, [user, selectedCategory, selectedSubcategory]);
 
   const handleEdit = (prompt: Prompt) => {
     setSelectedPrompt(prompt);
@@ -72,10 +114,12 @@ export default function DashboardPage() {
   };
 
   const handleDelete = async (promptId: string | undefined) => {
-    if (!promptId) return;
+    if (!promptId || !user) return;
     if (window.confirm('Are you sure you want to delete this prompt?')) {
       try {
-        const promptRef = ref(db, `prompts/${promptId}`);
+        const promptRef = selectedCategory?.isPrivate
+          ? ref(db, `users/${user.uid}/prompts/${promptId}`)
+          : ref(db, `prompts/${promptId}`);
         await remove(promptRef);
       } catch (error) {
         console.error('Error deleting prompt:', error);
@@ -83,27 +127,55 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCopy = async (prompt: Prompt) => {
+  const handleCopy = async (content: string) => {
     try {
-      await navigator.clipboard.writeText(prompt.content || '');
+      await navigator.clipboard.writeText(content);
       // You could add a toast notification here
     } catch (error) {
       console.error('Failed to copy text:', error);
     }
   };
 
-  const filteredPrompts = filterTag
-    ? prompts.filter(prompt => 
-        prompt.category?.toLowerCase() === filterTag.toLowerCase()
-      )
-    : prompts;
-
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
+            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
+              <DocumentIcon className="h-6 w-6 text-[#00ffff]" />
+            </div>
+            <div>
+              <p className="text-white/60">Total Prompts</p>
+              <p className="text-2xl font-bold text-white">{userStats.totalPrompts}</p>
+            </div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
+            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
+              <FolderIcon className="h-6 w-6 text-[#00ffff]" />
+            </div>
+            <div>
+              <p className="text-white/60">Private Categories</p>
+              <p className="text-2xl font-bold text-white">{userStats.privateCategories}</p>
+            </div>
+          </div>
+          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
+            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
+              <ChartBarIcon className="h-6 w-6 text-[#00ffff]" />
+            </div>
+            <div>
+              <p className="text-white/60">Public Prompts</p>
+              <p className="text-2xl font-bold text-white">{userStats.publicPrompts}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
-            {filterTag ? `${filterTag} Prompts` : 'Your Prompts'}
+            {selectedCategory 
+              ? `${selectedCategory.isPrivate ? 'Private' : 'Public'} Prompts - ${selectedSubcategory ? 'Subcategory' : 'Category'}`
+              : 'All Prompts'}
           </h1>
           <Link href="/submit">
             <Button className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-6 py-2 rounded-lg transition-all duration-300 shadow-[0_0_15px_rgba(0,255,255,0.5)]">
@@ -112,15 +184,16 @@ export default function DashboardPage() {
           </Link>
         </div>
 
+        {/* Existing prompt grid and modal */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
           </div>
-        ) : filteredPrompts.length === 0 ? (
+        ) : prompts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-white/60 mb-4">
-              {filterTag 
-                ? `No prompts found in the "${filterTag}" category.`
+              {selectedCategory 
+                ? `No prompts found in this ${selectedSubcategory ? 'subcategory' : 'category'}.`
                 : "You haven't created any prompts yet."}
             </p>
             <Link href="/submit">
@@ -131,7 +204,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 m-[15px]">
-            {filteredPrompts.map((prompt) => (
+            {prompts.map((prompt) => (
               <div
                 key={prompt.id}
                 onClick={() => handleEdit(prompt)}
@@ -145,7 +218,7 @@ export default function DashboardPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleCopy(prompt);
+                        handleCopy(prompt.content || '');
                       }}
                       className="text-white/60 hover:text-[#00ffff] transition-colors"
                       title="Copy prompt"
@@ -165,12 +238,6 @@ export default function DashboardPage() {
                 </div>
                 <p className="text-white/60 mb-4 line-clamp-3">{prompt.description}</p>
                 <div className="flex flex-wrap gap-2">
-                  <span
-                    key={prompt.category}
-                    className="text-sm px-3 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30"
-                  >
-                    {prompt.category}
-                  </span>
                   {prompt.tags?.map((tag: string, index: number) => (
                     <span
                       key={`${tag}-${index}`}
@@ -187,11 +254,10 @@ export default function DashboardPage() {
 
         {selectedPrompt && selectedPrompt.id && (
           <PromptModal
-            prompt={selectedPrompt as Required<Pick<Prompt, 'id' | 'title' | 'description' | 'content' | 'category' | 'createdAt'>>}
+            prompt={selectedPrompt}
             onClose={handleCloseModal}
             onEdit={handleEditInModal}
             onDelete={handleDelete}
-            onCopy={handleCopy}
           />
         )}
       </div>

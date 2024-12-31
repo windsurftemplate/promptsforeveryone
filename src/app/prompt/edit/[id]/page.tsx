@@ -8,7 +8,13 @@ import { ref, get, update } from 'firebase/database';
 import { Prompt, PromptCategory } from '@/types/prompt';
 import Button from '@/components/ui/Button';
 
-export default async function EditPromptPage({ params }: { params: Promise<{ id: string }> }) {
+interface EditPromptPageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditPromptPage({ params }: EditPromptPageProps) {
   const router = useRouter();
   const { user } = useAuth();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
@@ -24,8 +30,8 @@ export default async function EditPromptPage({ params }: { params: Promise<{ id:
     visibility: 'private' as 'public' | 'private',
   });
 
-  // Await params to access id
-  const { id } = await params;
+  // Destructure the id directly from params
+  const { id } = params;
 
   useEffect(() => {
     if (!user) {
@@ -123,7 +129,6 @@ export default async function EditPromptPage({ params }: { params: Promise<{ id:
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Edit Prompt</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Title */}
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700">
             Title
@@ -139,7 +144,6 @@ export default async function EditPromptPage({ params }: { params: Promise<{ id:
           />
         </div>
 
-        {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700">
             Description
@@ -153,24 +157,6 @@ export default async function EditPromptPage({ params }: { params: Promise<{ id:
             required
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
-        </div>
-
-        {/* Visibility */}
-        <div>
-          <label htmlFor="visibility" className="block text-sm font-medium text-gray-700">
-            Visibility
-          </label>
-          <select
-            name="visibility"
-            id="visibility"
-            value={formData.visibility}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          >
-            <option value="private">Private</option>
-            <option value="public">Public</option>
-          </select>
         </div>
 
         <div className="flex justify-end space-x-4">

@@ -5,13 +5,14 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  apiKey: "AIzaSyDbNOQM9KjlTrIsHsLiQLGWfDilwyc4mh4",
+  authDomain: "promptsforall-8068a.firebaseapp.com",
+  projectId: "promptsforall-8068a",
+  storageBucket: "promptsforall-8068a.appspot.com",
+  messagingSenderId: "486259788940",
+  appId: "1:486259788940:web:bad81b33a1c2abfdde7fa9",
+  measurementId: "G-RH79PQ2B33",
+  databaseURL: "https://promptsforall-8068a-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);

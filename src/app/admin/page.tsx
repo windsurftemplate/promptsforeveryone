@@ -1,706 +1,544 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ref, get, update, remove, set, push, query, orderByChild } from 'firebase/database';
 import { db } from '@/lib/firebase';
+import { ref, set, get, update } from 'firebase/database';
+import { promptCategories } from '@/lib/categories';
+import Button from '@/components/ui/Button';
 
 interface User {
   uid: string;
   email: string;
   role: string;
-  plan: string;
   createdAt: string;
+  lastLogin: string;
+  isPro?: boolean;
+  status: string;
+  stripeSubscriptionStatus?: string | null;
+}
+
+interface EditableCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  group: string;
+  isEditing?: boolean;
 }
 
 interface Prompt {
   id: string;
   title: string;
   content: string;
-  authorId: string;
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string;
-}
-
-interface Category {
-  name: string;
   description: string;
-  icon: string;
+  category: string;
+  userId: string;
+  userName: string;
+  createdAt: string;
+  visibility: 'public' | 'private';
+  isPublished: boolean;
+  likes?: number;
+  downloads?: number;
 }
 
-interface BlogPost {
-  id: string;
-  title: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  date: string;
-  category: string;
-  readTime: string;
-  featured?: boolean;
-}
+type Tab = 'users' | 'categories' | 'private-prompts' | 'public-prompts';
 
 export default function AdminPage() {
   const { user } = useAuth();
-  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>('users');
+  const [isUpdating, setIsUpdating] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'users' | 'prompts' | 'pages' | 'categories' | 'blog'>('users');
-  const [pageContent, setPageContent] = useState('');
-  const [editingPage, setEditingPage] = useState(false);
-  const [savingPage, setSavingPage] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [newCategory, setNewCategory] = useState<Category>({
-    name: '',
-    description: '',
-    icon: ''
-  });
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
-  const [newPost, setNewPost] = useState<Omit<BlogPost, 'id'>>({
-    title: '',
-    excerpt: '',
-    content: '',
-    author: '',
-    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-    category: '',
-    readTime: '',
-    featured: false
-  });
+  const [categories, setCategories] = useState<EditableCategory[]>(promptCategories);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [updateStatus, setUpdateStatus] = useState<{
+    success?: boolean;
+    message: string;
+  } | null>(null);
+  const [privatePrompts, setPrivatePrompts] = useState<Prompt[]>([]);
+  const [publicPrompts, setPublicPrompts] = useState<Prompt[]>([]);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
 
   useEffect(() => {
-    const checkAdminAccess = async () => {
-      if (!user) {
-        console.log('No user found, redirecting to home');
-        router.push('/');
-        return;
-      }
-
+    const fetchUsers = async () => {
       try {
-        console.log('Checking admin access for user:', user.uid);
-        // First check if the user exists and is an admin
-        const userRef = ref(db, `users/${user.uid}`);
-        const snapshot = await get(userRef);
-        const userData = snapshot.val();
-        console.log('User data:', userData);
-
-        if (!userData) {
-          console.log('No user data found, creating admin user');
-          const newUserData = {
-            email: user.email,
-            role: 'admin', // Set as admin for the first user
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isPro: true // Set as pro user
-          };
-          
-          try {
-            await set(userRef, newUserData);
-            console.log('Created admin user successfully');
-            window.location.reload();
-            return;
-          } catch (error) {
-            console.error('Error creating admin user:', error);
-            router.push('/');
-            return;
-          }
-        }
-
-        if (userData.role !== 'admin') {
-          console.log('User is not an admin, redirecting');
-          router.push('/');
-          return;
-        }
-
-        // Now that we've confirmed admin status, fetch data
-        console.log('User is admin, proceeding to fetch data');
-        
-        // First fetch users one by one to avoid permission issues
-        try {
-          const usersRef = ref(db, 'users');
-          const usersSnapshot = await get(usersRef);
-          if (usersSnapshot.exists()) {
-            const usersData = usersSnapshot.val();
-            const formattedUsers = await Promise.all(
-              Object.entries(usersData)
-                .filter(([uid]) => uid !== 'undefined' && uid !== 'null')
-                .map(async ([uid, data]: [string, any]) => {
-                  try {
-                    const userSnapshot = await get(ref(db, `users/${uid}`));
-                    const userData = userSnapshot.val();
-                    return {
-                      uid,
-                      email: userData?.email || '',
-                      role: userData?.role || 'user',
-                      createdAt: userData?.createdAt || new Date().toISOString()
-                    };
-                  } catch (error) {
-                    console.error(`Error fetching user ${uid}:`, error);
-                    return null;
-                  }
-                })
-            );
-            setUsers(formattedUsers.filter(user => user !== null) as User[]);
-            console.log('Users fetched successfully');
-          }
-        } catch (error) {
-          console.error('Error fetching users:', error);
-        }
-
-        // Then fetch prompts
-        try {
-          const promptsRef = ref(db, 'prompts');
-          const promptsSnapshot = await get(promptsRef);
-          if (promptsSnapshot.exists()) {
-            const promptsData = promptsSnapshot.val();
-            const formattedPrompts = Object.entries(promptsData)
-              .filter(([id, data]: [string, any]) => data && data.title)
-              .map(([id, data]: [string, any]) => ({
-                id,
-                title: data.title || '',
-                content: data.content || '',
-                authorId: data.userId || '',
-                status: data.status || 'pending',
-                createdAt: data.createdAt || new Date().toISOString()
-              }));
-            setPrompts(formattedPrompts);
-            console.log('Prompts fetched successfully');
-          }
-        } catch (error) {
-          console.error('Error fetching prompts:', error);
-        }
-
-        // Finally fetch blog posts
-        try {
-          const blogRef = ref(db, 'blog');
-          const blogSnapshot = await get(blogRef);
-          if (blogSnapshot.exists()) {
-            const blogData = blogSnapshot.val();
-            const formattedPosts = Object.entries(blogData)
-              .filter(([id, data]: [string, any]) => data && data.title)
-              .map(([id, data]: [string, any]) => ({
-                id,
-                title: data.title || '',
-                excerpt: data.excerpt || '',
-                content: data.content || '',
-                author: data.author || '',
-                date: data.date || new Date().toLocaleDateString(),
-                category: data.category || '',
-                readTime: data.readTime || '',
-                featured: data.featured || false
-              }));
-            setBlogPosts(formattedPosts);
-            console.log('Blog posts fetched successfully');
-          }
-        } catch (error) {
-          console.error('Error fetching blog posts:', error);
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error checking admin access:', error);
-        router.push('/');
-      }
-    };
-
-    checkAdminAccess();
-  }, [user, router]);
-
-  useEffect(() => {
-    const loadPageContent = async () => {
-      if (!user) return;
-
-      try {
-        const howToStartRef = ref(db, 'howToStart');
-        const snapshot = await get(howToStartRef);
+        const usersRef = ref(db, 'users');
+        const snapshot = await get(usersRef);
         if (snapshot.exists()) {
-          setPageContent(snapshot.val().content);
-        }
-      } catch (error) {
-        console.error('Error loading page content:', error);
-      }
-    };
-
-    if (activeTab === 'pages') {
-      loadPageContent();
-    }
-  }, [activeTab, user]);
-
-  useEffect(() => {
-    const fetchBlogPosts = async () => {
-      if (!user || activeTab !== 'blog') return;
-
-      try {
-        const blogRef = ref(db, 'blog');
-        const snapshot = await get(blogRef);
-        if (snapshot.exists()) {
-          const posts = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-            id,
-            ...data,
+          const usersData = snapshot.val();
+          const usersArray = Object.entries(usersData).map(([uid, data]: [string, any]) => ({
+            uid,
+            ...data
           }));
-          setBlogPosts(posts);
+          setUsers(usersArray);
         }
       } catch (error) {
-        console.error('Error fetching blog posts:', error);
+        console.error('Error fetching users:', error);
+      } finally {
+        setIsLoadingUsers(false);
       }
     };
 
-    fetchBlogPosts();
-  }, [activeTab, user]);
+    fetchUsers();
+  }, []);
 
-  const updateUserRole = async (uid: string, newRole: string) => {
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        const promptsRef = ref(db, 'prompts');
+        const snapshot = await get(promptsRef);
+        if (snapshot.exists()) {
+          const promptsData = snapshot.val();
+          const promptsArray = Object.entries(promptsData).map(([id, data]: [string, any]) => ({
+            id,
+            ...data
+          }));
+          
+          setPrivatePrompts(promptsArray.filter(p => p.visibility === 'private'));
+          setPublicPrompts(promptsArray.filter(p => p.visibility === 'public'));
+        }
+      } catch (error) {
+        console.error('Error fetching prompts:', error);
+      } finally {
+        setIsLoadingPrompts(false);
+      }
+    };
+
+    fetchPrompts();
+  }, []);
+
+  const handleUpdateCategories = async () => {
+    if (!user) {
+      setUpdateStatus({
+        success: false,
+        message: 'You must be logged in to perform this action.'
+      });
+      return;
+    }
+
+    setIsUpdating(true);
+    setUpdateStatus(null);
+
     try {
-      await update(ref(db, `users/${uid}`), { role: newRole });
-      setUsers(users.map(user => 
-        user.uid === uid ? { ...user, role: newRole } : user
-      ));
+      const categoriesRef = ref(db, 'categories');
+      const categoriesData = categories.map(({ isEditing, ...cat }) => cat);
+      await set(categoriesRef, categoriesData);
+
+      setUpdateStatus({
+        success: true,
+        message: 'Categories successfully updated in Firebase!'
+      });
     } catch (error) {
-      console.error('Error updating user role:', error);
+      setUpdateStatus({
+        success: false,
+        message: `Failed to update categories: ${error instanceof Error ? error.message : 'Unknown error'}`
+      });
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const updatePromptStatus = async (promptId: string, newStatus: 'approved' | 'rejected') => {
+  const handleUpdateUser = async (userId: string, updatedData: Partial<User>) => {
     try {
-      await update(ref(db, `prompts/${promptId}`), { status: newStatus });
-      setPrompts(prompts.map(prompt => 
-        prompt.id === promptId ? { ...prompt, status: newStatus } : prompt
+      const userRef = ref(db, `users/${userId}`);
+      await update(userRef, updatedData);
+      
+      setUsers(users.map(u => 
+        u.uid === userId ? { ...u, ...updatedData } : u
       ));
+      setEditingUser(null);
     } catch (error) {
-      console.error('Error updating prompt status:', error);
+      console.error('Error updating user:', error);
     }
   };
 
-  const deletePrompt = async (promptId: string) => {
+  const handleEditCategory = (categoryId: string, field: keyof EditableCategory, value: string) => {
+    setCategories(categories.map(cat => 
+      cat.id === categoryId ? { ...cat, [field]: value } : cat
+    ));
+  };
+
+  const handleDeletePrompt = async (promptId: string) => {
+    if (!confirm('Are you sure you want to delete this prompt?')) return;
+    
     try {
-      await remove(ref(db, `prompts/${promptId}`));
-      setPrompts(prompts.filter(prompt => prompt.id !== promptId));
+      const promptRef = ref(db, `prompts/${promptId}`);
+      await set(promptRef, null);
+      
+      setPrivatePrompts(prev => prev.filter(p => p.id !== promptId));
+      setPublicPrompts(prev => prev.filter(p => p.id !== promptId));
     } catch (error) {
       console.error('Error deleting prompt:', error);
     }
   };
 
-  const handleSavePageContent = async () => {
-    setSavingPage(true);
-    try {
-      const howToStartRef = ref(db, 'howToStart');
-      await set(howToStartRef, {
-        content: pageContent,
-        updatedAt: new Date().toISOString(),
-        updatedBy: user?.email
-      });
-      setEditingPage(false);
-    } catch (error) {
-      console.error('Error saving page content:', error);
-    } finally {
-      setSavingPage(false);
-    }
-  };
-
-  const addCategory = async () => {
-    try {
-      const categoriesRef = ref(db, 'categories');
-      const newCategoryRef = push(categoriesRef);
-      await set(newCategoryRef, newCategory);
-      setNewCategory({ name: '', description: '', icon: '' });
-      // Refresh categories
-      const snapshot = await get(categoriesRef);
-      if (snapshot.exists()) {
-        setCategories(Object.values(snapshot.val()));
-      }
-    } catch (error) {
-      console.error('Error adding category:', error);
-    }
-  };
-
-  const updateCategory = async (categoryId: string, updatedData: Category) => {
-    try {
-      const categoryRef = ref(db, `categories/${categoryId}`);
-      await update(categoryRef, updatedData);
-      setEditingCategory(null);
-      // Refresh categories
-      const categoriesRef = ref(db, 'categories');
-      const snapshot = await get(categoriesRef);
-      if (snapshot.exists()) {
-        setCategories(Object.values(snapshot.val()));
-      }
-    } catch (error) {
-      console.error('Error updating category:', error);
-    }
-  };
-
-  const deleteCategory = async (categoryId: string) => {
-    try {
-      await remove(ref(db, `categories/${categoryId}`));
-      const categoriesRef = ref(db, 'categories');
-      const snapshot = await get(categoriesRef);
-      if (snapshot.exists()) {
-        setCategories(Object.values(snapshot.val()));
-      } else {
-        setCategories([]);
-      }
-    } catch (error) {
-      console.error('Error deleting category:', error);
-    }
-  };
-
-  const addBlogPost = async () => {
-    try {
-      if (!newPost.title || !newPost.content) {
-        alert('Title and content are required');
-        return;
-      }
-
-      const blogRef = ref(db, 'blog');
-      const newPostRef = push(blogRef);
-      const postData = {
-        ...newPost,
-        id: newPostRef.key,
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-        createdAt: new Date().toISOString()
-      };
-
-      await set(newPostRef, postData);
-
-      // Reset form
-      setNewPost({
-        title: '',
-        excerpt: '',
-        content: '',
-        author: '',
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-        category: '',
-        readTime: '',
-        featured: false
-      });
-
-      // Refresh blog posts
-      const snapshot = await get(blogRef);
-      if (snapshot.exists()) {
-        const posts = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-          id,
-          ...data,
-        }));
-        setBlogPosts(posts);
-      }
-
-      alert('Blog post created successfully!');
-    } catch (error) {
-      console.error('Error adding blog post:', error);
-      alert('Error creating blog post. Please try again.');
-    }
-  };
-
-  const updateBlogPost = async (postId: string, updatedData: Partial<BlogPost>) => {
-    try {
-      const postRef = ref(db, `blog/${postId}`);
-      await update(postRef, updatedData);
-      setEditingPost(null);
-      // Refresh blog posts
-      const blogRef = ref(db, 'blog');
-      const snapshot = await get(blogRef);
-      if (snapshot.exists()) {
-        setBlogPosts(Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-          id,
-          ...data,
-        })));
-      }
-    } catch (error) {
-      console.error('Error updating blog post:', error);
-    }
-  };
-
-  const deleteBlogPost = async (postId: string) => {
-    if (window.confirm('Are you sure you want to delete this blog post?')) {
-      try {
-        const postRef = ref(db, `blog/${postId}`);
-        await remove(postRef);
-        // Refresh blog posts
-        const blogRef = ref(db, 'blog');
-        const snapshot = await get(blogRef);
-        if (snapshot.exists()) {
-          setBlogPosts(Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-            id,
-            ...data,
-          })));
-        } else {
-          setBlogPosts([]);
-        }
-      } catch (error) {
-        console.error('Error deleting blog post:', error);
-      }
-    }
-  };
-
-  const deleteUser = async (uid: string) => {
-    try {
-      await remove(ref(db, `users/${uid}`));
-      setUsers(users.filter(user => user.uid !== uid));
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
-  };
-
-  const updateUserPlan = async (uid: string, newPlan: string) => {
-    try {
-      const userRef = ref(db, `users/${uid}`);
-      const updates = {
-        plan: newPlan,
-        isPro: newPlan === 'pro',
-        updatedAt: new Date().toISOString()
-      };
-
-      // First check if the user exists
-      const snapshot = await get(userRef);
-      if (!snapshot.exists()) {
-        console.error('User not found');
-        return;
-      }
-
-      // Update the user data
-      await update(userRef, updates);
-      console.log('User plan updated successfully');
-
-      // Update the local state
-      setUsers(users.map(user => 
-        user.uid === uid ? { ...user, plan: newPlan } : user
-      ));
-    } catch (error) {
-      console.error('Error updating user plan:', error);
-    }
-  };
-
-  if (loading) {
+  if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+      <div className="min-h-screen bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl font-bold mb-4 text-[#00ffff]">
+            Access Denied
+          </h1>
+          <p className="text-white/70">
+            You must be logged in to access the admin page.
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-[#00ffff]">Admin Dashboard</h1>
-      
-      <div className="flex space-x-4 mb-8">
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`px-4 py-2 rounded ${activeTab === 'users' ? 'bg-[#00ffff] text-black' : 'bg-black text-[#00ffff] border border-[#00ffff]'}`}
-        >
-          Users
-        </button>
-        <button
-          onClick={() => setActiveTab('categories')}
-          className={`px-4 py-2 rounded ${activeTab === 'categories' ? 'bg-[#00ffff] text-black' : 'bg-black text-[#00ffff] border border-[#00ffff]'}`}
-        >
-          Categories
-        </button>
-        <button
-          onClick={() => setActiveTab('prompts')}
-          className={`px-4 py-2 rounded ${activeTab === 'prompts' ? 'bg-[#00ffff] text-black' : 'bg-black text-[#00ffff] border border-[#00ffff]'}`}
-        >
-          Prompts
-        </button>
-        <button
-          onClick={() => setActiveTab('blog')}
-          className={`px-4 py-2 rounded ${activeTab === 'blog' ? 'bg-[#00ffff] text-black' : 'bg-black text-[#00ffff] border border-[#00ffff]'}`}
-        >
-          Blog
-        </button>
-      </div>
-
-      {/* Users Management */}
-      {activeTab === 'users' && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold mb-4 text-[#00ffff]">Users Management</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-black border border-[#00ffff]/20">
-              <thead>
-                <tr className="border-b border-[#00ffff]/20">
-                  <th className="px-6 py-3 text-left text-[#00ffff]">Email</th>
-                  <th className="px-6 py-3 text-left text-[#00ffff]">Role</th>
-                  <th className="px-6 py-3 text-left text-[#00ffff]">Plan</th>
-                  <th className="px-6 py-3 text-left text-[#00ffff]">Created At</th>
-                  <th className="px-6 py-3 text-left text-[#00ffff]">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.uid} className="border-b border-[#00ffff]/20">
-                    <td className="px-6 py-4 text-gray-200">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <select
-                        value={user.role || 'user'}
-                        onChange={(e) => updateUserRole(user.uid, e.target.value)}
-                        className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-2 py-1"
-                      >
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                        <option value="moderator">Moderator</option>
-                      </select>
-                    </td>
-                    <td className="px-6 py-4">
-                      <select
-                        value={user.plan || 'free'}
-                        onChange={(e) => updateUserPlan(user.uid, e.target.value)}
-                        className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-2 py-1"
-                      >
-                        <option value="free">Free</option>
-                        <option value="pro">Pro</option>
-                      </select>
-                    </td>
-                    <td className="px-6 py-4 text-gray-200">
-                      {new Date(user.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => {
-                          if (window.confirm('Are you sure you want to delete this user?')) {
-                            deleteUser(user.uid);
-                          }
-                        }}
-                        className="text-red-500 hover:text-red-400"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    <div className="min-h-screen bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#00ffff] to-[#0099ff] text-transparent bg-clip-text">
+            Admin Dashboard
+          </h1>
         </div>
-      )}
 
-      {/* Categories Management */}
-      {activeTab === 'categories' && (
-        <div className="space-y-6">
-          <h2 className="text-2xl font-semibold mb-4 text-[#00ffff]">Categories Management</h2>
-          
-          {/* Add New Category Form */}
-          <div className="bg-black border border-[#00ffff]/20 rounded-lg p-6 mb-6">
-            <h3 className="text-xl font-semibold mb-4 text-[#00ffff]">Add New Category</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                placeholder="Category Name"
-                value={newCategory.name}
-                onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-4 py-2"
-              />
-              <input
-                type="text"
-                placeholder="Description"
-                value={newCategory.description}
-                onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-4 py-2"
-              />
-              <input
-                type="text"
-                placeholder="Icon (emoji or class name)"
-                value={newCategory.icon}
-                onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })}
-                className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-4 py-2"
-              />
-            </div>
+        {/* Tabs */}
+        <div className="flex justify-center mb-8">
+          <div className="flex space-x-2 bg-black/30 p-1 rounded-lg border border-[#00ffff]/10">
             <button
-              onClick={addCategory}
-              disabled={!newCategory.name}
-              className="mt-4 px-4 py-2 bg-[#00ffff] text-black rounded disabled:opacity-50"
+              onClick={() => setActiveTab('users')}
+              className={`px-6 py-2 rounded-md transition-all duration-300 ${
+                activeTab === 'users'
+                  ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                  : 'text-white/70 hover:text-white/90'
+              }`}
             >
-              Add Category
+              Users
+            </button>
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`px-6 py-2 rounded-md transition-all duration-300 ${
+                activeTab === 'categories'
+                  ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                  : 'text-white/70 hover:text-white/90'
+              }`}
+            >
+              Categories
+            </button>
+            <button
+              onClick={() => setActiveTab('private-prompts')}
+              className={`px-6 py-2 rounded-md transition-all duration-300 ${
+                activeTab === 'private-prompts'
+                  ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                  : 'text-white/70 hover:text-white/90'
+              }`}
+            >
+              Private Prompts
+            </button>
+            <button
+              onClick={() => setActiveTab('public-prompts')}
+              className={`px-6 py-2 rounded-md transition-all duration-300 ${
+                activeTab === 'public-prompts'
+                  ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30'
+                  : 'text-white/70 hover:text-white/90'
+              }`}
+            >
+              Public Prompts
             </button>
           </div>
+        </div>
 
-          {/* Categories List */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((category, index) => (
-              <div key={index} className="bg-black border border-[#00ffff]/20 rounded-lg p-6">
-                {editingCategory === category ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editingCategory.name}
-                      onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
-                      className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-4 py-2 mb-2 w-full"
-                    />
-                    <input
-                      type="text"
-                      value={editingCategory.description}
-                      onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
-                      className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-4 py-2 mb-2 w-full"
-                    />
-                    <input
-                      type="text"
-                      value={editingCategory.icon}
-                      onChange={(e) => setEditingCategory({ ...editingCategory, icon: e.target.value })}
-                      className="bg-black text-gray-200 border border-[#00ffff]/20 rounded px-4 py-2 mb-4 w-full"
-                    />
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => updateCategory(index.toString(), editingCategory)}
-                        className="px-4 py-2 bg-[#00ffff] text-black rounded"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingCategory(null)}
-                        className="px-4 py-2 bg-black text-[#00ffff] border border-[#00ffff] rounded"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-semibold text-[#00ffff]">{category.name}</h3>
-                        <p className="text-gray-400 mt-1">{category.description}</p>
-                      </div>
-                      <span className="text-2xl">{category.icon}</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => setEditingCategory(category)}
-                        className="px-4 py-2 bg-black text-[#00ffff] border border-[#00ffff] rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm('Are you sure you want to delete this category?')) {
-                            deleteCategory(index.toString());
-                          }
-                        }}
-                        className="px-4 py-2 bg-black text-red-500 border border-red-500 rounded"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
+        {/* Content based on active tab */}
+        {activeTab === 'categories' ? (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-semibold text-white">Categories</h2>
+              <Button
+                onClick={handleUpdateCategories}
+                disabled={isUpdating}
+                className={`${
+                  isUpdating
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:from-[#00ffff]/90 hover:to-[#0099ff]/90'
+                } bg-gradient-to-r from-[#00ffff] to-[#0099ff] text-black font-bold py-2 px-6 rounded-lg transition-all duration-300`}
+              >
+                {isUpdating ? 'Updating...' : 'Save Changes'}
+              </Button>
+            </div>
+
+            {updateStatus && (
+              <div className={`p-4 rounded-lg mb-6 ${
+                updateStatus.success
+                  ? 'bg-[#00ffff]/10 border border-[#00ffff]/30 text-[#00ffff]'
+                  : 'bg-red-500/10 border border-red-500/30 text-red-500'
+              }`}>
+                {updateStatus.message}
               </div>
-            ))}
+            )}
+
+            {/* Categories Table */}
+            <div className="overflow-x-auto bg-black/30 rounded-lg border border-[#00ffff]/10">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-[#00ffff]/20">
+                    <th className="py-4 px-6 text-[#00ffff]">ID</th>
+                    <th className="py-4 px-6 text-[#00ffff]">Name</th>
+                    <th className="py-4 px-6 text-[#00ffff]">Description</th>
+                    <th className="py-4 px-6 text-[#00ffff]">Group</th>
+                    <th className="py-4 px-6 text-[#00ffff]">Icon</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((category) => (
+                    <tr key={category.id} className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5">
+                      <td className="py-4 px-6 text-white/70">{category.id}</td>
+                      <td className="py-4 px-6">
+                        <input
+                          type="text"
+                          value={category.name}
+                          onChange={(e) => handleEditCategory(category.id, 'name', e.target.value)}
+                          className="w-full bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                        />
+                      </td>
+                      <td className="py-4 px-6">
+                        <input
+                          type="text"
+                          value={category.description}
+                          onChange={(e) => handleEditCategory(category.id, 'description', e.target.value)}
+                          className="w-full bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                        />
+                      </td>
+                      <td className="py-4 px-6">
+                        <input
+                          type="text"
+                          value={category.group}
+                          onChange={(e) => handleEditCategory(category.id, 'group', e.target.value)}
+                          className="w-full bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                        />
+                      </td>
+                      <td className="py-4 px-6">
+                        <input
+                          type="text"
+                          value={category.icon}
+                          onChange={(e) => handleEditCategory(category.id, 'icon', e.target.value)}
+                          className="w-full bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white font-mono"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-semibold text-white">Users</h2>
+            </div>
 
-      {/* Existing Prompts and Blog tabs */}
-      {activeTab === 'prompts' && (
-        <div>
-          {/* ... existing prompts management code ... */}
-        </div>
-      )}
+            {isLoadingUsers ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff] mx-auto"></div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto bg-black/30 rounded-lg border border-[#00ffff]/10">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-[#00ffff]/20">
+                      <th className="py-4 px-6 text-[#00ffff]">Email</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Role</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Status</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Plan</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u) => (
+                      <tr key={u.uid} className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5">
+                        <td className="py-4 px-6 text-white">
+                          {editingUser === u.uid ? (
+                            <input
+                              type="text"
+                              value={u.email}
+                              onChange={(e) => handleUpdateUser(u.uid, { email: e.target.value })}
+                              className="bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                            />
+                          ) : (
+                            u.email
+                          )}
+                        </td>
+                        <td className="py-4 px-6">
+                          {editingUser === u.uid ? (
+                            <select
+                              value={u.role}
+                              onChange={(e) => handleUpdateUser(u.uid, { role: e.target.value })}
+                              className="bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                            >
+                              <option value="user">User</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                          ) : (
+                            <span className="text-white/70">{u.role || 'user'}</span>
+                          )}
+                        </td>
+                        <td className="py-4 px-6">
+                          {editingUser === u.uid ? (
+                            <select
+                              value={u.status || 'active'}
+                              onChange={(e) => handleUpdateUser(u.uid, { status: e.target.value })}
+                              className="bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                            >
+                              <option value="active">Active</option>
+                              <option value="suspended">Suspended</option>
+                              <option value="banned">Banned</option>
+                            </select>
+                          ) : (
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              u.status === 'active' 
+                                ? 'bg-green-500/10 text-green-500 border border-green-500/30'
+                                : u.status === 'suspended'
+                                ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/30'
+                                : 'bg-red-500/10 text-red-500 border border-red-500/30'
+                            }`}>
+                              {u.status || 'active'}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-6">
+                          {editingUser === u.uid ? (
+                            <select
+                              value={u.isPro ? 'paid' : 'free'}
+                              onChange={(e) => handleUpdateUser(u.uid, { 
+                                isPro: e.target.value === 'paid',
+                                stripeSubscriptionStatus: e.target.value === 'paid' ? 'active' : null
+                              })}
+                              className="bg-black/50 border border-[#00ffff]/30 rounded px-2 py-1 text-white"
+                            >
+                              <option value="free">Free</option>
+                              <option value="paid">Paid</option>
+                            </select>
+                          ) : (
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              u.isPro 
+                                ? 'bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30' 
+                                : 'bg-white/10 text-white/70 border border-white/30'
+                            }`}>
+                              {u.isPro ? 'PAID' : 'FREE'}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-6 space-x-2">
+                          <Button
+                            onClick={() => setEditingUser(editingUser === u.uid ? null : u.uid)}
+                            className="text-sm bg-black/50 hover:bg-black/70 text-[#00ffff] px-3 py-1 rounded-md border border-[#00ffff]/30"
+                          >
+                            {editingUser === u.uid ? 'Save' : 'Edit'}
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
-      {activeTab === 'blog' && (
-        <div>
-          {/* ... existing blog management code ... */}
-        </div>
-      )}
+        {activeTab === 'private-prompts' && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-semibold text-white">Private Prompts</h2>
+            </div>
+
+            {isLoadingPrompts ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff] mx-auto"></div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto bg-black/30 rounded-lg border border-[#00ffff]/10">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-[#00ffff]/20">
+                      <th className="py-4 px-6 text-[#00ffff]">Title</th>
+                      <th className="py-4 px-6 text-[#00ffff]">User</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Category</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Created</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {privatePrompts.map((prompt) => (
+                      <tr key={prompt.id} className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5">
+                        <td className="py-4 px-6 text-white">{prompt.title}</td>
+                        <td className="py-4 px-6 text-white/70">{prompt.userName}</td>
+                        <td className="py-4 px-6 text-white/70">{prompt.category}</td>
+                        <td className="py-4 px-6 text-white/70">
+                          {new Date(prompt.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-4 px-6 space-x-2">
+                          <Button
+                            onClick={() => handleDeletePrompt(prompt.id)}
+                            className="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1 rounded-md border border-red-500/30"
+                          >
+                            Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'public-prompts' && (
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-2xl font-semibold text-white">Public Prompts</h2>
+            </div>
+
+            {isLoadingPrompts ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff] mx-auto"></div>
+              </div>
+            ) : (
+              <div className="overflow-x-auto bg-black/30 rounded-lg border border-[#00ffff]/10">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-[#00ffff]/20">
+                      <th className="py-4 px-6 text-[#00ffff]">Title</th>
+                      <th className="py-4 px-6 text-[#00ffff]">User</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Category</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Likes</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Downloads</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Created</th>
+                      <th className="py-4 px-6 text-[#00ffff]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {publicPrompts.map((prompt) => (
+                      <tr key={prompt.id} className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5">
+                        <td className="py-4 px-6 text-white">{prompt.title}</td>
+                        <td className="py-4 px-6 text-white/70">{prompt.userName}</td>
+                        <td className="py-4 px-6 text-white/70">{prompt.category}</td>
+                        <td className="py-4 px-6 text-white/70">{prompt.likes || 0}</td>
+                        <td className="py-4 px-6 text-white/70">{prompt.downloads || 0}</td>
+                        <td className="py-4 px-6 text-white/70">
+                          {new Date(prompt.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-4 px-6 space-x-2">
+                          <Button
+                            onClick={() => handleDeletePrompt(prompt.id)}
+                            className="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 px-3 py-1 rounded-md border border-red-500/30"
+                          >
+                            Delete
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

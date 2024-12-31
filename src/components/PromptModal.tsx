@@ -5,22 +5,13 @@ import { TrashIcon, ClipboardDocumentIcon, XMarkIcon, PencilIcon } from '@heroic
 import Button from './ui/Button';
 import { ref, update } from 'firebase/database';
 import { db } from '@/lib/firebase';
+import { Prompt } from '@/types';
 
 interface PromptModalProps {
-  prompt: {
-    id: string;
-    title: string;
-    description: string;
-    content: string;
-    category: string;
-    createdAt: string;
-    userId: string;
-    visibility: string;
-  };
+  prompt: Prompt;
   onClose: () => void;
-  onEdit: (prompt: any) => void;
-  onDelete: (promptId: string) => void;
-  onCopy: (prompt: any) => void;
+  onEdit: (prompt: Prompt) => void;
+  onDelete: (id: string) => void;
 }
 
 const PUBLIC_CATEGORIES = [
@@ -54,7 +45,7 @@ const PRIVATE_CATEGORIES = [
   "Archive"
 ];
 
-export default function PromptModal({ prompt, onClose, onEdit, onDelete, onCopy }: PromptModalProps) {
+export default function PromptModal({ prompt, onClose, onEdit, onDelete }: PromptModalProps) {
   const [editedPrompt, setEditedPrompt] = useState(prompt);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
@@ -82,6 +73,15 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete, onCopy 
     }
   };
 
+  const handleCopy = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      // Optional: Add toast notification
+    } catch (error) {
+      console.error('Failed to copy text:', error);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onClick={onClose}>
       <div 
@@ -98,14 +98,14 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete, onCopy 
           />
           <div className="flex gap-3">
             <button
-              onClick={() => onCopy(prompt.content)}
+              onClick={() => handleCopy(prompt.content || '')}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
               title="Copy prompt"
             >
               <ClipboardDocumentIcon className="w-6 h-6" />
             </button>
             <button
-              onClick={() => onDelete(prompt.id)}
+              onClick={() => onDelete(prompt.id || '')}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
               title="Delete prompt"
             >
@@ -193,7 +193,8 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete, onCopy 
               )}
             </div>
             <div>
-              <span className="text-[#00ffff]">Created:</span> {new Date(editedPrompt.createdAt).toLocaleDateString()}
+              <span className="text-[#00ffff]">Created:</span> 
+              {new Date(editedPrompt.createdAt || Date.now()).toLocaleDateString()}
             </div>
           </div>
 

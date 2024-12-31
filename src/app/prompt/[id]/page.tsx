@@ -10,6 +10,8 @@ import Button from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { StarIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+import { HandThumbUpIcon, HandThumbDownIcon } from '@heroicons/react/24/outline';
+import { HandThumbUpIcon as HandThumbUpIconSolid, HandThumbDownIcon as HandThumbDownIconSolid } from '@heroicons/react/24/solid';
 
 // Public categories
 const publicCategories: PromptCategory[] = [
@@ -46,7 +48,7 @@ interface Props {
 }
 
 export default function PromptPage({ params: { id } }: Props) {
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const router = useRouter();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -54,29 +56,121 @@ export default function PromptPage({ params: { id } }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [editedPrompt, setEditedPrompt] = useState<Prompt | null>(null);
   const [privateCategories, setPrivateCategories] = useState<{ name: string; subcategories: string[] }[]>([]);
-  const [isPro, setIsPro] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [hasVoted, setHasVoted] = useState<'up' | 'down' | null>(null);
+  const [voteLoading, setVoteLoading] = useState(false);
+  const [voteCount, setVoteCount] = useState({ upvotes: 0, downvotes: 0 });
 
-  // Check if user is pro
+  // Load prompt data first
   useEffect(() => {
-    const checkProStatus = async () => {
-      if (!user?.uid) return;
-      
+    const fetchPrompt = async () => {
       try {
-        const userRef = ref(db, `users/${user.uid}`);
-        const snapshot = await get(userRef);
+        const promptRef = ref(db, `prompts/${id}`);
+        const snapshot = await get(promptRef);
+        
         if (snapshot.exists()) {
-          const userData = snapshot.val();
-          setIsPro(userData.isPro === true || userData.stripeSubscriptionStatus === 'active');
+          const promptData = snapshot.val();
+          setPrompt({ ...promptData, id });
+          setEditedPrompt({ ...promptData, id });
+          
+          // After prompt is loaded, fetch votes
+          const votesRef = ref(db, `prompts/${id}/votes`);
+          const votesSnapshot = await get(votesRef);
+          if (votesSnapshot.exists()) {
+            const votes = votesSnapshot.val();
+            const upvotes = Object.values(votes).filter((v: any) => v.type === 'up').length;
+            const downvotes = Object.values(votes).filter((v: any) => v.type === 'down').length;
+            setVoteCount({ upvotes, downvotes });
+          }
+        } else {
+          setError('Prompt not found');
         }
-      } catch (error) {
-        console.error('Error checking pro status:', error);
+      } catch (err) {
+        console.error('Error fetching prompt:', err);
+        setError('Failed to fetch prompt');
+      } finally {
+        setLoading(false);
       }
     };
 
-    checkProStatus();
-  }, [user]);
+    fetchPrompt();
+  }, [id]);
+
+  // Check user's vote status
+  useEffect(() => {
+    const checkVoteStatus = async () => {
+      if (!user?.uid) return;
+      
+      try {
+        const voteRef = ref(db, `prompts/${id}/votes/${user.uid}`);
+        const snapshot = await get(voteRef);
+        if (snapshot.exists()) {
+          setHasVoted(snapshot.val().type);
+        }
+      } catch (error) {
+        console.error('Error checking vote status:', error);
+      }
+    };
+
+    if (user) {
+      checkVoteStatus();
+    }
+  }, [user, id]);
+
+  // Handle voting
+  const handleVote = async (type: 'up' | 'down') => {
+    if (!user?.uid || voteLoading) {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      return;
+    }
+    
+    setVoteLoading(true);
+    try {
+      const promptVoteRef = ref(db, `prompts/${id}/votes/${user.uid}`);
+      
+      if (hasVoted === type) {
+        // Remove vote
+        await remove(promptVoteRef);
+        setHasVoted(null);
+        setVoteCount(prev => ({
+          ...prev,
+          [type === 'up' ? 'upvotes' : 'downvotes']: prev[type === 'up' ? 'upvotes' : 'downvotes'] - 1
+        }));
+      } else {
+        // Add or change vote
+        const voteData = {
+          type,
+          userId: user.uid,
+          createdAt: new Date().toISOString()
+        };
+        
+        if (hasVoted) {
+          // Change vote
+          setVoteCount(prev => ({
+            upvotes: type === 'up' ? prev.upvotes + 1 : prev.upvotes - 1,
+            downvotes: type === 'down' ? prev.downvotes + 1 : prev.downvotes - 1
+          }));
+        } else {
+          // New vote
+          setVoteCount(prev => ({
+            ...prev,
+            [type === 'up' ? 'upvotes' : 'downvotes']: prev[type === 'up' ? 'upvotes' : 'downvotes'] + 1
+          }));
+        }
+        
+        await set(promptVoteRef, voteData);
+        setHasVoted(type);
+      }
+    } catch (error) {
+      console.error('Error voting:', error);
+    } finally {
+      setVoteLoading(false);
+    }
+  };
 
   // Check if prompt is favorited
   useEffect(() => {
@@ -94,54 +188,6 @@ export default function PromptPage({ params: { id } }: Props) {
 
     checkFavoriteStatus();
   }, [user, id]);
-
-  // Toggle favorite
-  const toggleFavorite = async () => {
-    if (!user?.uid || !isPro || favoriteLoading) return;
-    
-    setFavoriteLoading(true);
-    try {
-      const favoriteRef = ref(db, `users/${user.uid}/favorites/${id}`);
-      if (isFavorited) {
-        await remove(favoriteRef);
-      } else {
-        await set(favoriteRef, {
-          promptId: id,
-          addedAt: new Date().toISOString()
-        });
-      }
-      setIsFavorited(!isFavorited);
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-    } finally {
-      setFavoriteLoading(false);
-    }
-  };
-
-  // Load prompt data
-  useEffect(() => {
-    const fetchPrompt = async () => {
-      try {
-        const promptRef = ref(db, `prompts/${id}`);
-        const snapshot = await get(promptRef);
-        
-        if (snapshot.exists()) {
-          const promptData = snapshot.val();
-          setPrompt({ ...promptData, id });
-          setEditedPrompt({ ...promptData, id });
-        } else {
-          setError('Prompt not found');
-        }
-      } catch (err) {
-        console.error('Error fetching prompt:', err);
-        setError('Failed to fetch prompt');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPrompt();
-  }, [id]);
 
   // Load private categories
   useEffect(() => {
@@ -202,6 +248,29 @@ export default function PromptPage({ params: { id } }: Props) {
     }
   };
 
+  // Toggle favorite
+  const toggleFavorite = async () => {
+    if (!user?.uid || !isPro || favoriteLoading) return;
+    
+    setFavoriteLoading(true);
+    try {
+      const favoriteRef = ref(db, `users/${user.uid}/favorites/${id}`);
+      if (isFavorited) {
+        await remove(favoriteRef);
+      } else {
+        await set(favoriteRef, {
+          promptId: id,
+          addedAt: new Date().toISOString()
+        });
+      }
+      setIsFavorited(!isFavorited);
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -232,7 +301,43 @@ export default function PromptPage({ params: { id } }: Props) {
               <p className="text-white/60">{prompt.description}</p>
             </div>
             <div className="flex items-center gap-4">
-              {user && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleVote('up')}
+                  disabled={voteLoading}
+                  className={`p-2 rounded-lg transition-all duration-300 ${
+                    hasVoted === 'up'
+                      ? 'text-[#00ffff] bg-[#00ffff]/10'
+                      : 'text-white/60 hover:text-[#00ffff] hover:bg-[#00ffff]/10'
+                  }`}
+                  title={user ? 'Upvote' : 'Sign in to vote'}
+                >
+                  {hasVoted === 'up' ? (
+                    <HandThumbUpIconSolid className="h-6 w-6" />
+                  ) : (
+                    <HandThumbUpIcon className="h-6 w-6" />
+                  )}
+                  <span className="ml-1">{voteCount.upvotes}</span>
+                </button>
+                <button
+                  onClick={() => handleVote('down')}
+                  disabled={voteLoading}
+                  className={`p-2 rounded-lg transition-all duration-300 ${
+                    hasVoted === 'down'
+                      ? 'text-red-500 bg-red-500/10'
+                      : 'text-white/60 hover:text-red-500 hover:bg-red-500/10'
+                  }`}
+                  title={user ? 'Downvote' : 'Sign in to vote'}
+                >
+                  {hasVoted === 'down' ? (
+                    <HandThumbDownIconSolid className="h-6 w-6" />
+                  ) : (
+                    <HandThumbDownIcon className="h-6 w-6" />
+                  )}
+                  <span className="ml-1">{voteCount.downvotes}</span>
+                </button>
+              </div>
+              {user && isPro && (
                 <button
                   onClick={toggleFavorite}
                   className={`p-2 rounded-lg transition-all duration-300 ${

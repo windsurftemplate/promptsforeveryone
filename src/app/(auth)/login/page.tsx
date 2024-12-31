@@ -1,15 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Redirect to dashboard if already signed in
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
+
+  // Show loading state while checking authentication
+  if (user === undefined) {
+    return <div>Loading...</div>;
+  }
+
+  // Don't render the login form if user is already signed in
+  if (user) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +37,7 @@ export default function LoginPage() {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       if (result.user) {
-        router.push('/');
+        router.push('/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to login');
@@ -30,7 +49,7 @@ export default function LoginPage() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       if (result.user) {
-        router.push('/');
+        router.push('/dashboard');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to login with Google');

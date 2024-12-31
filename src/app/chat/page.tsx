@@ -35,41 +35,44 @@ const COMMON_PROMPTS = [
 ];
 
 export default function ChatPage() {
-  const { user } = useAuth();
+  const { user, isPro } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isPro, setIsPro] = useState(false);
   const [loading, setLoading] = useState(true);
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(searchParams?.get('id'));
   const chatbotRef = useRef<{ setInput: (text: string) => void } | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
     const checkProStatus = async () => {
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      
       try {
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
           const userData = snapshot.val();
-          const isUserPro = userData.isPro === true || userData.stripeSubscriptionStatus === 'active';
-          setIsPro(isUserPro);
+          const isUserPro = userData.role === 'admin' || userData.plan === 'paid';
           if (!isUserPro) {
             router.push('/pro-plan');
+            return;
           }
+        } else {
+          router.push('/pro-plan');
+          return;
         }
       } catch (error) {
         console.error('Error checking pro status:', error);
-      } finally {
-        setLoading(false);
+        router.push('/pro-plan');
+        return;
       }
     };
 
     checkProStatus();
+    setLoading(false);
   }, [user, router]);
 
   useEffect(() => {
@@ -143,65 +146,56 @@ export default function ChatPage() {
             <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
               Chat History
             </h2>
+            <button
+              onClick={handleNewChat}
+              className="w-full px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+            >
+              New Chat
+            </button>
             <div className="space-y-2">
               {chatHistory.map((chat) => (
                 <div
                   key={chat.id}
                   onClick={() => handleSelectChat(chat.id)}
-                  className={`p-3 bg-black border ${
-                    selectedChat === chat.id ? 'border-[#00ffff]' : 'border-[#00ffff]/20'
-                  } rounded-lg hover:bg-[#00ffff]/5 transition-colors cursor-pointer group relative`}
+                  className={`p-3 rounded-lg cursor-pointer transition-all duration-300 ${
+                    selectedChat === chat.id
+                      ? 'bg-[#00ffff]/20 border border-[#00ffff]/40'
+                      : 'bg-black/50 border border-white/10 hover:border-[#00ffff]/30'
+                  }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-[#00ffff] font-semibold text-sm truncate">
-                        {chat.title || 'Untitled Chat'}
-                      </h3>
-                      <p className="text-gray-400 text-xs truncate mt-1">
-                        {new Date(chat.timestamp).toLocaleDateString()}
-                      </p>
-                    </div>
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-white font-medium truncate">{chat.title || 'New Chat'}</h3>
                     <button
                       onClick={(e) => handleDeleteChat(chat.id, e)}
-                      className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-400 transition-opacity px-2"
+                      className="text-white/40 hover:text-[#00ffff] transition-colors"
                     >
                       ×
                     </button>
                   </div>
+                  <p className="text-white/60 text-sm truncate">{chat.lastMessage}</p>
                 </div>
               ))}
-              {chatHistory.length === 0 && (
-                <div className="text-gray-400 text-sm text-center py-4">
-                  No chat history yet
-                </div>
-              )}
             </div>
           </div>
 
           {/* Main Chat Area */}
-          <div className="flex-1">
-            <div className="w-full">
-              <Chatbot ref={chatbotRef} chatId={selectedChat} />
+          <div className="flex-1 max-w-4xl">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-4">Common Prompts</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {COMMON_PROMPTS.map((prompt, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handlePromptClick(prompt.description)}
+                    className="p-4 bg-black/50 border border-[#00ffff]/20 rounded-lg hover:border-[#00ffff]/40 cursor-pointer transition-all duration-300"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-2">{prompt.title}</h3>
+                    <p className="text-white/60 text-sm">{prompt.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Common Prompts Sidebar */}
-          <div className="w-80 space-y-4">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
-              Common Prompts
-            </h2>
-            <div className="space-y-3">
-              {COMMON_PROMPTS.map((prompt, index) => (
-                <div
-                  key={index}
-                  onClick={() => handlePromptClick(prompt.description)}
-                  className="p-4 bg-black border border-[#00ffff]/20 rounded-lg hover:bg-[#00ffff]/5 transition-colors cursor-pointer"
-                >
-                  <h3 className="text-[#00ffff] font-semibold mb-2">{prompt.title}</h3>
-                  <p className="text-gray-400 text-sm">{prompt.description}</p>
-                </div>
-              ))}
-            </div>
+            <Chatbot ref={chatbotRef} chatId={selectedChat} />
           </div>
         </div>
       </div>

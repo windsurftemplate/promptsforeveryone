@@ -1,0 +1,83 @@
+export const runtime = 'edge';
+
+import Stripe from 'stripe';
+import { db } from '@/lib/firebase';
+import { ref, set, query, orderByChild, get, update } from 'firebase/database';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+});
+
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.text();
+    const signature = req.headers.get('stripe-signature')!;
+
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err);
+      return Response.json({ error: 'Invalid signature' }, { status: 400 });
+    }
+
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const customerId = session.customer as string;
+        const userId = session.client_reference_id;
+
+        if (!userId) {
+          console.error('No user ID found in session:', session.id);
+          return Response.json({ error: 'No user ID found' }, { status: 400 });
+        }
+
+        // Update user's subscription status in Firebase
+        const userRef = ref(db, `users/${userId}`);
+        await update(userRef, {
+          stripeCustomerId: customerId,
+          plan: 'paid'
+        });
+
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const customerId = subscription.customer as string;
+
+        // Find user with this stripeCustomerId and update their status
+        const usersRef = ref(db, 'users');
+        const userQuery = query(usersRef, orderByChild('stripeCustomerId'));
+        const snapshot = await get(userQuery);
+        
+        let userId: string | null = null;
+        snapshot.forEach((child) => {
+          if (child.val().stripeCustomerId === customerId) {
+            userId = child.key;
+          }
+        });
+
+        if (userId) {
+          const userRef = ref(db, `users/${userId}`);
+          await update(userRef, {
+            plan: 'free'
+          });
+        }
+
+        break;
+      }
+    }
+
+    return Response.json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return Response.json(
+      { error: 'Webhook handler failed' },
+      { status: 500 }
+    );
+  }
+} 
