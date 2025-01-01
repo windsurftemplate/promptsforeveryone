@@ -1,16 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import Button from './ui/Button';
-import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/Button';
+import { useRouter, usePathname } from 'next/navigation';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,15 +33,32 @@ export default function Navbar() {
     }
   };
 
+  const handleDropdownClick = (dropdown: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-7xl transition-all duration-300 rounded-2xl ${
         isScrolled 
-          ? 'bg-black/80 backdrop-blur-xl shadow-lg shadow-cyan-500/10 border-b border-cyan-500/10' 
-          : 'bg-transparent'
+          ? 'bg-black/80 backdrop-blur-xl shadow-lg shadow-[#00ffff]/10 border border-[#00ffff]/10' 
+          : 'bg-black/50 backdrop-blur-md border border-white/5'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
@@ -49,59 +70,97 @@ export default function Navbar() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-white bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
                 Prompts For Everyone
               </span>
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8" ref={dropdownRef}>
+            {/* Product Dropdown */}
+            <div className="relative">
+              <button 
+                className={`flex items-center space-x-1 transition-colors duration-300 ${
+                  activeDropdown === 'product' 
+                    ? 'text-[#00ffff]' 
+                    : 'text-white/80 hover:text-[#00ffff]'
+                }`}
+                onClick={(e) => handleDropdownClick('product', e)}
+              >
+                <span>Product</span>
+                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
+                  activeDropdown === 'product' ? 'rotate-180' : ''
+                }`} />
+              </button>
+              {activeDropdown === 'product' && (
+                <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-black/90 backdrop-blur-xl border border-[#00ffff]/20 shadow-lg shadow-[#00ffff]/5">
+                  <div className="py-2">
+                    <Link href="/features" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Features</Link>
+                    <Link href="/price" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Pricing</Link>
+                    <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
+                    <Link href="/submit" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Submit Prompt</Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Resources Dropdown */}
+            <div className="relative">
+              <button 
+                className={`flex items-center space-x-1 transition-colors duration-300 ${
+                  activeDropdown === 'resources' 
+                    ? 'text-[#00ffff]' 
+                    : 'text-white/80 hover:text-[#00ffff]'
+                }`}
+                onClick={(e) => handleDropdownClick('resources', e)}
+              >
+                <span>Resources</span>
+                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
+                  activeDropdown === 'resources' ? 'rotate-180' : ''
+                }`} />
+              </button>
+              {activeDropdown === 'resources' && (
+                <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-black/90 backdrop-blur-xl border border-[#00ffff]/20 shadow-lg shadow-[#00ffff]/5">
+                  <div className="py-2">
+                    <Link href="/docs" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Documentation</Link>
+                    <Link href="/guides" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Guides</Link>
+                    <Link href="/tutorial" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Tutorial</Link>
+                    <Link href="/blog" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Blog</Link>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Link href="/about" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+              About
+            </Link>
+
             {user ? (
               <>
-                <Link 
-                  href="/explore" 
-                  className="text-white/80 hover:text-cyan-400 transition-colors duration-300"
-                >
-                  Explore
-                </Link>
-                <Link 
-                  href="/dashboard" 
-                  className="text-white/80 hover:text-cyan-400 transition-colors duration-300"
-                >
+                <Link href="/dashboard" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                   Dashboard
                 </Link>
-                <Link 
-                  href="/chat" 
-                  className="text-white/80 hover:text-cyan-400 transition-colors duration-300"
-                >
+                <Link href="/chat" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                   Chat
                 </Link>
                 <Button
                   onClick={handleSignOut}
-                  className="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded-lg transition-all duration-300 border border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                  variant="secondary"
+                  size="sm"
+                  className="ml-4"
                 >
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
-                <Link 
-                  href="/explore" 
-                  className="text-white/80 hover:text-cyan-400 transition-colors duration-300"
-                >
-                  Explore
-                </Link>
-                <Link 
-                  href="/login" 
-                  className="text-white/80 hover:text-cyan-400 transition-colors duration-300"
-                >
+                <Link href="/login" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                   Sign In
                 </Link>
-                <Link
-                  href="/signup"
-                  className="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded-lg transition-all duration-300 border border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_10px_rgba(34,211,238,0.1)] hover:shadow-[0_0_15px_rgba(34,211,238,0.2)]"
-                >
-                  Sign Up
+                <Link href="/register">
+                  <Button variant="primary" size="sm">
+                    Sign Up
+                  </Button>
                 </Link>
               </>
             )}
@@ -110,7 +169,7 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
-              className="text-white/80 hover:text-cyan-400 transition-colors duration-300"
+              className="text-white/80 hover:text-[#00ffff] transition-colors duration-300"
               aria-label="Toggle menu"
             >
               <svg

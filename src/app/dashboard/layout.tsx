@@ -1,39 +1,27 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/dashboard/Sidebar';
-import { DashboardProvider } from '@/contexts/DashboardContext';
+import { UserNav } from '@/components/UserNav';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, router]);
-
-  if (!user) {
-    return null;
-  }
-
   return (
-    <DashboardProvider>
-      <div className="flex min-h-screen bg-[#0f172a]">
-        <div className="relative h-screen sticky top-0">
-          <Sidebar />
+    <div className="min-h-screen bg-black">
+      <header className="border-b border-[#00ffff]/20">
+        <div className="flex h-16 items-center justify-between px-4">
+          <h2 className="text-lg font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+            Dashboard
+          </h2>
+          <div className="flex items-center gap-4">
+            <UserNav />
+          </div>
         </div>
-        <div className="flex-1">
-          {children}
-        </div>
-      </div>
-    </DashboardProvider>
+      </header>
+      <main>
+        {children}
+      </main>
+    </div>
   );
 } 

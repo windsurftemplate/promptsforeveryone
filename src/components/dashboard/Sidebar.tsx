@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, remove, update } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 
 interface Category {
@@ -25,6 +25,8 @@ export default function Sidebar() {
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [addingCategory, setAddingCategory] = useState(false);
   const [addingSubcategory, setAddingSubcategory] = useState<string | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -144,240 +146,342 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="h-full w-64 bg-gray-900 text-white p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-      {/* Private Categories Section */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Private Categories</h2>
-          <button
-            onClick={() => setAddingCategory(true)}
-            className="p-1 hover:bg-gray-700 rounded-full"
-          >
-            <PlusIcon className="h-5 w-5" />
-          </button>
-        </div>
+    <div className={`relative h-full transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-80'}`}>
+      <div className="h-full bg-black text-white p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
+        {/* Toggle button */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-4 top-8 p-2 bg-black rounded-full border border-[#00ffff]/20 hover:border-[#00ffff]/40 transition-colors z-50"
+        >
+          {isCollapsed ? (
+            <ChevronRightIcon className="h-4 w-4 text-[#00ffff]" />
+          ) : (
+            <ChevronLeftIcon className="h-4 w-4 text-[#00ffff]" />
+          )}
+        </button>
 
-        {addingCategory && (
-          <div className="flex items-center mb-4 space-x-2">
-            <input
-              type="text"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              placeholder="Category name"
-              className="bg-gray-800 text-white px-2 py-1 rounded flex-1"
-            />
-            <button
-              onClick={handleAddCategory}
-              className="p-1 hover:bg-gray-700 rounded-full"
-            >
-              <CheckIcon className="h-5 w-5 text-green-500" />
-            </button>
-            <button
-              onClick={() => {
-                setAddingCategory(false);
-                setNewCategoryName('');
-              }}
-              className="p-1 hover:bg-gray-700 rounded-full"
-            >
-              <XMarkIcon className="h-5 w-5 text-red-500" />
-              </button>
-          </div>
-        )}
+        {!isCollapsed && (
+          <>
+            {/* Private Categories Section */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold text-[#00ffff]">Private Categories</h2>
+                  <button
+                    onClick={() => setIsEditMode(!isEditMode)}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      isEditMode 
+                        ? 'bg-[#00ffff]/20 text-[#00ffff]' 
+                        : 'text-white/60 hover:bg-[#00ffff]/10 hover:text-[#00ffff]'
+                    }`}
+                    title={isEditMode ? 'Exit edit mode' : 'Enter edit mode'}
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                </div>
+                {isEditMode && (
+                  <button
+                    onClick={() => setAddingCategory(true)}
+                    className="p-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-full transition-colors"
+                    title="Add new category"
+                  >
+                    <PlusIcon className="h-5 w-5 text-[#00ffff]" />
+                  </button>
+                )}
+              </div>
 
-        {privateCategories.map((category) => (
-          <div key={category.id} className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              {editingCategory === category.id ? (
-                <div className="flex items-center space-x-2 flex-1">
+              {addingCategory && (
+                <div className="mb-4 p-3 bg-[#00ffff]/5 rounded-xl border border-[#00ffff]/20">
                   <input
                     type="text"
                     value={newCategoryName}
                     onChange={(e) => setNewCategoryName(e.target.value)}
                     placeholder="Category name"
-                    className="bg-gray-800 text-white px-2 py-1 rounded flex-1"
+                    className="w-full bg-black/60 text-white px-3 py-2 rounded-lg border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
                   />
+                  <div className="flex justify-end space-x-2">
+                    <button
+                      onClick={handleAddCategory}
+                      className="px-3 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-lg transition-colors text-[#00ffff] text-sm"
+                    >
+                      Add
+                    </button>
+                    <button
+                      onClick={() => {
+                        setAddingCategory(false);
+                        setNewCategoryName('');
+                      }}
+                      className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors text-red-500 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {privateCategories.map((category) => (
+                <div key={category.id} className="mb-4 bg-[#00ffff]/5 rounded-xl p-3 border border-[#00ffff]/20">
+                  <div className="flex items-center justify-between mb-3">
+                    {editingCategory === category.id ? (
+                      <div className="w-full">
+                        <input
+                          type="text"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          placeholder="Category name"
+                          className="w-full bg-black/60 text-white px-3 py-2 rounded-lg border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
+                        />
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={() => handleUpdateCategory(category.id)}
+                            className="px-3 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-lg transition-colors text-[#00ffff] text-sm"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingCategory(null);
+                              setNewCategoryName('');
+                            }}
+                            className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors text-red-500 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleCategoryClick(category.id, true)}
+                          className={`font-medium hover:text-[#00ffff] transition-colors ${
+                            selectedCategory?.id === category.id ? 'text-[#00ffff]' : 'text-white/80'
+                          }`}
+                        >
+                          {category.name}
+                        </button>
+                        {isEditMode && (
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => {
+                                setEditingCategory(category.id);
+                                setNewCategoryName(category.name);
+                              }}
+                              className="p-1.5 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+                              title="Edit category"
+                            >
+                              <PencilIcon className="h-4 w-4 text-[#00ffff]" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCategory(category.id)}
+                              className="p-1.5 hover:bg-red-500/10 rounded-lg transition-colors"
+                              title="Delete category"
+                            >
+                              <XMarkIcon className="h-4 w-4 text-red-500" />
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    {category.items.map((item) => (
+                      <div key={item.id} 
+                        className={`p-2 rounded-lg transition-colors ${
+                          selectedCategory?.id === category.id && selectedSubcategory?.id === item.id
+                            ? 'bg-[#00ffff]/10'
+                            : 'hover:bg-[#00ffff]/5'
+                        }`}
+                      >
+                        {editingSubcategory?.categoryId === category.id && 
+                          editingSubcategory?.itemId === item.id ? (
+                          <div className="w-full">
+                            <input
+                              type="text"
+                              value={newSubcategoryName}
+                              onChange={(e) => setNewSubcategoryName(e.target.value)}
+                              placeholder="Subcategory name"
+                              className="w-full bg-black/60 text-white px-3 py-2 rounded-lg border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
+                            />
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => handleUpdateSubcategory(category.id, item.id)}
+                                className="px-3 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-lg transition-colors text-[#00ffff] text-sm"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingSubcategory(null);
+                                  setNewSubcategoryName('');
+                                }}
+                                className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors text-red-500 text-sm"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between group">
+                            <button
+                              onClick={() => handleSubcategoryClick(category.id, item.id, true)}
+                              className={`text-sm hover:text-[#00ffff] transition-colors ${
+                                selectedCategory?.id === category.id && selectedSubcategory?.id === item.id
+                                  ? 'text-[#00ffff]'
+                                  : 'text-white/60'
+                              }`}
+                            >
+                              {item.name}
+                            </button>
+                            {isEditMode && (
+                              <div className="flex items-center space-x-1">
+                                <button
+                                  onClick={() => {
+                                    setEditingSubcategory({
+                                      categoryId: category.id,
+                                      itemId: item.id,
+                                    });
+                                    setNewSubcategoryName(item.name);
+                                  }}
+                                  className="p-1.5 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+                                  title="Edit subcategory"
+                                >
+                                  <PencilIcon className="h-3.5 w-3.5 text-[#00ffff]" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteSubcategory(category.id, item.id)}
+                                  className="p-1.5 hover:bg-red-500/10 rounded-lg transition-colors"
+                                  title="Delete subcategory"
+                                >
+                                  <XMarkIcon className="h-3.5 w-3.5 text-red-500" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    {isEditMode && (
+                      <>
+                        {addingSubcategory === category.id && (
+                          <div className="p-2 bg-[#00ffff]/5 rounded-lg">
+                            <input
+                              type="text"
+                              value={newSubcategoryName}
+                              onChange={(e) => setNewSubcategoryName(e.target.value)}
+                              placeholder="New subcategory"
+                              className="w-full bg-black/60 text-white px-3 py-2 rounded-lg border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
+                            />
+                            <div className="flex justify-end space-x-2">
+                              <button
+                                onClick={() => handleAddSubcategory(category.id)}
+                                className="px-3 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-lg transition-colors text-[#00ffff] text-sm"
+                              >
+                                Add
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setAddingSubcategory(null);
+                                  setNewSubcategoryName('');
+                                }}
+                                className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors text-red-500 text-sm"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => setAddingSubcategory(category.id)}
+                          className="w-full text-sm text-white/60 hover:text-[#00ffff] flex items-center justify-center space-x-1 p-2 rounded-lg hover:bg-[#00ffff]/5 transition-colors"
+                        >
+                          <PlusIcon className="h-4 w-4" />
+                          <span>Add subcategory</span>
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Public Categories Section */}
+            <div>
+              <h2 className="text-lg font-semibold text-[#00ffff] mb-4">Public Categories</h2>
+              {categories.map((category) => (
+                <div key={category.id} className="mb-4 bg-[#00ffff]/5 rounded-xl p-3 border border-[#00ffff]/20">
                   <button
-                    onClick={() => handleUpdateCategory(category.id)}
-                    className="p-1 hover:bg-gray-700 rounded-full"
-                  >
-                    <CheckIcon className="h-5 w-5 text-green-500" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditingCategory(null);
-                      setNewCategoryName('');
-                    }}
-                    className="p-1 hover:bg-gray-700 rounded-full"
-                  >
-                    <XMarkIcon className="h-5 w-5 text-red-500" />
-                  </button>
-                    </div>
-              ) : (
-                <>
-                  <button
-                    onClick={() => handleCategoryClick(category.id, true)}
-                    className={`font-medium hover:text-cyan-400 transition-colors ${
-                      selectedCategory?.id === category.id ? 'text-cyan-400' : ''
+                    onClick={() => handleCategoryClick(category.id)}
+                    className={`font-medium hover:text-[#00ffff] transition-colors mb-3 ${
+                      selectedCategory?.id === category.id ? 'text-[#00ffff]' : 'text-white/80'
                     }`}
                   >
                     {category.name}
                   </button>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => {
-                        setEditingCategory(category.id);
-                        setNewCategoryName(category.name);
-                      }}
-                      className="p-1 hover:bg-gray-700 rounded-full"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="p-1 hover:bg-gray-700 rounded-full"
-                    >
-                      <XMarkIcon className="h-4 w-4 text-red-500" />
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="ml-4 space-y-2">
-              {category.items.map((item) => (
-                <div key={item.id} className="flex items-center justify-between">
-                  {editingSubcategory?.categoryId === category.id && 
-                    editingSubcategory?.itemId === item.id ? (
-                    <div className="flex items-center space-x-2 flex-1">
-                      <input
-                        type="text"
-                        value={newSubcategoryName}
-                        onChange={(e) => setNewSubcategoryName(e.target.value)}
-                        placeholder="Subcategory name"
-                        className="bg-gray-800 text-white px-2 py-1 rounded flex-1"
-                      />
+                  <div className="space-y-2">
+                    {category.items.map((item) => (
                       <button
-                        onClick={() => handleUpdateSubcategory(category.id, item.id)}
-                        className="p-1 hover:bg-gray-700 rounded-full"
-                      >
-                        <CheckIcon className="h-4 w-4 text-green-500" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingSubcategory(null);
-                          setNewSubcategoryName('');
-                        }}
-                        className="p-1 hover:bg-gray-700 rounded-full"
-                      >
-                        <XMarkIcon className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <button
-                        onClick={() => handleSubcategoryClick(category.id, item.id, true)}
-                        className={`text-sm hover:text-cyan-400 transition-colors ${
+                        key={item.id}
+                        onClick={() => handleSubcategoryClick(category.id, item.id)}
+                        className={`block w-full text-left text-sm p-2 rounded-lg transition-colors ${
                           selectedCategory?.id === category.id && selectedSubcategory?.id === item.id
-                            ? 'text-cyan-400'
-                            : 'text-gray-300'
+                            ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                            : 'text-white/60 hover:bg-[#00ffff]/5 hover:text-[#00ffff]'
                         }`}
                       >
                         {item.name}
                       </button>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => {
-                            setEditingSubcategory({
-                              categoryId: category.id,
-                              itemId: item.id,
-                            });
-                            setNewSubcategoryName(item.name);
-                          }}
-                          className="p-1 hover:bg-gray-700 rounded-full"
-                        >
-                          <PencilIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteSubcategory(category.id, item.id)}
-                          className="p-1 hover:bg-gray-700 rounded-full"
-                        >
-                          <XMarkIcon className="h-4 w-4 text-red-500" />
-                        </button>
-                      </div>
-                    </>
-                  )}
+                    ))}
+                  </div>
                 </div>
               ))}
-
-              {addingSubcategory === category.id && (
-                <div className="flex items-center space-x-2">
-                <input
-                  type="text"
-                    value={newSubcategoryName}
-                    onChange={(e) => setNewSubcategoryName(e.target.value)}
-                    placeholder="New subcategory"
-                    className="bg-gray-800 text-white px-2 py-1 rounded flex-1"
-                  />
-                  <button
-                    onClick={() => handleAddSubcategory(category.id)}
-                    className="p-1 hover:bg-gray-700 rounded-full"
-                  >
-                    <CheckIcon className="h-4 w-4 text-green-500" />
-                  </button>
-                  <button
-                    onClick={() => {
-                      setAddingSubcategory(null);
-                      setNewSubcategoryName('');
-                    }}
-                    className="p-1 hover:bg-gray-700 rounded-full"
-                  >
-                    <XMarkIcon className="h-4 w-4 text-red-500" />
-                  </button>
-              </div>
-            )}
-
-              <button
-                onClick={() => setAddingSubcategory(category.id)}
-                className="text-sm text-gray-400 hover:text-white flex items-center space-x-1"
-              >
-                <PlusIcon className="h-4 w-4" />
-                <span>Add subcategory</span>
-              </button>
             </div>
-        </div>
-        ))}
-      </div>
+          </>
+        )}
 
-      {/* Public Categories Section */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Public Categories</h2>
-        {categories.map((category) => (
-          <div key={category.id} className="mb-4">
+        {/* Collapsed view */}
+        {isCollapsed && (
+          <div className="flex flex-col items-center space-y-4">
             <button
-              onClick={() => handleCategoryClick(category.id)}
-              className={`font-medium hover:text-cyan-400 transition-colors mb-2 ${
-                selectedCategory?.id === category.id ? 'text-cyan-400' : ''
-              }`}
+              onClick={() => setAddingCategory(true)}
+              className="p-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-full transition-colors"
+              title="Add new category"
             >
-              {category.name}
-          </button>
-            <div className="ml-4 space-y-2">
-              {category.items.map((item) => (
-        <button
-                  key={item.id}
-                  onClick={() => handleSubcategoryClick(category.id, item.id)}
-                  className={`block text-sm hover:text-cyan-400 transition-colors ${
-                    selectedCategory?.id === category.id && selectedSubcategory?.id === item.id
-                      ? 'text-cyan-400'
-                      : 'text-gray-300'
-                  }`}
-                >
-                  {item.name}
-        </button>
-              ))}
-            </div>
+              <PlusIcon className="h-5 w-5 text-[#00ffff]" />
+            </button>
+            {privateCategories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id, true)}
+                className={`p-2 rounded-full transition-colors ${
+                  selectedCategory?.id === category.id 
+                    ? 'bg-[#00ffff]/20 text-[#00ffff]' 
+                    : 'bg-[#00ffff]/5 text-white/80 hover:bg-[#00ffff]/10'
+                }`}
+                title={category.name}
+              >
+                {category.name.charAt(0).toUpperCase()}
+              </button>
+            ))}
+            <div className="w-full border-t border-[#00ffff]/10 my-2"></div>
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id)}
+                className={`p-2 rounded-full transition-colors ${
+                  selectedCategory?.id === category.id 
+                    ? 'bg-[#00ffff]/20 text-[#00ffff]' 
+                    : 'bg-[#00ffff]/5 text-white/80 hover:bg-[#00ffff]/10'
+                }`}
+                title={category.name}
+              >
+                {category.name.charAt(0).toUpperCase()}
+              </button>
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

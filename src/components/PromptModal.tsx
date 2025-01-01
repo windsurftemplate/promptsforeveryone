@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { TrashIcon, ClipboardDocumentIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
-import Button from './ui/Button';
+import { Button } from './ui/Button';
 import { ref, update } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { Prompt } from '@/types';

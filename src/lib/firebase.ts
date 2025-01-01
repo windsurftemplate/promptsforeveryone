@@ -1,31 +1,24 @@
 'use client';
 
-import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDbNOQM9KjlTrIsHsLiQLGWfDilwyc4mh4",
-  authDomain: "promptsforall-8068a.firebaseapp.com",
-  projectId: "promptsforall-8068a",
-  storageBucket: "promptsforall-8068a.appspot.com",
-  messagingSenderId: "486259788940",
-  appId: "1:486259788940:web:bad81b33a1c2abfdde7fa9",
-  measurementId: "G-RH79PQ2B33",
-  databaseURL: "https://promptsforall-8068a-default-rtdb.firebaseio.com"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase
-let app: FirebaseApp;
-
 if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
-} else {
-  app = getApps()[0];
+  initializeApp(firebaseConfig);
 }
 
-// Initialize Realtime Database and Auth
-const db = getDatabase(app);
-const auth = getAuth(app);
-
-export { db, auth };
+export const auth = getAuth();
+export const db = getDatabase();
