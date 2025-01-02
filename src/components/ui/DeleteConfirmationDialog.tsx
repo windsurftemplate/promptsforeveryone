@@ -1,6 +1,6 @@
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import Button from './Button';
+import { Button } from './Button';
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;

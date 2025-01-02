@@ -1,12 +1,12 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { db } from '@/lib/firebase';
 import { Prompt, PromptCategory, PromptVisibility } from '@/types/prompt';
 import { ref, push, set } from 'firebase/database';
 import { useState } from 'react';
 import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 const categories: PromptCategory[] = [
   'General Prompts',

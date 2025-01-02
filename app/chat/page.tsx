@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { Suspense, useEffect, useState, useRef } from 'react';
+import { useAuth } from '@/lib/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ref, get, onValue, query, orderByChild, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
@@ -35,9 +35,17 @@ const COMMON_PROMPTS = [
 ];
 
 export default function ChatPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatContent />
+    </Suspense>
+  );
+}
+
+function ChatContent() {
+  const searchParams = useSearchParams();
   const { user, isPro } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(searchParams?.get('id'));

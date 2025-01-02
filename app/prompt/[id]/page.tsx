@@ -3,16 +3,12 @@
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, get } from 'firebase/database';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { Prompt } from '@/types/prompt';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 
-interface Props {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
-
-export default function PromptPage({ params: { id } }: Props) {
+export default function PromptPage() {
+  const { id } = useParams(); // Dynamically get the 'id' from the route
   const { user } = useAuth();
   const router = useRouter();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
@@ -20,10 +16,14 @@ export default function PromptPage({ params: { id } }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
     const fetchPrompt = async () => {
       try {
         const snapshot = await get(ref(db, `prompts/${id}`));
-
         if (snapshot.exists()) {
           setPrompt({ ...snapshot.val(), id });
         } else {
@@ -36,15 +36,22 @@ export default function PromptPage({ params: { id } }: Props) {
       }
     };
 
-    fetchPrompt();
-  }, [id]);
+    if (id) {
+      fetchPrompt();
+    }
+  }, [id, user]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <div>
+        <p>{error}</p>
+        <button onClick={() => router.push('/')}>Back to Home</button>
+      </div>
+    );
   }
 
   return (
@@ -54,4 +61,3 @@ export default function PromptPage({ params: { id } }: Props) {
     </div>
   );
 }
-

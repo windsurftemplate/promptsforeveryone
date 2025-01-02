@@ -8,28 +8,20 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Prompts For Everyone',
-  description: 'Your AI Prompt Management Platform',
+  description: 'Discover, create, and share AI prompts',
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  ),
   openGraph: {
     title: 'Prompts For Everyone',
-    description: 'Your AI Prompt Management Platform',
-    url: 'https://promptsforeveryone.vercel.app',
-    siteName: 'Prompts For Everyone',
-    images: [
-      {
-        url: '/api/og',
-        width: 1200,
-        height: 630,
-        alt: 'Prompts For Everyone - Your AI Prompt Management Platform',
-      },
-    ],
-    locale: 'en_US',
-    type: 'website',
+    description: 'Discover, create, and share AI prompts',
+    images: ['/og-image.jpg'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Prompts For Everyone',
-    description: 'Your AI Prompt Management Platform',
-    images: ['/api/og'],
+    description: 'Discover, create, and share AI prompts',
+    images: ['/og-image.jpg'],
   },
 };
 

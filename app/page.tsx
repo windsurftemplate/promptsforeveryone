@@ -36,11 +36,12 @@ export default function HomePage() {
   ];
 
   const carouselItems = [
-    { id: '01', image: '/carousel/01.png' },
-    { id: '02', image: '/carousel/02.png' },
-    { id: '03', image: '/carousel/03.png' },
-    { id: '04', image: '/carousel/04.png' },
-    { id: '05', image: '/carousel/05.png' },
+    { id: 'Item 1', image: '/carousel/claude-logo.png' },
+    { id: 'Item 2', image: '/carousel/gemini-logo.webp' },
+    { id: 'Item 3', image: '/carousel/midjourney-logo.png' },
+    { id: 'Item 4', image: '/carousel/openai-logo.svg' },
+    { id: 'Item 5', image: '/carousel/meta-logo.png' },
+    // Add more items as needed
   ];
 
   useEffect(() => {
@@ -131,30 +132,34 @@ export default function HomePage() {
         {/* Carousel */}
         <div className="absolute bottom-0 left-0 right-0 z-10 h-40 overflow-hidden">
           <div className="relative w-[200%] flex">
-            <div className="flex w-1/2 animate-scroll">
+            <div className="flex w-1/2 animate-scroll justify-around">
               {carouselItems.map((item, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 w-[200px] h-full flex items-center justify-center px-2"
+                  className="flex-shrink-0 w-[180px] h-full flex items-center justify-center px-2"
                 >
-                  <div className="relative w-full h-28 bg-[#00ffff]/5 rounded-lg overflow-hidden group hover:bg-[#00ffff]/10 transition-all duration-300">
-                    <div className={`${anton.className} absolute inset-0 flex items-center justify-center text-[6rem] font-bold text-[#00ffff]/10 group-hover:scale-110 transition-transform duration-300`}>
-                      {item.id}
-                    </div>
+                  <div className="relative w-full h-28 bg-transparent rounded-lg overflow-hidden group hover:bg-[#00ffff]/10 transition-all duration-300">
+                    <img
+                      src={item.image}
+                      alt={item.id}
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
                   </div>
                 </div>
               ))}
             </div>
-            <div className="flex w-1/2 animate-scroll" aria-hidden="true">
+            <div className="flex w-1/2 animate-scroll justify-around" aria-hidden="true">
               {carouselItems.map((item, index) => (
                 <div
                   key={`duplicate-${index}`}
-                  className="flex-shrink-0 w-[200px] h-full flex items-center justify-center px-2"
+                  className="flex-shrink-0 w-[180px] h-full flex items-center justify-center px-2"
                 >
-                  <div className="relative w-full h-28 bg-[#00ffff]/5 rounded-lg overflow-hidden group hover:bg-[#00ffff]/10 transition-all duration-300">
-                    <div className={`${anton.className} absolute inset-0 flex items-center justify-center text-[6rem] font-bold text-[#00ffff]/10 group-hover:scale-110 transition-transform duration-300`}>
-                      {item.id}
-                    </div>
+                  <div className="relative w-full h-28 bg-transparent rounded-lg overflow-hidden group hover:bg-[#00ffff]/10 transition-all duration-300">
+                    <img
+                      src={item.image}
+                      alt={item.id}
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
                   </div>
                 </div>
               ))}

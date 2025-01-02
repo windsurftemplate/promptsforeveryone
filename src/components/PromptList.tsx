@@ -3,11 +3,11 @@
 import { db } from '@/lib/firebase';
 import { Prompt } from '@/types/prompt';
 import { ref, onValue, query, orderByChild, equalTo, off, remove, get, update } from 'firebase/database';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/lib/auth';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Button from './ui/Button';
+import { Button } from '@/components/ui/Button';
 import DeleteConfirmationDialog from './ui/DeleteConfirmationDialog';
 
 interface PromptListProps {
