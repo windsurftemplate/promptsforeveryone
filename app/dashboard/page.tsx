@@ -265,11 +265,6 @@ export default function DashboardPage() {
                 ? `No prompts found in this ${selectedSubcategory ? 'subcategory' : 'category'}.`
                 : "You haven't created any prompts yet."}
             </p>
-            <Link href="/submit">
-              <Button className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-6 py-2 rounded-lg transition-all duration-300 border border-[#00ffff]/30">
-                Create Your First Prompt
-              </Button>
-            </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 m-[15px]">

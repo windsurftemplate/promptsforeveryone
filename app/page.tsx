@@ -230,65 +230,94 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {/* Feature Cards */}
-            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
-              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
-                <span className="text-[#00ffff] font-bold">SAVE</span>
+            {/* Store & Organize */}
+            <div className="group relative p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/0 to-[#00ffff]/0 group-hover:from-[#00ffff]/5 group-hover:to-[#0099ff]/5 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+                  <span className="text-[#00ffff] font-bold group-hover:animate-pulse">SAVE</span>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors duration-500">Store & Organize</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-500">
+                  Create your personal prompt library with intelligent organization, tags, and categories. Keep your valuable prompts secure and easily accessible.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Store & Organize</h3>
-              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
-                Create your personal prompt library with intelligent organization, tags, and categories. Keep your valuable prompts secure and easily accessible.
-              </p>
+              <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-gradient-to-br from-[#00ffff]/0 to-[#0099ff]/0 group-hover:from-[#00ffff]/10 group-hover:to-[#0099ff]/20 rounded-full blur-xl transition-all duration-500"></div>
             </div>
 
-            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
-              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
-                <span className="text-[#00ffff] font-bold">SHARE</span>
+            {/* Share & Collaborate */}
+            <div className="group relative p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/0 to-[#00ffff]/0 group-hover:from-[#00ffff]/5 group-hover:to-[#0099ff]/5 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+                  <span className="text-[#00ffff] font-bold group-hover:animate-pulse">SHARE</span>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors duration-500">Share & Collaborate</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-500">
+                  Share your prompts with the community, collaborate with others, and discover new ways to improve your prompt engineering skills.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Collaborate & Share</h3>
-              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
-                Share prompts with team members, collaborate in real-time, and build a knowledge base of effective prompts for your organization.
-              </p>
+              <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-gradient-to-br from-[#00ffff]/0 to-[#0099ff]/0 group-hover:from-[#00ffff]/10 group-hover:to-[#0099ff]/20 rounded-full blur-xl transition-all duration-500"></div>
             </div>
 
-            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
-              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
-                <span className="text-[#00ffff] font-bold">OPT</span>
+            {/* Test & Validate */}
+            <div className="group relative p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/0 to-[#00ffff]/0 group-hover:from-[#00ffff]/5 group-hover:to-[#0099ff]/5 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+                  <span className="text-[#00ffff] font-bold group-hover:animate-pulse">TEST</span>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors duration-500">Test & Validate</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-500">
+                  Thoroughly test your prompts across different scenarios. Ensure consistency and reliability before deployment.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Optimize & Improve</h3>
-              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
-                Use AI-powered suggestions to enhance your prompts. Get insights on performance and recommendations for improvements.
-              </p>
+              <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-gradient-to-br from-[#00ffff]/0 to-[#0099ff]/0 group-hover:from-[#00ffff]/10 group-hover:to-[#0099ff]/20 rounded-full blur-xl transition-all duration-500"></div>
             </div>
 
-            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
-              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
-                <span className="text-[#00ffff] font-bold">TEST</span>
+            {/* Version Control */}
+            <div className="group relative p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/0 to-[#00ffff]/0 group-hover:from-[#00ffff]/5 group-hover:to-[#0099ff]/5 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+                  <span className="text-[#00ffff] font-bold group-hover:animate-pulse">VER</span>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors duration-500">Version Control</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-500">
+                  Track changes, maintain history, and roll back to previous versions. Never lose your prompt improvements.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Test & Validate</h3>
-              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
-                Thoroughly test your prompts across different scenarios. Ensure consistency and reliability before deployment.
-              </p>
+              <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-gradient-to-br from-[#00ffff]/0 to-[#0099ff]/0 group-hover:from-[#00ffff]/10 group-hover:to-[#0099ff]/20 rounded-full blur-xl transition-all duration-500"></div>
             </div>
 
-            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
-              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
-                <span className="text-[#00ffff] font-bold">VER</span>
+            {/* API Integration */}
+            <div className="group relative p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/0 to-[#00ffff]/0 group-hover:from-[#00ffff]/5 group-hover:to-[#0099ff]/5 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+                  <span className="text-[#00ffff] font-bold group-hover:animate-pulse">API</span>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors duration-500">API Integration</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-500">
+                  Connect with popular AI models and development tools. Seamlessly integrate prompts into your workflow.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">Version Control</h3>
-              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
-                Track changes, maintain history, and roll back to previous versions. Never lose your prompt improvements.
-              </p>
+              <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-gradient-to-br from-[#00ffff]/0 to-[#0099ff]/0 group-hover:from-[#00ffff]/10 group-hover:to-[#0099ff]/20 rounded-full blur-xl transition-all duration-500"></div>
             </div>
 
-            <div className="p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-300 group">
-              <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg">
-                <span className="text-[#00ffff] font-bold">API</span>
+            {/* Analytics & Insights */}
+            <div className="group relative p-6 bg-gradient-to-br from-black/40 to-[#0099ff]/5 backdrop-blur-sm rounded-xl border border-[#00ffff]/20 hover:border-[#0099ff]/40 transition-all duration-500 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00ffff]/0 to-[#00ffff]/0 group-hover:from-[#00ffff]/5 group-hover:to-[#0099ff]/5 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 mb-6 flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-lg group-hover:scale-110 transition-transform duration-500">
+                  <span className="text-[#00ffff] font-bold group-hover:animate-pulse">PRO</span>
+                </div>
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors duration-500">Analytics & Insights</h3>
+                <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors duration-500">
+                  Track performance metrics and gain insights into your prompts. Make data-driven improvements to your prompt engineering.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3 group-hover:text-[#0099ff] transition-colors">API Integration</h3>
-              <p className="text-white/70 leading-relaxed group-hover:text-white/90 transition-colors">
-                Connect with popular AI models and development tools. Seamlessly integrate prompts into your workflow.
-              </p>
+              <div className="absolute -bottom-1 -right-1 w-24 h-24 bg-gradient-to-br from-[#00ffff]/0 to-[#0099ff]/0 group-hover:from-[#00ffff]/10 group-hover:to-[#0099ff]/20 rounded-full blur-xl transition-all duration-500"></div>
             </div>
           </div>
         </div>

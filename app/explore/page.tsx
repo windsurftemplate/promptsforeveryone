@@ -1,33 +1,73 @@
 'use client';
 
-import { useState } from 'react';
-import { promptCategories } from '@/lib/categories';
+import { useState, useEffect } from 'react';
+import { db } from '@/lib/firebase';
+import { ref, get } from 'firebase/database';
+import { Prompt } from '@/types/prompt';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 
-// Group categories by their group
-const groupedCategories = promptCategories.reduce((acc, category) => {
-  if (!acc[category.group]) {
-    acc[category.group] = [];
-  }
-  acc[category.group].push(category);
-  return acc;
-}, {} as Record<string, typeof promptCategories>);
+interface Category {
+  id: string;
+  name: string;
+  description?: string;
+}
 
 export default function ExplorePage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Filter categories based on search term and selected group
-  const filteredCategories = promptCategories.filter(category => {
-    const matchesSearch = 
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesGroup = !selectedGroup || category.group === selectedGroup;
-    return matchesSearch && matchesGroup;
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch prompts without ordering (temporary solution)
+        const promptsRef = ref(db, 'prompts');
+        const promptsSnapshot = await get(promptsRef);
+        
+        // Fetch categories
+        const categoriesRef = ref(db, 'categories');
+        const categoriesSnapshot = await get(categoriesRef);
+        
+        if (promptsSnapshot.exists()) {
+          const promptsData = Object.entries(promptsSnapshot.val()).map(([id, data]) => ({
+            id,
+            ...(data as Omit<Prompt, 'id'>)
+          }));
+          
+          // Filter out private prompts
+          const publicPrompts = promptsData.filter(prompt => prompt.visibility === 'public');
+          
+          // Sort by newest first (client-side sorting)
+          publicPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          
+          setPrompts(publicPrompts);
+        }
 
-  const groups = Object.keys(groupedCategories);
+        if (categoriesSnapshot.exists()) {
+          const categoriesData = Object.entries(categoriesSnapshot.val()).map(([id, data]) => ({
+            id,
+            ...(data as Omit<Category, 'id'>)
+          }));
+          setCategories(categoriesData);
+        }
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Filter prompts based on category
+  const filteredPrompts = prompts.filter(prompt => 
+    !selectedCategory || prompt.category === selectedCategory
+  );
 
   return (
     <div className="min-h-screen bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
@@ -35,72 +75,104 @@ export default function ExplorePage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#00ffff] to-[#0099ff] text-transparent bg-clip-text">
-            Explore Categories
+            Explore Prompts
           </h1>
           <p className="text-lg text-white/70 max-w-2xl mx-auto">
-            Discover a wide range of prompt categories for every development need. From code generation to emerging technologies.
+            Discover and use prompts created by the community. Find the perfect prompt for your next project.
           </p>
         </div>
 
-        {/* Search and Filter */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4 justify-center">
-          <input
-            type="text"
-            placeholder="Search categories..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff] w-full sm:w-80"
-          />
-          <select
-            value={selectedGroup || ''}
-            onChange={(e) => setSelectedGroup(e.target.value || null)}
-            className="px-4 py-2 bg-black/50 border border-[#00ffff]/30 rounded-lg text-white focus:outline-none focus:border-[#00ffff] focus:ring-1 focus:ring-[#00ffff]"
-          >
-            <option value="">All Groups</option>
-            {groups.map(group => (
-              <option key={group} value={group}>{group}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCategories.map((category) => (
-            <Card 
-              key={category.id}
-              className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#00ffff]/10 to-[#0099ff]/10 border border-[#00ffff]/20">
-                  <span className="text-lg font-mono text-[#00ffff]">{category.icon}</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
-                    {category.name}
-                  </h3>
-                  <span className="text-sm text-white/50">{category.group}</span>
-                </div>
-              </div>
-              <p className="text-white/70 text-sm mb-4">
-                {category.description}
-              </p>
-              <div className="flex justify-end">
-                <Link 
-                  href={`/category/${category.id}`}
-                  className="text-[#00ffff] text-sm hover:text-[#0099ff] transition-colors"
+        {/* Categories */}
+        {categories.length > 0 && (
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-2 justify-center">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                  !selectedCategory
+                    ? 'bg-[#00ffff] text-black'
+                    : 'bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20'
+                }`}
+              >
+                All
+              </button>
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`px-4 py-2 rounded-full text-sm transition-colors ${
+                    selectedCategory === category.id
+                      ? 'bg-[#00ffff] text-black'
+                      : 'bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20'
+                  }`}
                 >
-                  View Prompts →
-                </Link>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* No Results */}
-        {filteredCategories.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-white/50">No categories found matching your search.</p>
+                  {category.name}
+                </button>
+              ))}
+            </div>
           </div>
+        )}
+
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12 text-red-400">
+            {error}
+          </div>
+        ) : (
+          <>
+            {/* Prompts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredPrompts.map((prompt) => (
+                <Link 
+                  key={prompt.id} 
+                  href={`/prompt/${prompt.id}`}
+                >
+                  <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
+                    <div className="flex flex-col h-full">
+                      <div className="mb-4">
+                        <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors mb-2">
+                          {prompt.title}
+                        </h3>
+                        <p className="text-white/70 text-sm">
+                          {prompt.description}
+                        </p>
+                      </div>
+                      
+                      <div className="mt-auto">
+                        {prompt.tags && prompt.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {prompt.tags.map((tag, index) => (
+                              <span 
+                                key={index}
+                                className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-between items-center text-sm text-white/50">
+                          <span>{prompt.userName}</span>
+                          <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+
+            {/* No Results */}
+            {filteredPrompts.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-white/50">No prompts found in this category.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

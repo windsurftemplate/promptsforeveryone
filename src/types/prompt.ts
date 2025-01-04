@@ -1,30 +1,13 @@
 export type PromptVisibility = 'public' | 'private';
 
 export type PromptCategory = 
-  | 'General Prompts'
-  | 'Project Initialization & Setup'
-  | 'Frontend Design & Development'
-  | 'Backend Development'
-  | 'Database Design & Integration'
-  | 'Full-Stack Features'
-  | 'Styling & Theming'
-  | 'Responsive Design'
-  | 'Forms & User Input Handling'
-  | 'API Integration & Development'
-  | 'Animations & Interactivity'
-  | 'E-Commerce Features'
-  | 'Authentication & Security'
-  | 'Testing & Debugging'
-  | 'Performance Optimization'
-  | 'DevOps & Deployment'
-  | 'Internationalization & Localization'
-  | 'Real-Time Features'
-  | 'Documentation & Knowledge Sharing'
-  | 'Accessibility & Compliance'
-  | 'Workflow Automation'
-  | 'Third-Party Integration'
-  | 'Algorithm & Data Structures'
-  | 'Custom Components & Utilities';
+  | 'General'
+  | 'Development'
+  | 'Design'
+  | 'Writing'
+  | 'Business'
+  | 'Education'
+  | 'Other';
 
 export interface Prompt {
   id?: string;
