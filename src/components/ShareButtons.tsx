@@ -13,17 +13,19 @@ import {
 } from 'react-share';
 
 interface ShareButtonsProps {
+  url: string;
   title: string;
   description: string;
-  url: string;
 }
 
-export default function ShareButtons({ title, description, url }: ShareButtonsProps) {
+export default function ShareButtons({ url, title, description }: ShareButtonsProps) {
+  const shareText = `${title}\n${description}`;
+
   return (
-    <div className="flex gap-2">
+    <div className="flex space-x-2">
       <TwitterShareButton
         url={url}
-        title={title}
+        title={shareText}
         className="hover:scale-110 transition-transform duration-200"
       >
         <TwitterIcon size={24} round />
@@ -31,7 +33,7 @@ export default function ShareButtons({ title, description, url }: ShareButtonsPr
 
       <FacebookShareButton
         url={url}
-        quote={`${title}\n${description}`}
+        title={title}
         className="hover:scale-110 transition-transform duration-200"
       >
         <FacebookIcon size={24} round />
@@ -48,7 +50,7 @@ export default function ShareButtons({ title, description, url }: ShareButtonsPr
 
       <WhatsappShareButton
         url={url}
-        title={`${title}\n${description}`}
+        title={shareText}
         className="hover:scale-110 transition-transform duration-200"
       >
         <WhatsappIcon size={24} round />

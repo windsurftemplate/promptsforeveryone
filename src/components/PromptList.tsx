@@ -3,7 +3,7 @@
 import { db } from '@/lib/firebase';
 import { Prompt } from '@/types/prompt';
 import { ref, onValue, query, orderByChild, equalTo, off, remove, get, update } from 'firebase/database';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -42,14 +42,24 @@ export default function PromptList({ visibility = 'all' }: PromptListProps) {
         ...data,
       }));
 
-      setPrompts(promptsData);
+      // Filter prompts based on visibility
+      const filteredPrompts = promptsData.filter(prompt => {
+        if (visibility === 'public') {
+          return !prompt.isPrivate;
+        } else if (visibility === 'private') {
+          return prompt.isPrivate;
+        }
+        return true;
+      });
+
+      setPrompts(filteredPrompts);
       setLoading(false);
     });
 
     return () => {
       off(userPromptsQuery);
     };
-  }, [user]);
+  }, [user, visibility]);
 
   const handleEdit = (promptId: string) => {
     router.push(`/prompt/edit/${promptId}`);

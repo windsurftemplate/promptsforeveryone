@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, useRef } from 'react';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ref, get, onValue, query, orderByChild, set } from 'firebase/database';
 import { db } from '@/lib/firebase';

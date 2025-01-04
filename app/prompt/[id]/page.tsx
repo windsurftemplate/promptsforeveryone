@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, get } from 'firebase/database';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { Prompt } from '@/types/prompt';
 import { useRouter, useParams } from 'next/navigation';
 

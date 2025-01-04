@@ -114,6 +114,7 @@ export default function DashboardPage() {
             description: data.description ?? '',
             content: data.content ?? '',
             category: data.category ?? '',
+            subcategory: data.subcategory ?? '',
             tags: data.tags || [],
             userId: data.userId ?? '',
             createdAt: data.createdAt ?? new Date().toISOString(),
@@ -121,7 +122,20 @@ export default function DashboardPage() {
             isPrivate: data.isPrivate ?? false,
             votes: data.votes ?? 0
           }));
-          setPrompts(promptsData);
+
+          // Filter prompts based on selected category and subcategory
+          const filteredPrompts = promptsData.filter(prompt => {
+            if (!selectedCategory) return true;
+            
+            const categoryMatch = prompt.category === selectedCategory.id;
+            if (!selectedSubcategory) return categoryMatch;
+            
+            return categoryMatch && prompt.subcategory === selectedSubcategory.id;
+          });
+
+          setPrompts(filteredPrompts);
+        } else {
+          setPrompts([]);
         }
       } catch (error) {
         console.error('Error fetching prompts:', error);
