@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { ref, query, orderByChild, equalTo, onValue, remove } from 'firebase/database';
+import { ref, query, orderByChild, equalTo, onValue, remove, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIcon, FolderIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
+import PromptCard from '@/components/PromptCard';
 
 import { Prompt } from '@/types';
 
@@ -103,41 +104,33 @@ export default function DashboardPage() {
       promptsRef = ref(db, 'prompts');
     }
 
-    const unsubscribe = onValue(
-      promptsRef,
-      (snapshot) => {
-        if (!snapshot.exists()) {
-          setPrompts([]);
-          setIsLoading(false);
-          return;
+    const fetchPrompts = async () => {
+      try {
+        const snapshot = await get(promptsRef);
+        if (snapshot.exists()) {
+          const promptsData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
+            id,
+            title: data.title ?? '',
+            description: data.description ?? '',
+            content: data.content ?? '',
+            category: data.category ?? '',
+            tags: data.tags || [],
+            userId: data.userId ?? '',
+            createdAt: data.createdAt ?? new Date().toISOString(),
+            updatedAt: data.updatedAt ?? new Date().toISOString(),
+            isPrivate: data.isPrivate ?? false,
+            votes: data.votes ?? 0
+          }));
+          setPrompts(promptsData);
         }
-
-        const promptsData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-          id,
-          ...data,
-        }));
-
-        const filteredPrompts = promptsData.filter((prompt) => {
-          if (!selectedCategory) return true;
-          const categoryMatch = prompt.categoryId === selectedCategory.id;
-          if (!selectedSubcategory) return categoryMatch;
-          return categoryMatch && prompt.subcategoryId === selectedSubcategory.id;
-        });
-
-        setPrompts(filteredPrompts);
-        setIsLoading(false);
-      },
-      (error) => {
+      } catch (error) {
         console.error('Error fetching prompts:', error);
+      } finally {
         setIsLoading(false);
       }
-    );
-
-    return () => {
-      unsubscribePublic();
-      unsubscribePrivate();
-      unsubscribe();
     };
+
+    fetchPrompts();
   }, [user, selectedCategory, selectedSubcategory]);
 
   const handleEdit = (prompt: Prompt) => {
@@ -269,49 +262,17 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 m-[15px]">
             {prompts.map((prompt) => (
-              <div
+              <PromptCard
                 key={prompt.id}
+                id={prompt.id || ''}
+                title={prompt.title || ''}
+                description={prompt.description || ''}
+                content={prompt.content || ''}
+                tags={prompt.tags || []}
+                onDelete={(id) => handleDelete(id)}
+                onCopy={(content) => handleCopy(content)}
                 onClick={() => handleEdit(prompt)}
-                className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300 cursor-pointer"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-xl font-semibold text-white hover:text-[#00ffff] transition-colors">
-                    {prompt.title}
-                  </h2>
-                  <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(prompt.content || '');
-                      }}
-                      className="text-white/60 hover:text-[#00ffff] transition-colors"
-                      title="Copy prompt"
-                    >
-                      <ClipboardDocumentIcon className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(prompt.id);
-                      }}
-                      className="text-white/60 hover:text-[#00ffff] transition-colors"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-                <p className="text-white/60 mb-4 line-clamp-3">{prompt.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {prompt.tags?.map((tag: string, index: number) => (
-                    <span
-                      key={`${tag}-${index}`}
-                      className="text-sm px-3 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/30"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+              />
             ))}
           </div>
         )}

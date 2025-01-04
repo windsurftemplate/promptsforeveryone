@@ -1,10 +1,9 @@
 'use client';
-
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  SparklesIcon, 
-  LightBulbIcon, 
+import {
+  SparklesIcon,
+  LightBulbIcon,
   ChatBubbleBottomCenterTextIcon,
   ShieldCheckIcon,
   ArrowPathIcon,
