@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { 
   signInWithEmailAndPassword,
@@ -39,7 +39,11 @@ export function useAuth() {
   return context;
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const enhancedUser = {
           ...firebaseUser,
           role: userData?.role || 'user'
-        };
+        } as User;
         
         setUser(enhancedUser);
         setIsPro(userData?.plan === 'pro' || userData?.role === 'admin');
