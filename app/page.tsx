@@ -30,19 +30,10 @@ export default function HomePage() {
   const numbers = ['01', '02', '03', '04', '05'];
 
   const titles = [
-    'UNLOCK NEW IDEAS',
-    'CREATE FASTER. SMARTER. EASIER.',
-    'PROMPTS FOR EVERYONE',
-    'FIND THE RIGHT PROMPT FOR YOU'
-  ];
-
-  const carouselItems = [
-    { id: 'Item 1', image: '/carousel/claude-logo.png' },
-    { id: 'Item 2', image: '/carousel/gemini-logo.webp' },
-    { id: 'Item 3', image: '/carousel/midjourney-logo.png' },
-    { id: 'Item 4', image: '/carousel/openai-logo.svg' },
-    { id: 'Item 5', image: '/carousel/meta-logo.png' },
-    // Add more items as needed
+    'Organize, Discover, and Share Ideas',
+    'Unlimited Inspiration and Ideas',
+    'Welcome to the Prompt Community',
+    'Explore Community-Driven Prompts'
   ];
 
   useEffect(() => {
@@ -111,9 +102,9 @@ export default function HomePage() {
                 </span>
               </h1>
             </div>
-            <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-              Unlock AI-driven prompts that save time and enhance creativity. Start for free today.
-            </p>
+            <h1 className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+              Prompts that save time and enhance creativity
+            </h1>
             <div className="flex gap-6 justify-center">
               <Link href="/register">
                 <Button variant="default" size="lg" className="text-lg font-bold shadow-[0_0_15px_rgba(0,255,255,0.5)] hover:scale-105 transition-transform duration-300">
@@ -143,7 +134,7 @@ export default function HomePage() {
               How It Works
             </h2>
             <p className="text-white/60 text-center max-w-3xl mx-auto text-lg">
-              Get started with Prompts For Everyone in three simple steps
+              Get started with three simple steps
             </p>
           </div>
 
@@ -164,7 +155,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Create & Organize</h3>
               <p className="text-white/70">
-                Start creating and organizing your prompts with our intuitive tools
+                Start creating and organizing your prompts
               </p>
             </div>
 
@@ -188,9 +179,6 @@ export default function HomePage() {
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-4">
             Explore Our Categories
           </h2>
-          <p className="text-white/60 text-lg max-w-2xl mx-auto">
-            Discover a wide range of prompt categories designed to enhance your AI interactions
-          </p>
         </div>
         <FeatureCarousel />
       </section>
@@ -201,11 +189,8 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-4">
-              Explore Our Features
+              Why Use PromptsForEveryone.com?
             </h2>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              Discover powerful tools and capabilities designed to enhance your prompt management experience
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
@@ -213,8 +198,8 @@ export default function HomePage() {
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <SparklesIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">AI-Powered Prompts</h3>
-              <p className="text-white/60">Access a curated collection of high-quality prompts optimized for various AI models and use cases.</p>
+              <h3 className="text-xl font-semibold text-white mb-3">Boost Creativity and Overcome Writer’s Block</h3>
+              <p className="text-white/60">Access fresh ideas and inspiration to spark creativity for writing, coding, or brainstorming</p>
             </div>
 
             <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
@@ -229,8 +214,8 @@ export default function HomePage() {
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <ChatBubbleBottomCenterTextIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Interactive Chat</h3>
-              <p className="text-white/60">Test and refine prompts in real-time with our interactive chat interface.</p>
+              <h3 className="text-xl font-semibold text-white mb-3">Voting & Rating System</h3>
+              <p className="text-white/60">Feature top contributors on a leaderboard, inspiring others to participate and earn visibility.</p>
             </div>
 
             <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
@@ -245,16 +230,16 @@ export default function HomePage() {
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <ArrowPathIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Version Control</h3>
-              <p className="text-white/60">Track prompt iterations and improvements with built-in version control.</p>
+              <h3 className="text-xl font-semibold text-white mb-3">Learn and Grow Skills</h3>
+              <p className="text-white/60">Explore prompt categories to learn new techniques, expand skill sets, and enhance productivity</p>
             </div>
 
             <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <CloudArrowUpIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Cloud Sync</h3>
-              <p className="text-white/60">Access your prompts from anywhere with secure cloud synchronization.</p>
+              <h3 className="text-xl font-semibold text-white mb-3">Save Time with Ready-to-Use Prompts</h3>
+              <p className="text-white/60">Eliminate the need to start from scratch by using pre-made prompts that accelerate workflows</p>
             </div>
           </div>
         </div>
@@ -266,7 +251,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-4">
-              Simple, Transparent Pricing
+              Pricing
             </h2>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
               Choose the plan that best fits your needs
@@ -284,15 +269,15 @@ export default function HomePage() {
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Up to 50 prompts</span>
+                  <span>Save Prompts to Public Categories</span>
                 </li>
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Basic categories</span>
+                  <span>Search the Entire Prompt Database</span>
                 </li>
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Community support</span>
+                  <span>Discover Trending Prompts</span>
                 </li>
               </ul>
               <Link href="/register" className="block">
@@ -309,29 +294,29 @@ export default function HomePage() {
               </div>
               <div className="text-center mb-8">
                 <h3 className="text-xl font-semibold text-white mb-4">Pro</h3>
-                <div className="text-4xl font-bold text-[#00ffff] mb-4">$9.99</div>
+                <div className="text-4xl font-bold text-[#00ffff] mb-4">$9</div>
                 <p className="text-white/60">Perfect for power users</p>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Unlimited prompts</span>
+                  <span>Create Custom Categories</span>
                 </li>
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Advanced categories</span>
+                  <span>Export Prompts</span>
                 </li>
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Priority support</span>
+                  <span>Exclusive Badge or Profile Perk</span>
                 </li>
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>Version history</span>
+                  <span>AI Chatbot Integration</span>
                 </li>
                 <li className="flex items-center text-white/80">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                  <span>AI suggestions</span>
+                  <span>Support the Platform</span>
                 </li>
               </ul>
               <Link href="/register?plan=pro" className="block">
@@ -380,7 +365,7 @@ export default function HomePage() {
               Ready to Get Started?
             </h2>
             <p className="text-xl text-white/70 mb-8">
-              Join thousands of users who are already using Prompts For Everyone to enhance their AI workflows
+            Join Thousands Already Boosting Their AI Workflows with PromptsForEveryone.com
             </p>
             <div className="flex gap-6 justify-center">
               <Link href="/register">
@@ -405,7 +390,6 @@ export default function HomePage() {
             <div>
               <h3 className="text-[#00ffff] font-semibold mb-4">Product</h3>
               <ul className="space-y-2">
-                <li><Link href="/features" className="text-white/60 hover:text-[#00ffff] transition-colors">Features</Link></li>
                 <li><Link href="/price" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link></li>
                 <li><Link href="/docs" className="text-white/60 hover:text-[#00ffff] transition-colors">Documentation</Link></li>
                 <li><Link href="/guides" className="text-white/60 hover:text-[#00ffff] transition-colors">Guides</Link></li>
