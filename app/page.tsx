@@ -386,54 +386,46 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="relative z-20 py-12 bg-black border-t border-[#00ffff]/10">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="text-[#00ffff] font-semibold mb-4">Product</h3>
-              <ul className="space-y-2">
-                <li><Link href="/price" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link></li>
-                <li><Link href="/docs" className="text-white/60 hover:text-[#00ffff] transition-colors">Documentation</Link></li>
-                <li><Link href="/guides" className="text-white/60 hover:text-[#00ffff] transition-colors">Guides</Link></li>
-              </ul>
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
+              <div className="text-center">
+                <h3 className="text-[#00ffff] font-semibold mb-4">Product</h3>
+                <ul className="space-y-3">
+                  <li><Link href="/explore" className="text-white/60 hover:text-[#00ffff] transition-colors">Explore</Link></li>
+                  <li><Link href="/submit" className="text-white/60 hover:text-[#00ffff] transition-colors">Submit Prompt</Link></li>
+                  <li><Link href="/price" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link></li>
+                  <li><Link href="/docs" className="text-white/60 hover:text-[#00ffff] transition-colors">Documentation</Link></li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <h3 className="text-[#00ffff] font-semibold mb-4">Resources</h3>
+                <ul className="space-y-3">
+                  <li><Link href="/guides" className="text-white/60 hover:text-[#00ffff] transition-colors">Guides</Link></li>
+                  <li><Link href="/blog" className="text-white/60 hover:text-[#00ffff] transition-colors">Blog</Link></li>
+                  <li><Link href="/about" className="text-white/60 hover:text-[#00ffff] transition-colors">About</Link></li>
+                  <li><Link href="/careers" className="text-white/60 hover:text-[#00ffff] transition-colors">Careers</Link></li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <h3 className="text-[#00ffff] font-semibold mb-4">Legal</h3>
+                <ul className="space-y-3">
+                  <li><Link href="/terms" className="text-white/60 hover:text-[#00ffff] transition-colors">Terms</Link></li>
+                  <li><Link href="/privacy" className="text-white/60 hover:text-[#00ffff] transition-colors">Privacy</Link></li>
+                </ul>
+              </div>
             </div>
-            <div>
-              <h3 className="text-[#00ffff] font-semibold mb-4">Company</h3>
-              <ul className="space-y-2">
-                <li><Link href="/about" className="text-white/60 hover:text-[#00ffff] transition-colors">About</Link></li>
-                <li><Link href="/blog" className="text-white/60 hover:text-[#00ffff] transition-colors">Blog</Link></li>
-                <li><Link href="/careers" className="text-white/60 hover:text-[#00ffff] transition-colors">Careers</Link></li>
-                <li><Link href="/contact" className="text-white/60 hover:text-[#00ffff] transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-[#00ffff] font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2">
-                <li><Link href="/community" className="text-white/60 hover:text-[#00ffff] transition-colors">Community</Link></li>
-                <li><Link href="/discord" className="text-white/60 hover:text-[#00ffff] transition-colors">Discord</Link></li>
-                <li><Link href="/github" className="text-white/60 hover:text-[#00ffff] transition-colors">GitHub</Link></li>
-                <li><Link href="/support" className="text-white/60 hover:text-[#00ffff] transition-colors">Support</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-[#00ffff] font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2">
-                <li><Link href="/privacy" className="text-white/60 hover:text-[#00ffff] transition-colors">Privacy</Link></li>
-                <li><Link href="/terms" className="text-white/60 hover:text-[#00ffff] transition-colors">Terms</Link></li>
-                <li><Link href="/security" className="text-white/60 hover:text-[#00ffff] transition-colors">Security</Link></li>
-                <li><Link href="/cookies" className="text-white/60 hover:text-[#00ffff] transition-colors">Cookies</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#00ffff]/10">
-            <div className="text-white/60 text-sm mb-4 md:mb-0">
-              © 2024 Prompts For Everyone. All rights reserved.
-            </div>
-            <div className="flex gap-6">
-              <Link href="https://twitter.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
-                <TwitterIcon className="w-5 h-5" />
-              </Link>
-              <Link href="https://github.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
-                <GitHubIcon className="w-5 h-5" />
-              </Link>
+            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#00ffff]/10">
+              <div className="text-white/60 text-sm mb-4 md:mb-0">
+                © 2024 Prompts For Everyone. All rights reserved.
+              </div>
+              <div className="flex gap-6">
+                <Link href="https://twitter.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                  <TwitterIcon className="w-5 h-5" />
+                </Link>
+                <Link href="https://github.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                  <GitHubIcon className="w-5 h-5" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

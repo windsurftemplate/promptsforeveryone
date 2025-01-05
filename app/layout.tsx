@@ -4,6 +4,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import { Metadata } from 'next';
 import GoogleAnalytics from './components/GoogleAnalytics';
+import ScrollToTop from './components/ScrollToTop';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -43,6 +44,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <AuthProvider>
+          <ScrollToTop />
           <Navbar />
           <main className="min-h-screen pt-24">
             {children}

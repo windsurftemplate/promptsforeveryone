@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -13,11 +13,29 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [tosAgreed, setTosAgreed] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Scroll to top on component mount
+    if (typeof window !== 'undefined') {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!tosAgreed) {
+      setError('You must agree to the Terms of Service to create an account');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -33,6 +51,11 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!tosAgreed) {
+      setError('You must agree to the Terms of Service to create an account');
+      return;
+    }
+
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({
@@ -147,10 +170,31 @@ export default function RegisterPage() {
               />
             </div>
 
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="tos"
+                  name="tos"
+                  type="checkbox"
+                  checked={tosAgreed}
+                  onChange={(e) => setTosAgreed(e.target.checked)}
+                  className="h-4 w-4 rounded border-[#00ffff]/20 bg-black/50 text-[#00ffff] focus:ring-[#00ffff]/50"
+                />
+              </div>
+              <div className="ml-3">
+                <label htmlFor="tos" className="text-sm text-white/80">
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-[#00ffff] hover:text-[#00ffff]/80" target="_blank">
+                    Terms of Service
+                  </Link>
+                </label>
+              </div>
+            </div>
+
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-3 rounded-lg transition-colors"
+              disabled={loading || !tosAgreed}
+              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
