@@ -97,46 +97,66 @@ export default function DashboardPage() {
 
     fetchStats();
 
-    let promptsRef;
-    if (selectedCategory?.isPrivate) {
-      promptsRef = ref(db, `users/${user.uid}/prompts`);
-    } else {
-      promptsRef = ref(db, 'prompts');
-    }
-
     const fetchPrompts = async () => {
       try {
-        const snapshot = await get(promptsRef);
-        if (snapshot.exists()) {
-          const promptsData = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
-            id,
-            title: data.title ?? '',
-            description: data.description ?? '',
-            content: data.content ?? '',
-            category: data.category ?? '',
-            subcategory: data.subcategory ?? '',
-            tags: data.tags || [],
-            userId: data.userId ?? '',
-            createdAt: data.createdAt ?? new Date().toISOString(),
-            updatedAt: data.updatedAt ?? new Date().toISOString(),
-            isPrivate: data.isPrivate ?? false,
-            votes: data.votes ?? 0
-          }));
+        let promptsToShow = [];
+        
+        if (selectedCategory?.id === 'all-prompts') {
+          // Fetch private prompts
+          const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
+          const privateSnapshot = await get(privatePromptsRef);
+          if (privateSnapshot.exists()) {
+            const privatePrompts = Object.entries(privateSnapshot.val()).map(([id, data]: [string, any]) => ({
+              id,
+              ...data,
+              isPrivate: true
+            }));
+            promptsToShow.push(...privatePrompts);
+          }
 
-          // Filter prompts based on selected category and subcategory
-          const filteredPrompts = promptsData.filter(prompt => {
-            if (!selectedCategory) return true;
-            
-            const categoryMatch = prompt.category === selectedCategory.id;
-            if (!selectedSubcategory) return categoryMatch;
-            
-            return categoryMatch && prompt.subcategory === selectedSubcategory.id;
-          });
+          // Fetch public prompts
+          const publicPromptsRef = ref(db, 'prompts');
+          const publicSnapshot = await get(publicPromptsRef);
+          if (publicSnapshot.exists()) {
+            const publicPrompts = Object.entries(publicSnapshot.val())
+              .filter(([_, data]: [string, any]) => data.userId === user.uid)
+              .map(([id, data]: [string, any]) => ({
+                id,
+                ...data,
+                isPrivate: false
+              }));
+            promptsToShow.push(...publicPrompts);
+          }
 
-          setPrompts(filteredPrompts);
+          // Sort by creation date
+          promptsToShow.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         } else {
-          setPrompts([]);
+          // Existing category-based fetching
+          const promptsRef = selectedCategory?.isPrivate
+            ? ref(db, `users/${user.uid}/prompts`)
+            : ref(db, 'prompts');
+
+          const snapshot = await get(promptsRef);
+          if (snapshot.exists()) {
+            promptsToShow = Object.entries(snapshot.val()).map(([id, data]: [string, any]) => ({
+              id,
+              ...data,
+              isPrivate: selectedCategory?.isPrivate ?? false
+            }));
+
+            // Filter prompts based on selected category and subcategory
+            promptsToShow = promptsToShow.filter(prompt => {
+              if (!selectedCategory) return true;
+              
+              const categoryMatch = prompt.category === selectedCategory.id;
+              if (!selectedSubcategory) return categoryMatch;
+              
+              return categoryMatch && prompt.subcategory === selectedSubcategory.id;
+            });
+          }
         }
+
+        setPrompts(promptsToShow);
       } catch (error) {
         console.error('Error fetching prompts:', error);
       } finally {

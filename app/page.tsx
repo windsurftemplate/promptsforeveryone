@@ -108,7 +108,7 @@ export default function HomePage() {
             <div className="flex gap-6 justify-center">
               <Link href="/register">
                 <Button variant="default" size="lg" className="text-lg font-bold shadow-[0_0_15px_rgba(0,255,255,0.5)] hover:scale-105 transition-transform duration-300">
-                  Sign Up Free
+                  Join Now
                 </Button>
               </Link>
               <Link href="/explore">

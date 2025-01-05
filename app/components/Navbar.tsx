@@ -77,7 +77,7 @@ export default function Navbar() {
                     className="object-contain"
                   />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent animate-gradient">
                   PromptsForEveryone.com
                 </span>
               </Link>
