@@ -106,7 +106,7 @@ export default function Navbar() {
               </Link>
             </div>
 
-            <div className="hidden md:flex items-center space-x-8" ref={dropdownRef}>
+            <div className="flex items-center space-x-8" ref={dropdownRef}>
               {/* Product Dropdown */}
               <div className="relative">
                 <button 
@@ -195,151 +195,9 @@ export default function Navbar() {
                 </>
               )}
             </div>
-
-            {/* Mobile menu button */}
-            <div className="flex md:hidden">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/10 transition-colors"
-                aria-label="Toggle menu"
-              >
-                {isMobileMenuOpen ? (
-                  <XMarkIcon className="h-6 w-6" />
-                ) : (
-                  <Bars3Icon className="h-6 w-6" />
-                )}
-              </button>
-            </div>
           </div>
         </div>
       </nav>
-
-      {/* Mobile menu overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/80 backdrop-blur-xl z-[90] md:hidden transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto pt-24 pb-8 px-4">
-            <div className="max-w-lg mx-auto">
-              <div className="flex flex-col space-y-4">
-                <div className="border-b border-[#00ffff]/10 pb-4">
-                  <div className="text-lg font-semibold text-[#00ffff] mb-4">Product</div>
-                  <div className="flex flex-col space-y-4">
-                    <Link 
-                      href="/price" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Pricing
-                    </Link>
-                    <Link 
-                      href="/explore" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Explore
-                    </Link>
-                    <Link 
-                      href="/submit" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Submit Prompt
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="border-b border-[#00ffff]/10 pb-4">
-                  <div className="text-lg font-semibold text-[#00ffff] mb-4">Resources</div>
-                  <div className="flex flex-col space-y-4">
-                    <Link 
-                      href="/docs" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Documentation
-                    </Link>
-                    <Link 
-                      href="/guides" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Guides
-                    </Link>
-                    <Link 
-                      href="/blog" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Blog
-                    </Link>
-                  </div>
-                </div>
-
-                <Link 
-                  href="/about" 
-                  className="text-white/80 hover:text-[#00ffff] transition-colors py-4 border-b border-[#00ffff]/10"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  About
-                </Link>
-
-                {user ? (
-                  <div className="flex flex-col space-y-4 pt-4">
-                    <Link 
-                      href="/dashboard" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Dashboard
-                    </Link>
-                    {isPaidUser && (
-                      <Link 
-                        href="/chat" 
-                        className="text-white/80 hover:text-[#00ffff] transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        Chat
-                      </Link>
-                    )}
-                    <Button
-                      onClick={() => {
-                        handleSignOut();
-                        setIsMobileMenuOpen(false);
-                      }}
-                      variant="secondary"
-                      className="w-full mt-4"
-                    >
-                      Sign Out
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col space-y-4 pt-4">
-                    <Link 
-                      href="/login" 
-                      className="text-white/80 hover:text-[#00ffff] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      Sign In
-                    </Link>
-                    <Link 
-                      href="/register" 
-                      className="w-full"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Button variant="primary" className="w-full">
-                        Sign Up
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </>
   );
 } 
