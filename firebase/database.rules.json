@@ -7,13 +7,13 @@
       "$promptId": {
         ".validate": "newData.hasChildren(['title', 'description', 'content', 'categoryId', 'userId', 'createdAt'])",
         "title": {
-          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 100"
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 100"
         },
         "description": {
-          ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 500"
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 500"
         },
         "content": {
-          ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 5000"
+          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 5000"
         },
         "categoryId": {
           ".validate": "newData.isString() && root.child('categories').child(newData.val()).exists()"
@@ -55,8 +55,19 @@
         "name": {
           ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
         },
-        "$other": {
-          ".validate": false
+        "description": {
+          ".validate": "newData.isString() || !newData.exists()"
+        },
+        "subcategories": {
+          "$subcategoryId": {
+            ".validate": "newData.hasChildren(['name'])",
+            "name": {
+              ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
+            },
+            "description": {
+              ".validate": "newData.isString() || !newData.exists()"
+            }
+          }
         }
       }
     }

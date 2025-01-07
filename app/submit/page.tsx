@@ -9,6 +9,12 @@ import { useRouter } from 'next/navigation';
 interface Category {
   id: string;
   name: string;
+  subcategories?: {
+    [key: string]: {
+      name: string;
+      description?: string;
+    };
+  };
 }
 
 export default function SubmitPage() {
@@ -18,6 +24,7 @@ export default function SubmitPage() {
   const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
@@ -133,6 +140,7 @@ export default function SubmitPage() {
         description,
         content,
         categoryId: selectedCategory,
+        subcategoryId: selectedSubcategory || null,
         visibility: isPrivateCategory ? 'private' : 'public',
         userId: user.uid,
         userName: user.displayName || user.email,
@@ -265,23 +273,48 @@ export default function SubmitPage() {
             <select
               id="category"
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setSelectedSubcategory('');
+              }}
+              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
               required
             >
-              <option value="">Select a category</option>
+              <option value="" className="bg-black text-white">Select a category</option>
               {activeTab === 'public' && categories.map((category) => (
-                <option key={category.id} value={category.id}>
+                <option key={category.id} value={category.id} className="bg-black text-white">
                   {category.name}
                 </option>
               ))}
               {activeTab === 'private' && privateCategories.map((category) => (
-                <option key={category.id} value={category.id}>
+                <option key={category.id} value={category.id} className="bg-black text-white">
                   {category.name}
                 </option>
               ))}
             </select>
           </div>
+
+          {selectedCategory && (activeTab === 'public' ? categories : privateCategories).find(cat => cat.id === selectedCategory)?.subcategories && (
+            <div>
+              <label htmlFor="subcategory" className="block text-sm font-medium text-white mb-2">
+                Subcategory
+              </label>
+              <select
+                id="subcategory"
+                value={selectedSubcategory}
+                onChange={(e) => setSelectedSubcategory(e.target.value)}
+                className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
+                required
+              >
+                <option value="" className="bg-black text-white">Select a subcategory</option>
+                {Object.entries((activeTab === 'public' ? categories : privateCategories).find(cat => cat.id === selectedCategory)?.subcategories || {}).map(([id, subcategory]) => (
+                  <option key={id} value={id} className="bg-black text-white">
+                    {subcategory.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-white mb-2">

@@ -255,14 +255,58 @@ export default function DashboardPage() {
     if (!promptId || !user) return;
     if (window.confirm('Are you sure you want to delete this prompt?')) {
       try {
+        console.log('Attempting to delete prompt:', promptId);
+        
         // Remove the prefix to get the original ID
         const originalId = promptId.replace(/^(private-|public-)/, '');
-        const promptRef = promptId.startsWith('private-')
-          ? ref(db, `users/${user.uid}/prompts/${originalId}`)
-          : ref(db, `prompts/${originalId}`);
-        await remove(promptRef);
+        console.log('Original ID after removing prefix:', originalId);
+        
+        // Try to delete from both locations to ensure it's removed
+        const privatePromptRef = ref(db, `users/${user.uid}/prompts/${originalId}`);
+        const publicPromptRef = ref(db, `prompts/${originalId}`);
+        
+        console.log('Checking private path:', `users/${user.uid}/prompts/${originalId}`);
+        console.log('Checking public path:', `prompts/${originalId}`);
+        
+        // Check if the prompt exists in either location
+        const [privateSnapshot, publicSnapshot] = await Promise.all([
+          get(privatePromptRef),
+          get(publicPromptRef)
+        ]);
+        
+        let deleted = false;
+        
+        if (privateSnapshot.exists()) {
+          console.log('Found prompt in private location, deleting...');
+          await remove(privatePromptRef);
+          deleted = true;
+        }
+        
+        if (publicSnapshot.exists()) {
+          const promptData = publicSnapshot.val();
+          if (promptData.userId === user.uid) {
+            console.log('Found prompt in public location, deleting...');
+            await remove(publicPromptRef);
+            deleted = true;
+          } else {
+            throw new Error('You do not have permission to delete this prompt');
+          }
+        }
+        
+        if (!deleted) {
+          console.error('Prompt not found in database. Details:', {
+            promptId,
+            originalId,
+            privateExists: privateSnapshot.exists(),
+            publicExists: publicSnapshot.exists(),
+            userId: user.uid
+          });
+        }
+        // Always refresh the page after deletion attempt
+        window.location.reload();
       } catch (error) {
         console.error('Error deleting prompt:', error);
+        alert('Failed to delete prompt. Please try again.');
       }
     }
   };
