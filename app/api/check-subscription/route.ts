@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     }
 
     // Check if user has an active subscription
-    const isSubscribed = userData.isPro === true || userData.stripeSubscriptionStatus === 'active';
+    const isSubscribed = userData.role === 'admin' || userData.plan === 'paid';
 
     return NextResponse.json({ isSubscribed });
   } catch (error) {

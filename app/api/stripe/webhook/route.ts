@@ -39,7 +39,9 @@ export async function POST(req: Request) {
         const userRef = ref(db, `users/${userId}`);
         await update(userRef, {
           stripeCustomerId: customerId,
-          plan: 'paid'
+          plan: 'paid',
+          stripeSubscriptionStatus: 'active',
+          updatedAt: new Date().toISOString()
         });
 
         break;
@@ -64,7 +66,9 @@ export async function POST(req: Request) {
         if (userId) {
           const userRef = ref(db, `users/${userId}`);
           await update(userRef, {
-            plan: 'free'
+            plan: 'free',
+            stripeSubscriptionStatus: 'canceled',
+            updatedAt: new Date().toISOString()
           });
         }
 

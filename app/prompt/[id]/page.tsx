@@ -23,13 +23,26 @@ export default function PromptPage() {
 
     const fetchPrompt = async () => {
       try {
-        const snapshot = await get(ref(db, `prompts/${id}`));
-        if (snapshot.exists()) {
-          setPrompt({ ...snapshot.val(), id });
-        } else {
-          setError('Prompt not found');
+        // Try to fetch from public prompts first
+        const publicSnapshot = await get(ref(db, `prompts/${id}`));
+        if (publicSnapshot.exists()) {
+          setPrompt({ ...publicSnapshot.val(), id });
+          setLoading(false);
+          return;
         }
+
+        // If not found in public prompts, try private prompts
+        const privateSnapshot = await get(ref(db, `users/${user.uid}/prompts/${id}`));
+        if (privateSnapshot.exists()) {
+          setPrompt({ ...privateSnapshot.val(), id });
+          setLoading(false);
+          return;
+        }
+
+        // If not found in either location
+        setError('Prompt not found');
       } catch (err) {
+        console.error('Error fetching prompt:', err);
         setError('Failed to load prompt');
       } finally {
         setLoading(false);
@@ -42,22 +55,40 @@ export default function PromptPage() {
   }, [id, user]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div>
-        <p>{error}</p>
-        <button onClick={() => router.push('/')}>Back to Home</button>
+      <div className="container mx-auto p-6 text-center">
+        <p className="text-red-500 mb-4">{error}</p>
+        <button 
+          onClick={() => router.push('/')}
+          className="px-4 py-2 bg-[#00ffff]/10 text-[#00ffff] rounded-lg hover:bg-[#00ffff]/20 transition-colors"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl">{prompt?.title}</h1>
-      <p>{prompt?.description}</p>
+      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6">
+        <h1 className="text-3xl font-bold text-white mb-4">{prompt?.title}</h1>
+        <p className="text-white/80 mb-6">{prompt?.description}</p>
+        <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-4">
+          <pre className="text-white/90 whitespace-pre-wrap font-mono">{prompt?.content}</pre>
+        </div>
+        <div className="mt-6 flex justify-between items-center text-white/60">
+          <span>Created by {prompt?.userName}</span>
+          <span>{prompt?.createdAt && new Date(prompt.createdAt).toLocaleDateString()}</span>
+        </div>
+      </div>
     </div>
   );
 }

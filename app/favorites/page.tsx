@@ -42,7 +42,7 @@ export default function FavoritesPage() {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
           const userData = snapshot.val();
-          const isUserPro = userData.isPro === true || userData.stripeSubscriptionStatus === 'active';
+          const isUserPro = userData.role === 'admin' || userData.plan === 'paid';
           setIsPro(isUserPro);
           
           if (!isUserPro) {

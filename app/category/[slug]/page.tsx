@@ -3,6 +3,7 @@ import { ref, get, DatabaseReference, DataSnapshot } from 'firebase/database';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { CATEGORY_DESCRIPTIONS } from '@/lib/constants';
+import { getAuth } from 'firebase/auth';
 
 // 1. Define Prompt type
 interface Prompt {
@@ -12,6 +13,7 @@ interface Prompt {
   category: string;
   categories?: string[];
   visibility: 'public' | 'private';
+  isPrivate?: boolean;
 }
 
 // 2. Route params type (string | string[] to handle multiple scenarios)
@@ -41,8 +43,23 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
   const formattedSlug = Array.isArray(slug) ? slug.join('/') : slug;
 
+  // Get the current user
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  // Check if user has access to private categories
+  let hasPrivateAccess = false;
+  if (user) {
+    const userRef = ref(db, `users/${user.uid}`);
+    const userSnapshot = await get(userRef);
+    if (userSnapshot.exists()) {
+      const userData = userSnapshot.val();
+      hasPrivateAccess = userData.role === 'admin' || userData.plan === 'paid';
+    }
+  }
+
   // Fetch prompts from Firebase
-  const prompts = await fetchPrompts(formattedSlug);
+  const prompts = await fetchPrompts(formattedSlug, hasPrivateAccess);
 
   // If no prompts, trigger 404
   if (!prompts.length) {
@@ -98,7 +115,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 }
 
 // 5. Fetch Prompts Helper Function
-async function fetchPrompts(slug: string): Promise<Prompt[]> {
+async function fetchPrompts(slug: string, hasPrivateAccess: boolean): Promise<Prompt[]> {
   const promptsRef: DatabaseReference = ref(db, 'prompts');
   const snapshot: DataSnapshot = await get(promptsRef);
   const promptsData: Prompt[] = [];
@@ -113,13 +130,17 @@ async function fetchPrompts(slug: string): Promise<Prompt[]> {
         category: promptData.category,
         categories: promptData.categories,
         visibility: promptData.visibility,
+        isPrivate: promptData.isPrivate
       });
     });
   }
 
   return promptsData.filter(
     (prompt) =>
-      prompt.visibility !== 'private' &&
+      // Show public prompts to everyone
+      (prompt.visibility === 'public' && !prompt.isPrivate) ||
+      // Show private prompts only to users with access
+      (hasPrivateAccess && (prompt.visibility === 'private' || prompt.isPrivate)) &&
       (prompt.category === slug || prompt.categories?.includes(slug))
   );
 }

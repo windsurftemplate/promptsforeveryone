@@ -5,8 +5,8 @@
       ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       ".indexOn": ["role", "email", "plan"],
       "$uid": {
-        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid",
         "email": { ".validate": "newData.isString()" },
         "role": { 
           ".validate": "newData.isString() && (newData.val() === 'admin' || newData.val() === 'user' || newData.val() === 'moderator')",
@@ -28,6 +28,49 @@
         "favorites": {
           ".read": "$uid === auth.uid",
           ".write": "$uid === auth.uid"
+        },
+        "prompts": {
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid && (root.child('users').child(auth.uid).child('plan').val() === 'paid' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+          ".indexOn": ["createdAt", "categoryId"],
+          "$promptId": {
+            ".validate": "newData.hasChildren(['title', 'description', 'content', 'categoryId', 'userId', 'createdAt'])",
+            "userId": {
+              ".validate": "newData.val() === auth.uid"
+            },
+            "title": {
+              ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 100"
+            },
+            "description": {
+              ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 500"
+            },
+            "content": {
+              ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 5000"
+            },
+            "categoryId": {
+              ".validate": "newData.isString()"
+            },
+            "visibility": {
+              ".validate": "newData.isString() && (newData.val() === 'public' || newData.val() === 'private')"
+            }
+          }
+        },
+        "categories": {
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid && (root.child('users').child(auth.uid).child('plan').val() === 'paid' || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+          ".indexOn": ["name"],
+          "$categoryId": {
+            ".validate": "newData.hasChildren(['name'])",
+            "name": {
+              ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
+            },
+            "description": {
+              ".validate": "newData.isString() || !newData.exists()"
+            },
+            "icon": {
+              ".validate": "newData.isString() || !newData.exists()"
+            }
+          }
         }
       }
     },
@@ -62,19 +105,27 @@
     "prompts": {
       ".read": true,
       ".write": "auth != null",
-      ".indexOn": ["category", "userId", "visibility", "status"],
+      ".indexOn": ["categoryId", "userId", "visibility"],
       "$promptId": {
-        ".validate": "newData.hasChildren(['title', 'description', 'content', 'category', 'userId'])",
-        ".write": "auth != null && (data.child('userId').val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
-        "title": { ".validate": "newData.isString() && newData.val().length > 0" },
-        "description": { ".validate": "newData.isString()" },
-        "content": { ".validate": "newData.isString() && newData.val().length > 0" },
-        "category": { ".validate": "newData.isString()" },
-        "userId": { ".validate": "newData.val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'" },
-        "visibility": { ".validate": "newData.isString() && (newData.val() === 'public' || newData.val() === 'private')" },
-        "status": { ".validate": "newData.isString() && (newData.val() === 'pending' || newData.val() === 'approved' || newData.val() === 'rejected')" },
-        "createdAt": { ".validate": "newData.isString()" },
-        "updatedAt": { ".validate": "newData.isString()" }
+        ".validate": "newData.hasChildren(['title', 'description', 'content', 'categoryId', 'userId', 'createdAt'])",
+        "userId": {
+          ".validate": "newData.val() === auth.uid"
+        },
+        "title": {
+          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 100"
+        },
+        "description": {
+          ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 500"
+        },
+        "content": {
+          ".validate": "newData.isString() && newData.val().length >= 10 && newData.val().length <= 5000"
+        },
+        "categoryId": {
+          ".validate": "newData.isString() && root.child('categories').child(newData.val()).exists()"
+        },
+        "visibility": {
+          ".validate": "newData.isString() && (newData.val() === 'public' || newData.val() === 'private')"
+        }
       }
     },
     "chats": {

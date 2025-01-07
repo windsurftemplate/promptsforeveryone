@@ -74,7 +74,7 @@ export default function DocsPage() {
             exactly what you need.
           </p>
 
-          <div className="space-y-8">
+      <div className="space-y-8">
             {/* Development & Programming */}
             <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Development & Programming</h3>
@@ -225,13 +225,13 @@ export default function DocsPage() {
                   <h4 className="font-semibold text-white mb-2">Accessibility</h4>
                   <p className="text-white/80 text-sm">Implement accessible design</p>
                 </div>
-              </div>
             </div>
+          </div>
 
             {/* Content & Documentation */}
             <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Content & Documentation</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold text-white mb-2">Technical Writing</h4>
                   <p className="text-white/80 text-sm">Create technical documentation</p>

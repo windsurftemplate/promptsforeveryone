@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { useRouter, usePathname } from 'next/navigation';
 import { ChevronDownIcon, XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { ref, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
@@ -15,6 +17,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isPaidUser, setIsPaidUser] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,6 +27,26 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Check if user is paid
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      if (!user) return;
+
+      try {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          setIsPaidUser(userData.plan === 'paid' || userData.role === 'admin');
+        }
+      } catch (error) {
+        console.error('Error checking user status:', error);
+      }
+    };
+
+    checkUserStatus();
+  }, [user]);
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -145,9 +168,11 @@ export default function Navbar() {
                   <Link href="/dashboard" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                     Dashboard
                   </Link>
-                  <Link href="/chat" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-                    Chat
-                  </Link>
+                  {isPaidUser && (
+                    <Link href="/chat" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                      Chat
+                    </Link>
+                  )}
                   <Button
                     onClick={handleSignOut}
                     variant="secondary"
@@ -172,10 +197,10 @@ export default function Navbar() {
             </div>
 
             {/* Mobile menu button */}
-            <div className="md:hidden">
+            <div className="flex md:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="text-white/80 hover:text-[#00ffff] transition-colors duration-300 p-2"
+                className="inline-flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/10 transition-colors"
                 aria-label="Toggle menu"
               >
                 {isMobileMenuOpen ? (
@@ -189,48 +214,101 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Updated Mobile menu */}
+      {/* Mobile menu overlay */}
       <div 
-        className={`fixed inset-0 bg-black/80 backdrop-blur-xl z-[90] md:hidden transition-transform duration-300 ease-in-out overflow-hidden ${
+        className={`fixed inset-0 bg-black/80 backdrop-blur-xl z-[90] md:hidden transition-transform duration-300 ease-in-out ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto pt-28 pb-8 px-4">
+          <div className="flex-1 overflow-y-auto pt-24 pb-8 px-4">
             <div className="max-w-lg mx-auto">
               <div className="flex flex-col space-y-4">
                 <div className="border-b border-[#00ffff]/10 pb-4">
                   <div className="text-lg font-semibold text-[#00ffff] mb-4">Product</div>
                   <div className="flex flex-col space-y-4">
-                    <Link href="/price" className="text-white/80 hover:text-[#00ffff] transition-colors">Pricing</Link>
-                    <Link href="/explore" className="text-white/80 hover:text-[#00ffff] transition-colors">Explore</Link>
-                    <Link href="/submit" className="text-white/80 hover:text-[#00ffff] transition-colors">Submit Prompt</Link>
+                    <Link 
+                      href="/price" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Pricing
+                    </Link>
+                    <Link 
+                      href="/explore" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Explore
+                    </Link>
+                    <Link 
+                      href="/submit" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Submit Prompt
+                    </Link>
                   </div>
                 </div>
 
                 <div className="border-b border-[#00ffff]/10 pb-4">
                   <div className="text-lg font-semibold text-[#00ffff] mb-4">Resources</div>
                   <div className="flex flex-col space-y-4">
-                    <Link href="/docs" className="text-white/80 hover:text-[#00ffff] transition-colors">Documentation</Link>
-                    <Link href="/guides" className="text-white/80 hover:text-[#00ffff] transition-colors">Guides</Link>
-                    <Link href="/blog" className="text-white/80 hover:text-[#00ffff] transition-colors">Blog</Link>
+                    <Link 
+                      href="/docs" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Documentation
+                    </Link>
+                    <Link 
+                      href="/guides" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Guides
+                    </Link>
+                    <Link 
+                      href="/blog" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Blog
+                    </Link>
                   </div>
                 </div>
 
-                <Link href="/about" className="text-white/80 hover:text-[#00ffff] transition-colors py-4 border-b border-[#00ffff]/10">
+                <Link 
+                  href="/about" 
+                  className="text-white/80 hover:text-[#00ffff] transition-colors py-4 border-b border-[#00ffff]/10"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
                   About
                 </Link>
 
                 {user ? (
                   <div className="flex flex-col space-y-4 pt-4">
-                    <Link href="/dashboard" className="text-white/80 hover:text-[#00ffff] transition-colors">
+                    <Link 
+                      href="/dashboard" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
                       Dashboard
                     </Link>
-                    <Link href="/chat" className="text-white/80 hover:text-[#00ffff] transition-colors">
-                      Chat
-                    </Link>
+                    {isPaidUser && (
+                      <Link 
+                        href="/chat" 
+                        className="text-white/80 hover:text-[#00ffff] transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        Chat
+                      </Link>
+                    )}
                     <Button
-                      onClick={handleSignOut}
+                      onClick={() => {
+                        handleSignOut();
+                        setIsMobileMenuOpen(false);
+                      }}
                       variant="secondary"
                       className="w-full mt-4"
                     >
@@ -239,10 +317,18 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-4 pt-4">
-                    <Link href="/login" className="text-white/80 hover:text-[#00ffff] transition-colors">
+                    <Link 
+                      href="/login" 
+                      className="text-white/80 hover:text-[#00ffff] transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
                       Sign In
                     </Link>
-                    <Link href="/register" className="w-full">
+                    <Link 
+                      href="/register" 
+                      className="w-full"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
                       <Button variant="primary" className="w-full">
                         Sign Up
                       </Button>

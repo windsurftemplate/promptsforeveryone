@@ -17,7 +17,7 @@ export default function GuidesPage() {
             Learn the fundamentals of working with AI prompts and how to get the most out of them.
           </p>
 
-          <div className="space-y-8">
+      <div className="space-y-8">
             <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Understanding AI Prompts</h3>
               <p className="text-white/80 mb-4">
@@ -69,7 +69,7 @@ export default function GuidesPage() {
           <div className="space-y-8">
             <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Best Practices</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold text-white mb-2">Be Specific</h4>
                   <p className="text-white/80 text-sm">
@@ -140,7 +140,7 @@ export default function GuidesPage() {
                   <p className="text-white/80 text-sm">Ask for verification of the reasoning and outcomes</p>
                 </div>
               </div>
-            </div>
+        </div>
 
             <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Role-Based Prompting</h3>

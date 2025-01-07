@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrashIcon, ClipboardDocumentIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { Button } from './ui/Button';
-import { ref, update } from 'firebase/database';
+import { ref, update, onValue } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { Prompt } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PromptModalProps {
   prompt: Prompt;
@@ -14,61 +15,86 @@ interface PromptModalProps {
   onDelete: (id: string) => void;
 }
 
-const PUBLIC_CATEGORIES = [
-  "Code Generation",
-  "Debugging",
-  "API Development",
-  "Testing",
-  "Documentation",
-  "Database",
-  "Security",
-  "Performance",
-  "UI/UX",
-  "DevOps",
-  "Mobile Development",
-  "Web Development",
-  "Machine Learning",
-  "Data Analysis",
-  "Cloud Computing"
-];
-
-const PRIVATE_CATEGORIES = [
-  "Personal Projects",
-  "Work",
-  "Study",
-  "Research",
-  "Ideas",
-  "Experiments",
-  "Templates",
-  "Drafts",
-  "Favorites",
-  "Archive"
-];
+interface Category {
+  id: string;
+  name: string;
+}
 
 export default function PromptModal({ prompt, onClose, onEdit, onDelete }: PromptModalProps) {
+  const { user } = useAuth();
   const [editedPrompt, setEditedPrompt] = useState(prompt);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    // Fetch categories from Firebase
+    const categoriesRef = ref(db, 'categories');
+    const unsubscribe = onValue(categoriesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
+          id,
+          name: category.name,
+        }));
+        setCategories(categoriesArray);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleSave = async () => {
+    if (!prompt.userId) {
+      console.error('No user ID found for prompt');
+      return;
+    }
+
     try {
       setIsSaving(true);
-      const promptRef = ref(db, `prompts/${prompt.id}`);
-      const updatedPrompt = {
-        title: editedPrompt.title || '',
-        description: editedPrompt.description || '',
-        content: editedPrompt.content || '',
-        category: editedPrompt.category || '',
-        userId: prompt.userId,
-        visibility: 'public',
+      
+      // Remove the prefix to get the original ID
+      const originalId = editedPrompt.id?.replace(/^(private-|public-)/, '');
+      if (!originalId) {
+        console.error('No prompt ID found');
+        return;
+      }
+
+      // Check user authorization
+      if (!user || user.uid !== prompt.userId) {
+        console.error('User not authorized to edit this prompt');
+        return;
+      }
+      
+      // Determine the correct path based on visibility
+      const promptPath = editedPrompt.visibility === 'private'
+        ? `users/${user.uid}/prompts/${originalId}`
+        : `prompts/${originalId}`;
+      
+      const promptRef = ref(db, promptPath);
+
+      // Only include fields that have values
+      const updatedPrompt: Record<string, any> = {
+        title: editedPrompt.title || prompt.title || '',
+        description: editedPrompt.description || prompt.description || '',
+        content: editedPrompt.content || prompt.content || '',
+        categoryId: editedPrompt.categoryId || prompt.categoryId || '',
+        visibility: editedPrompt.visibility || prompt.visibility || 'public',
+        userId: user.uid,
         createdAt: prompt.createdAt,
         updatedAt: new Date().toISOString()
       };
+
+      // Only add userName if it exists
+      if (user.displayName || user.email) {
+        updatedPrompt.userName = user.displayName || user.email;
+      }
+      
       await update(promptRef, updatedPrompt);
-      setIsSaving(false);
-      window.location.reload();
+      onClose();
     } catch (error) {
       console.error('Error updating prompt:', error);
+    } finally {
       setIsSaving(false);
     }
   };
@@ -76,10 +102,17 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
   const handleCopy = async (content: string) => {
     try {
       await navigator.clipboard.writeText(content);
-      // Optional: Add toast notification
     } catch (error) {
       console.error('Failed to copy text:', error);
     }
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    setEditedPrompt(prev => ({
+      ...prev,
+      categoryId
+    }));
+    setIsEditingCategory(false);
   };
 
   return (
@@ -148,28 +181,20 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
               {isEditingCategory ? (
                 <div className="flex flex-col gap-2">
                   <select
-                    value={editedPrompt.category}
-                    onChange={(e) => setEditedPrompt({ ...editedPrompt, category: e.target.value })}
+                    value={editedPrompt.categoryId}
+                    onChange={(e) => handleCategoryChange(e.target.value)}
                     className="bg-black/50 text-[#00ffff] border border-[#00ffff]/20 rounded px-2 py-1 hover:border-[#00ffff]/40 transition-colors"
                     style={{
                       background: '#000',
                       outline: 'none'
                     }}
                   >
-                    <optgroup label="Public Categories" className="bg-black text-[#00ffff]">
-                      {PUBLIC_CATEGORIES.map((category) => (
-                        <option key={category} value={category} className="bg-black text-[#00ffff]">
-                          {category}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="Private Categories" className="bg-black text-[#00ffff]">
-                      {PRIVATE_CATEGORIES.map((category) => (
-                        <option key={category} value={category} className="bg-black text-[#00ffff]">
-                          {category}
-                        </option>
-                      ))}
-                    </optgroup>
+                    <option value="">Select a category</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                   <Button
                     onClick={() => setIsEditingCategory(false)}
@@ -181,7 +206,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
-                    {editedPrompt.category}
+                    {categories.find(c => c.id === editedPrompt.categoryId)?.name || 'No category'}
                   </span>
                   <button
                     onClick={() => setIsEditingCategory(true)}

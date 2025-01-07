@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { ref, push, get, set } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import { motion } from 'framer-motion';
+import { ref, push, get } from 'firebase/database';
+import { useRouter } from 'next/navigation';
 
 interface Category {
   id: string;
@@ -15,168 +14,336 @@ interface Category {
 export default function SubmitPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [content, setContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    content: '',
-    tags: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [isPaidUser, setIsPaidUser] = useState(false);
+  const [activeTab, setActiveTab] = useState<'public' | 'private'>('public');
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
-    // Fetch categories
-    const categoriesRef = ref(db, 'categories');
-    get(categoriesRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
-          id,
-          name: category.name,
-        }));
-        setCategories(categoriesArray);
+    // Check if user is paid and fetch categories
+    const checkUserAndFetchData = async () => {
+      if (!user) {
+        router.push('/login');
+        return;
       }
-    });
-  }, [user, router]);
+
+      try {
+        // Check if user is paid
+        const userRef = ref(db, `users/${user.uid}`);
+        const userSnapshot = await get(userRef);
+        if (userSnapshot.exists()) {
+          const userData = userSnapshot.val();
+          const isPaid = userData.role === 'admin' || userData.plan === 'paid';
+          setIsPaidUser(isPaid);
+        }
+
+        // Fetch public categories
+        const categoriesRef = ref(db, 'categories');
+        const categoriesSnapshot = await get(categoriesRef);
+        if (categoriesSnapshot.exists()) {
+          const data = categoriesSnapshot.val();
+          const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
+            id,
+            name: category.name,
+          }));
+          setCategories(categoriesArray);
+        }
+
+        // Fetch private categories if user is paid
+        if (isPaidUser) {
+          const privateRef = ref(db, `users/${user.uid}/categories`);
+          const privateSnapshot = await get(privateRef);
+          if (privateSnapshot.exists()) {
+            const data = privateSnapshot.val();
+            const privateCategoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
+              id,
+              name: category.name,
+              isPrivate: true
+            }));
+            setPrivateCategories(privateCategoriesArray);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user access:', error);
+        setError('Failed to verify user access');
+      }
+    };
+
+    checkUserAndFetchData();
+  }, [user, router, isPaidUser]);
+
+  const validateFields = () => {
+    if (title.length < 3 || title.length > 100) {
+      setError('Title must be between 3 and 100 characters');
+      return false;
+    }
+    if (description.length < 10 || description.length > 500) {
+      setError('Description must be between 10 and 500 characters');
+      return false;
+    }
+    if (content.length < 10 || content.length > 5000) {
+      setError('Content must be between 10 and 5000 characters');
+      return false;
+    }
+    if (!selectedCategory) {
+      setError('Please select a category');
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError('');
+    if (!user) {
+      setError('You must be logged in to submit a prompt');
+      return;
+    }
 
     try {
-      if (!user) throw new Error('You must be logged in to submit a prompt');
-      if (!selectedCategory) throw new Error('Please select a category');
+      setIsSubmitting(true);
+      setError('');
+
+      if (!validateFields()) {
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Check if category exists in the appropriate location
+      const isPrivateCategory = privateCategories.some(cat => cat.id === selectedCategory);
+      const categoryRef = isPrivateCategory 
+        ? ref(db, `users/${user.uid}/categories/${selectedCategory}`)
+        : ref(db, `categories/${selectedCategory}`);
+      
+      const categorySnapshot = await get(categoryRef);
+      if (!categorySnapshot.exists()) {
+        setError('Selected category does not exist');
+        setIsSubmitting(false);
+        return;
+      }
 
       const promptData = {
-        ...formData,
-        userId: user.uid,
+        title,
+        description,
+        content,
         categoryId: selectedCategory,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        visibility: isPrivateCategory ? 'private' : 'public',
+        userId: user.uid,
+        userName: user.displayName || user.email,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       };
 
-      // Save to public prompts
-      const promptsRef = ref(db, 'prompts');
-      const newPromptRef = await push(promptsRef, promptData);
-
-      // Also save reference in user's prompts
-      const userPromptRef = ref(db, `users/${user.uid}/prompts/${newPromptRef.key}`);
-      await set(userPromptRef, promptData);
-
-      router.push('/dashboard');
-    } catch (err: any) {
-      setError(err.message);
+      // Save to the appropriate location based on visibility
+      try {
+        const promptsRef = isPrivateCategory 
+          ? ref(db, `users/${user.uid}/prompts`)
+          : ref(db, 'prompts');
+        
+        await push(promptsRef, promptData);
+        router.push('/dashboard');
+      } catch (error: any) {
+        console.error('Firebase error:', error);
+        if (error.code === 'PERMISSION_DENIED') {
+          setError('Permission denied. Please check if you have the necessary access rights.');
+        } else {
+          setError(`Failed to save prompt: ${error.message}`);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+    } catch (error: any) {
+      console.error('Error submitting prompt:', error);
+      setError(`Failed to submit prompt: ${error.message}`);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
   return (
-    <div className="min-h-screen bg-black pt-32 pb-16">
-      <div className="container mx-auto px-4 max-w-2xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-8">
-            Create New Prompt
-          </h1>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-white mb-2">Category</label>
-              <select
-                className="w-full bg-black/80 border border-[#00ffff]/20 rounded-lg p-3 text-white focus:border-[#00ffff]/50 focus:ring-1 focus:ring-[#00ffff]/50 transition-all"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                required
-              >
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
+    <div className="min-h-screen bg-black">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-white mb-8">Create New Prompt</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-lg flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <span>{error}</span>
             </div>
+          )}
 
-            <div>
-              <label className="block text-white mb-2">Title</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="w-full bg-black/80 border border-[#00ffff]/20 rounded-lg p-3 text-white focus:border-[#00ffff]/50 focus:ring-1 focus:ring-[#00ffff]/50 transition-all"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-white mb-2">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full bg-black/80 border border-[#00ffff]/20 rounded-lg p-3 text-white focus:border-[#00ffff]/50 focus:ring-1 focus:ring-[#00ffff]/50 transition-all h-32"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-white mb-2">Prompt Content</label>
-              <textarea
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
-                className="w-full bg-black/80 border border-[#00ffff]/20 rounded-lg p-3 text-white focus:border-[#00ffff]/50 focus:ring-1 focus:ring-[#00ffff]/50 transition-all h-48"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-white mb-2">Tags (comma-separated)</label>
-              <input
-                type="text"
-                name="tags"
-                value={formData.tags}
-                onChange={handleChange}
-                className="w-full bg-black/80 border border-[#00ffff]/20 rounded-lg p-3 text-white focus:border-[#00ffff]/50 focus:ring-1 focus:ring-[#00ffff]/50 transition-all"
-                placeholder="ai, chatbot, writing, etc."
-              />
-            </div>
-
+          {/* Category Tabs */}
+          <div className="flex space-x-4 border-b border-[#00ffff]/20">
             <button
-              type="submit"
-              disabled={isLoading}
-              className={`w-full bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-8 py-3 rounded-lg transition-all duration-300 border border-[#00ffff]/30 ${
-                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              type="button"
+              onClick={() => {
+                setActiveTab('public');
+                setSelectedCategory('');
+              }}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'public'
+                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  : 'text-white/60 hover:text-white'
               }`}
             >
-              {isLoading ? 'Creating...' : 'Create Prompt'}
+              Public Categories
             </button>
-          </form>
-        </motion.div>
+            {isPaidUser && (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('private');
+                  setSelectedCategory('');
+                }}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'private'
+                    ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                Private Categories
+              </button>
+            )}
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="category" className="block text-sm font-medium text-white">
+                Category
+              </label>
+              {activeTab === 'private' && isPaidUser && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const categoryName = prompt('Enter category name:');
+                    if (!user) {
+                      setError('You must be logged in to create a category');
+                      return;
+                    }
+                    if (categoryName && categoryName.length >= 3 && categoryName.length <= 50) {
+                      const newCategoryRef = ref(db, `users/${user.uid}/categories`);
+                      push(newCategoryRef, {
+                        name: categoryName,
+                        createdAt: new Date().toISOString()
+                      }).then(() => {
+                        // Refresh private categories
+                        const privateRef = ref(db, `users/${user.uid}/categories`);
+                        get(privateRef).then((snapshot) => {
+                          if (snapshot.exists()) {
+                            const data = snapshot.val();
+                            const privateCategoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
+                              id,
+                              name: category.name,
+                              isPrivate: true
+                            }));
+                            setPrivateCategories(privateCategoriesArray);
+                          }
+                        });
+                      }).catch((error) => {
+                        console.error('Error creating category:', error);
+                        setError('Failed to create category. Please try again.');
+                      });
+                    } else if (categoryName) {
+                      setError('Category name must be between 3 and 50 characters');
+                    }
+                  }}
+                  className="text-sm text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+                >
+                  + Add New Category
+                </button>
+              )}
+            </div>
+            <select
+              id="category"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
+              required
+            >
+              <option value="">Select a category</option>
+              {activeTab === 'public' && categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+              {activeTab === 'private' && privateCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-white mb-2">
+              Title
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-white mb-2">
+              Description
+            </label>
+            <textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full h-32 bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="content" className="block text-sm font-medium text-white mb-2">
+              Content
+            </label>
+            <textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className="w-full h-64 bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none font-mono"
+              required
+            />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="private"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="private" className="text-sm text-white">
+              Make this prompt private
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-2 px-4 rounded-lg disabled:opacity-50"
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Prompt'}
+          </button>
+        </form>
       </div>
     </div>
   );

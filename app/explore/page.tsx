@@ -1,117 +1,125 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
+import React, { useState, useEffect } from 'react';
 import { ref, get } from 'firebase/database';
-import { Prompt } from '@/types/prompt';
+import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
+import { useAuth } from '@/contexts/AuthContext';
+import { Prompt } from '@/types';
 
 interface Category {
   id: string;
   name: string;
-  description?: string;
+  items?: { id: string; name: string }[];
+  isPrivate: boolean;
+}
+
+interface SelectedCategory {
+  id: string;
+  isPrivate: boolean;
 }
 
 export default function ExplorePage() {
+  const { user } = useAuth();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<SelectedCategory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    // Fetch categories
+    const fetchCategories = async () => {
       try {
-        // Fetch prompts without ordering (temporary solution)
-        const promptsRef = ref(db, 'prompts');
-        const promptsSnapshot = await get(promptsRef);
-        
-        // Fetch categories
         const categoriesRef = ref(db, 'categories');
-        const categoriesSnapshot = await get(categoriesRef);
-        
-        if (promptsSnapshot.exists()) {
-          const promptsData = Object.entries(promptsSnapshot.val()).map(([id, data]) => ({
+        const snapshot = await get(categoriesRef);
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
             id,
-            ...(data as Omit<Prompt, 'id'>)
+            name: category.name,
+            items: category.items ? Object.entries(category.items).map(([itemId, item]: [string, any]) => ({
+              id: itemId,
+              name: item.name,
+            })) : [],
+            isPrivate: false
           }));
-          
-          // Filter out private prompts
-          const publicPrompts = promptsData.filter(prompt => prompt.visibility === 'public');
-          
-          // Sort by newest first (client-side sorting)
-          publicPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          
-          setPrompts(publicPrompts);
+          setCategories(categoriesArray);
         }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setError('Failed to load categories');
+      }
+    };
 
-        if (categoriesSnapshot.exists()) {
-          const categoriesData = Object.entries(categoriesSnapshot.val()).map(([id, data]) => ({
-            id,
-            ...(data as Omit<Category, 'id'>)
-          }));
-          setCategories(categoriesData);
+    // Fetch prompts
+    const fetchPrompts = async () => {
+      try {
+        const promptsRef = ref(db, 'prompts');
+        const snapshot = await get(promptsRef);
+        
+        if (snapshot.exists()) {
+          let promptsData = Object.entries(snapshot.val())
+            .map(([id, data]: [string, any]) => ({
+              id: `public-${id}`,
+              ...data,
+              isPrivate: false
+            }))
+            .filter(prompt => prompt.visibility === 'public'); // Only show public prompts
+
+          // Filter by category if one is selected
+          if (selectedCategory) {
+            promptsData = promptsData.filter(prompt => {
+              // Match the exact logic from the sidebar
+              return prompt.categoryId === selectedCategory.id;
+            });
+          }
+
+          // Sort by creation date
+          promptsData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          
+          setPrompts(promptsData);
         }
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load data');
+      } catch (error) {
+        console.error('Error fetching prompts:', error);
+        setError('Failed to load prompts');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchCategories();
+    fetchPrompts();
+  }, [selectedCategory]); // Re-fetch when selected category changes
 
-  // Filter prompts based on category
-  const filteredPrompts = prompts.filter(prompt => 
-    !selectedCategory || prompt.category === selectedCategory
-  );
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId === selectedCategory?.id ? null : { id: categoryId, isPrivate: false });
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[#00ffff] to-[#0099ff] text-transparent bg-clip-text">
-            Explore Prompts
-          </h1>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
-            Discover and use prompts created by the community. Find the perfect prompt for your next project.
-          </p>
-        </div>
-
-        {/* Categories */}
-        {categories.length > 0 && (
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-2 justify-center">
+    <div className="min-h-screen bg-black">
+      <div className="container mx-auto px-4 py-8">
+        {/* Categories Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-white mb-4">Categories</h2>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
               <button
-                onClick={() => setSelectedCategory(null)}
-                className={`px-4 py-2 rounded-full text-sm transition-colors ${
-                  !selectedCategory
+                key={category.id}
+                onClick={() => handleCategoryClick(category.id)}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  selectedCategory?.id === category.id
                     ? 'bg-[#00ffff] text-black'
                     : 'bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20'
                 }`}
               >
-                All
+                {category.name}
               </button>
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`px-4 py-2 rounded-full text-sm transition-colors ${
-                    selectedCategory === category.id
-                      ? 'bg-[#00ffff] text-black'
-                      : 'bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20'
-                  }`}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
         {loading ? (
           <div className="flex justify-center items-center py-12">
@@ -125,10 +133,10 @@ export default function ExplorePage() {
           <>
             {/* Prompts Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPrompts.map((prompt) => (
+              {prompts.map((prompt) => (
                 <Link 
                   key={prompt.id} 
-                  href={`/prompt/${prompt.id}`}
+                  href={`/prompt/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
                 >
                   <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
                     <div className="flex flex-col h-full">
@@ -146,7 +154,7 @@ export default function ExplorePage() {
                           <div className="flex flex-wrap gap-2 mb-4">
                             {prompt.tags.map((tag, index) => (
                               <span 
-                                key={index}
+                                key={`${prompt.id}-tag-${index}`}
                                 className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
                               >
                                 {tag}
@@ -156,8 +164,32 @@ export default function ExplorePage() {
                         )}
                         
                         <div className="flex justify-between items-center text-sm text-white/50">
-                          <span>{prompt.userName}</span>
-                          <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                          <div className="flex items-center gap-2">
+                            <span>{prompt.userName}</span>
+                            <span>•</span>
+                            <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(prompt.content);
+                              setCopiedPromptId(prompt.id || null);
+                              setTimeout(() => setCopiedPromptId(null), 2000);
+                            }}
+                            className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors relative"
+                            title="Copy prompt"
+                          >
+                            {copiedPromptId === prompt.id ? (
+                              <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff]/90 text-black text-xs px-2 py-1 rounded">
+                                Copied!
+                              </span>
+                            ) : null}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -166,10 +198,14 @@ export default function ExplorePage() {
               ))}
             </div>
 
-            {/* No Results */}
-            {filteredPrompts.length === 0 && (
+            {prompts.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-white/50">No prompts found in this category.</p>
+                <p className="text-white/60">
+                  {selectedCategory 
+                    ? 'No prompts found in this category.'
+                    : 'No prompts available.'
+                  }
+                </p>
               </div>
             )}
           </>

@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { useRouter, usePathname } from 'next/navigation';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ref, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
@@ -15,6 +17,7 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isPaidUser, setIsPaidUser] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,6 +26,28 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      if (!user) return;
+
+      try {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          setIsPaidUser(userData.plan === 'paid' || userData.role === 'admin');
+        } else {
+          setIsPaidUser(false);
+        }
+      } catch (error) {
+        console.error('Error checking user status:', error);
+        setIsPaidUser(false);
+      }
+    };
+
+    checkUserStatus();
+  }, [user]);
 
   const handleSignOut = async () => {
     try {
@@ -138,9 +163,11 @@ export default function Navbar() {
                 <Link href="/dashboard" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                   Dashboard
                 </Link>
-                <Link href="/chat" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-                  Chat
-                </Link>
+                {isPaidUser && (
+                  <Link href="/chat" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                    Chat
+                  </Link>
+                )}
                 <Button
                   onClick={handleSignOut}
                   variant="secondary"

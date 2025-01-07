@@ -62,7 +62,7 @@ export default function ProPlanPage() {
             Upgrade to Pro
           </h1>
           <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Take your prompt engineering to the next level with advanced features and unlimited access.
+            Take your prompt engineering to the next level
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export default function ProPlanPage() {
             <div className="mb-8">
               <h3 className="text-2xl font-bold text-[#00ffff] mb-2">Monthly</h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">$10</span>
+                <span className="text-4xl font-bold text-white">$9</span>
                 <span className="text-white/60">/month</span>
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function ProPlanPage() {
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-4xl font-bold text-white">$100</span>
+                <span className="text-4xl font-bold text-white">$89</span>
                 <span className="text-white/60">/year</span>
               </div>
             </div>

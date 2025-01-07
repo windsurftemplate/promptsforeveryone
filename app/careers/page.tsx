@@ -70,8 +70,8 @@ export default function CareersPage() {
       <div className="max-w-7xl mx-auto px-4 py-12 pt-24">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">
-            Join Our Team
-          </h1>
+        Join Our Team
+      </h1>
           <p className="text-white/60 max-w-2xl mx-auto">
             While we don't have any current openings, we're always interested in connecting with talented individuals who are passionate about AI and prompt engineering.
           </p>
@@ -81,19 +81,19 @@ export default function CareersPage() {
           <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8 mb-8">
             <h2 className="text-2xl font-semibold text-white mb-6">Why Join Us?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+            <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Innovation First</h3>
                 <p className="text-white/60">Work on cutting-edge AI technology and shape the future of prompt engineering.</p>
               </div>
               <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Remote-First Culture</h3>
                 <p className="text-white/60">Work from anywhere in the world with our distributed team.</p>
-              </div>
-              <div className="space-y-2">
+            </div>
+            <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Growth Opportunities</h3>
                 <p className="text-white/60">Continuous learning and development in a rapidly evolving field.</p>
-              </div>
-              <div className="space-y-2">
+            </div>
+            <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Impactful Work</h3>
                 <p className="text-white/60">Help democratize access to AI technology and empower users worldwide.</p>
               </div>
@@ -175,7 +175,7 @@ export default function CareersPage() {
                   className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent resize-none"
                   placeholder="Tell us about yourself and why you're interested in joining our team..."
                 />
-              </div>
+                  </div>
 
               <div>
                 <label htmlFor="resume" className="block text-white/80 mb-2">
