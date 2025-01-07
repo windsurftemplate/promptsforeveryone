@@ -120,29 +120,46 @@ async function fetchPrompts(slug: string, hasPrivateAccess: boolean): Promise<Pr
   const snapshot: DataSnapshot = await get(promptsRef);
   const promptsData: Prompt[] = [];
 
+  console.log('Fetching prompts for category:', slug);
+  console.log('User has private access:', hasPrivateAccess);
+
   if (snapshot.exists()) {
-    Object.entries(snapshot.val() || {}).forEach(([id, data]) => {
+    const rawData = snapshot.val();
+    console.log('Raw prompts data:', rawData);
+
+    Object.entries(rawData || {}).forEach(([id, data]) => {
       const promptData = data as Prompt;
-      promptsData.push({
-        id,
-        title: promptData.title,
-        description: promptData.description,
+      // Only add prompts that match the category and visibility criteria
+      const isPublicPrompt = promptData.visibility === 'public' && !promptData.isPrivate;
+      const isAccessiblePrivatePrompt = hasPrivateAccess && (promptData.visibility === 'private' || promptData.isPrivate);
+      const matchesCategory = promptData.category === slug || (promptData.categories && promptData.categories.includes(slug));
+      
+      console.log('Processing prompt:', id, {
+        isPublicPrompt,
+        isAccessiblePrivatePrompt,
+        matchesCategory,
         category: promptData.category,
-        categories: promptData.categories,
-        visibility: promptData.visibility,
-        isPrivate: promptData.isPrivate
+        categories: promptData.categories
       });
+
+      if ((isPublicPrompt || isAccessiblePrivatePrompt) && matchesCategory) {
+        promptsData.push({
+          id,
+          title: promptData.title,
+          description: promptData.description,
+          category: promptData.category,
+          categories: promptData.categories,
+          visibility: promptData.visibility,
+          isPrivate: promptData.isPrivate
+        });
+      }
     });
+  } else {
+    console.log('No prompts found in database');
   }
 
-  return promptsData.filter(
-    (prompt) =>
-      // Show public prompts to everyone
-      (prompt.visibility === 'public' && !prompt.isPrivate) ||
-      // Show private prompts only to users with access
-      (hasPrivateAccess && (prompt.visibility === 'private' || prompt.isPrivate)) &&
-      (prompt.category === slug || prompt.categories?.includes(slug))
-  );
+  console.log('Filtered prompts:', promptsData);
+  return promptsData;
 }
 
 // 6. Format Category Helper Function

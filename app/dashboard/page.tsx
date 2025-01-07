@@ -34,8 +34,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<SelectedCategory | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<{ id: string; name: string } | null>(null);
+  const { selectedCategory, selectedSubcategory } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
