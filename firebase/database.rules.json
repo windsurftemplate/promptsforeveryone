@@ -27,6 +27,13 @@
         "createdAt": {
           ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/)"
         },
+        "votes": {
+          ".read": true,
+          "$uid": {
+            ".write": "auth != null && $uid === auth.uid",
+            ".validate": "auth != null && $uid === auth.uid && newData.isBoolean() && (!data.exists() || data.val() === true)"
+          }
+        },
         "$other": {
           ".validate": false
         }
@@ -42,6 +49,13 @@
             ".validate": "newData.hasChildren(['title', 'description', 'content', 'categoryId', 'userId', 'createdAt'])",
             "userId": {
               ".validate": "newData.val() === auth.uid"
+            },
+            "votes": {
+              ".read": true,
+              "$voterUid": {
+                ".write": "auth != null && $voterUid === auth.uid",
+                ".validate": "auth != null && $voterUid === auth.uid && newData.isBoolean() && (!data.exists() || data.val() === true)"
+              }
             }
           }
         }

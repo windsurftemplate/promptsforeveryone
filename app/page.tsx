@@ -100,14 +100,14 @@ export default function HomePage() {
             className="text-center space-y-8 px-4 max-w-4xl mx-auto -mt-20"
           >
             <div className={anton.className}>
-              <h1 className="text-6xl md:text-[8rem] leading-none">
-                <span className="block bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent animate-gradient drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
+              <h1 className="text-5xl md:text-7xl leading-none">
+                <span className="block text-white">
                   {titles[currentTitleIndex]}
                 </span>
               </h1>
             </div>
             <h1 className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-              Prompts that save time and enhance creativity
+              A Growing Library of AI Prompts for Everyday Use
             </h1>
             <div className="flex gap-6 justify-center">
               <Link href="/register">

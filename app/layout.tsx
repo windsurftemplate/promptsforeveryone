@@ -9,15 +9,19 @@ import ScrollToTop from './components/ScrollToTop';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Prompts For Everyone',
-  description: 'Discover, create, and share AI prompts',
+  title: 'PromptsForEveryone.com',
+  description: 'Organize, Discover, and Share Ideas',
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   ),
   icons: {
-    icon: '/logo.svg',
-    shortcut: '/logo.svg',
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
     apple: '/logo.svg',
+    other: {
+      rel: 'apple-touch-icon-precomposed',
+      url: '/logo.svg',
+    },
   },
   openGraph: {
     title: 'Prompts For Everyone',

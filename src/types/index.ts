@@ -12,6 +12,7 @@ export interface Prompt {
   updatedAt: string;
   visibility?: 'public' | 'private';
   tags?: string[];
+  votes?: { [key: string]: boolean }; // Map of userIds to their vote status
 }
 
 export interface User {

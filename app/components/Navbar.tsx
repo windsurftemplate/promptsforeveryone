@@ -100,13 +100,13 @@ export default function Navbar() {
                     className="object-contain"
                   />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent animate-gradient">
+                <span className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
                   PromptsForEveryone.com
                 </span>
               </Link>
             </div>
 
-            <div className="flex items-center space-x-8" ref={dropdownRef}>
+            <div className="hidden md:flex items-center space-x-8" ref={dropdownRef}>
               {/* Product Dropdown */}
               <div className="relative">
                 <button 
@@ -127,6 +127,7 @@ export default function Navbar() {
                     <div className="py-2">
                       <Link href="/price" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Pricing</Link>
                       <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
+                      <Link href="/popular" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Popular</Link>
                       <Link href="/submit" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Submit Prompt</Link>
                     </div>
                   </div>
@@ -163,6 +164,10 @@ export default function Navbar() {
                 About
               </Link>
 
+              <Link href="/popular" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                Popular
+              </Link>
+
               {user ? (
                 <>
                   <Link href="/dashboard" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
@@ -195,8 +200,66 @@ export default function Navbar() {
                 </>
               )}
             </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="text-white/80 hover:text-[#00ffff] transition-colors duration-300"
+              >
+                {isMobileMenuOpen ? (
+                  <XMarkIcon className="h-6 w-6" />
+                ) : (
+                  <Bars3Icon className="h-6 w-6" />
+                )}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link href="/explore" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                Explore
+              </Link>
+              <Link href="/popular" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                Popular
+              </Link>
+              <Link href="/about" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                About
+              </Link>
+              {user ? (
+                <>
+                  <Link href="/dashboard" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                    Dashboard
+                  </Link>
+                  {isPaidUser && (
+                    <Link href="/chat" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                      Chat
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleSignOut}
+                    className="block w-full text-left px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                    Sign In
+                  </Link>
+                  <Link href="/register" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
     </>
   );

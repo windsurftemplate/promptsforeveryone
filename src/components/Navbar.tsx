@@ -95,8 +95,8 @@ export default function Navbar() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
-                Prompts For Everyone
+              <span className="text-xl font-bold text-[#00ffff]">
+                PromptsForEveryone.com
               </span>
             </Link>
           </div>
@@ -122,6 +122,7 @@ export default function Navbar() {
                   <div className="py-2">
                     <Link href="/price" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Pricing</Link>
                     <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
+                    <Link href="/popular" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Popular</Link>
                     <Link href="/submit" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Submit Prompt</Link>
                   </div>
                 </div>

@@ -10,6 +10,7 @@ export default function SitemapPage() {
   const mainPages = [
     { name: 'Home', path: '/', description: 'Landing page with featured prompts and categories' },
     { name: 'Explore', path: '/explore', description: 'Browse and search all public prompts' },
+    { name: 'Popular', path: '/popular', description: 'Discover the most voted prompts' },
     { name: 'Categories', path: '/categories', description: 'View all categories and subcategories' },
     { name: 'Submit', path: '/submit', description: 'Create and submit new prompts' },
     { name: 'Dashboard', path: '/dashboard', description: 'Manage your prompts and account' },

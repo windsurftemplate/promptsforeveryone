@@ -34,6 +34,13 @@ export default function SubmitPage() {
   const [activeTab, setActiveTab] = useState<'public' | 'private'>('public');
 
   useEffect(() => {
+    // Reset isPrivate if user is not paid
+    if (!isPaidUser) {
+      setIsPrivate(false);
+    }
+  }, [isPaidUser]);
+
+  useEffect(() => {
     // Check if user is paid and fetch categories
     const checkUserAndFetchData = async () => {
       if (!user) {
@@ -141,12 +148,19 @@ export default function SubmitPage() {
         content,
         categoryId: selectedCategory,
         subcategoryId: selectedSubcategory || null,
-        visibility: isPrivateCategory ? 'private' : 'public',
+        visibility: isPrivate ? 'private' : 'public',
         userId: user.uid,
         userName: user.displayName || user.email,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
+
+      // Prevent non-paid users from creating private prompts
+      if (isPrivate && !isPaidUser) {
+        setError('Only paid users can create private prompts');
+        setIsSubmitting(false);
+        return;
+      }
 
       // Save to the appropriate location based on visibility
       try {
@@ -356,17 +370,40 @@ export default function SubmitPage() {
             />
           </div>
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="private"
-              checked={isPrivate}
-              onChange={(e) => setIsPrivate(e.target.checked)}
-              className="mr-2"
-            />
-            <label htmlFor="private" className="text-sm text-white">
-              Make this prompt private
-            </label>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium text-white">
+                Visibility
+              </label>
+              {!isPaidUser && (
+                <span className="text-xs text-[#00ffff]">
+                  ✨ Upgrade to create private prompts
+                </span>
+              )}
+            </div>
+            <div className="flex items-center space-x-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  className="form-radio text-[#00ffff]"
+                  checked={!isPrivate}
+                  onChange={() => setIsPrivate(false)}
+                  name="visibility"
+                />
+                <span className="ml-2 text-white">Public</span>
+              </label>
+              <label className={`inline-flex items-center ${!isPaidUser ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                <input
+                  type="radio"
+                  className="form-radio text-[#00ffff]"
+                  checked={isPrivate}
+                  onChange={() => setIsPrivate(true)}
+                  disabled={!isPaidUser}
+                  name="visibility"
+                />
+                <span className="ml-2 text-white">Private</span>
+              </label>
+            </div>
           </div>
 
           <button
