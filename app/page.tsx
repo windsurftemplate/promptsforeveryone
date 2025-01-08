@@ -82,7 +82,7 @@ export default function HomePage() {
   return (
     <div className="relative">
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh+50px)]">
+      <section className="relative min-h-[calc(100vh-100px)]">
         <div className="absolute inset-0 z-0">
           {/* Dark background */}
           <div className="absolute inset-0 bg-[#000000]"></div>
@@ -123,7 +123,7 @@ export default function HomePage() {
                       variant="outline"
                       className="border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10 px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300"
                     >
-                      Submit a Prompt
+                      Join Community
                     </Button>
                   </Link>
                 </div>
@@ -147,36 +147,36 @@ export default function HomePage() {
               howItWorksVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-center bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent mb-12 animate-gradient">
+            <h2 className="text-4xl md:text-5xl font-bold text-center text-[#00ffff] mb-12">
               How It Works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-full">
+              <div className="text-center p-6 bg-black/50 rounded-xl border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
+                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-[#00ffff]/10 rounded-full">
                   <span className="text-[#00ffff] text-2xl font-bold">1</span>
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Sign Up</h3>
-                <p className="text-white/70">
+                <p className="text-gray-400">
                   Create your free account and get instant access to our platform
                 </p>
               </div>
 
-              <div className="text-center p-6">
-                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-full">
+              <div className="text-center p-6 bg-black/50 rounded-xl border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
+                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-[#00ffff]/10 rounded-full">
                   <span className="text-[#00ffff] text-2xl font-bold">2</span>
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Create & Organize</h3>
-                <p className="text-white/70">
+                <p className="text-gray-400">
                   Start creating and organizing your prompts
                 </p>
               </div>
 
-              <div className="text-center p-6">
-                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-full">
+              <div className="text-center p-6 bg-black/50 rounded-xl border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
+                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-[#00ffff]/10 rounded-full">
                   <span className="text-[#00ffff] text-2xl font-bold">3</span>
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Share & Collaborate</h3>
-                <p className="text-white/70">
+                <p className="text-gray-400">
                   Share your prompts with others and collaborate in real-time
                 </p>
               </div>
@@ -196,63 +196,63 @@ export default function HomePage() {
         <FeatureCarousel />
       </section>
 
-      {/* Explore Our Features Section */}
+      {/* Why Use Section */}
       <section className="py-24 relative z-20 bg-gradient-to-b from-black/90 to-black/95">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent mb-4 animate-gradient">
-              Why Use PromptsForEveryone.com?
+            <h2 className="text-4xl md:text-5xl font-bold text-[#00ffff] mb-4">
+              Why Use Prompts For Everyone?
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <SparklesIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Boost Creativity and Overcome Writer’s Block</h3>
-              <p className="text-white/60">Access fresh ideas and inspiration to spark creativity for writing, coding, or brainstorming</p>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Boost Creativity and Overcome Writer's Block</h3>
+              <p className="text-gray-400">Access fresh ideas and inspiration to spark creativity for writing, coding, or brainstorming</p>
             </div>
 
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <LightBulbIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Smart Categories</h3>
-              <p className="text-white/60">Organize prompts with intelligent categorization and easy-to-navigate subcategories.</p>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Smart Categories</h3>
+              <p className="text-gray-400">Organize prompts with intelligent categorization and easy-to-navigate subcategories.</p>
             </div>
 
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <ChatBubbleBottomCenterTextIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Voting & Rating System</h3>
-              <p className="text-white/60">Feature top contributors on a leaderboard, inspiring others to participate and earn visibility.</p>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Voting & Rating System</h3>
+              <p className="text-gray-400">Feature top contributors on a leaderboard, inspiring others to participate and earn visibility.</p>
             </div>
 
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <ShieldCheckIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Private Collections</h3>
-              <p className="text-white/60">Create and manage private prompt collections for personal or team use.</p>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Private Collections</h3>
+              <p className="text-gray-400">Create and manage private prompt collections for personal or team use.</p>
             </div>
 
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <ArrowPathIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Learn and Grow Skills</h3>
-              <p className="text-white/60">Explore prompt categories to learn new techniques, expand skill sets, and enhance productivity</p>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Learn and Grow Skills</h3>
+              <p className="text-gray-400">Explore prompt categories to learn new techniques, expand skill sets, and enhance productivity</p>
             </div>
 
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
               <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
                 <CloudArrowUpIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">Save Time with Ready-to-Use Prompts</h3>
-              <p className="text-white/60">Eliminate the need to start from scratch by using pre-made prompts that accelerate workflows</p>
+              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Save Time with Ready-to-Use Prompts</h3>
+              <p className="text-gray-400">Eliminate the need to start from scratch by using pre-made prompts that accelerate workflows</p>
             </div>
           </div>
         </div>
@@ -269,103 +269,116 @@ export default function HomePage() {
             }`}
           >
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent mb-4 animate-gradient">
+              <h2 className="text-4xl md:text-5xl font-bold text-[#00ffff] mb-4">
                 Pricing
               </h2>
+              <p className="text-xl text-gray-400">Start for free, upgrade when you need it</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Free Plan */}
-              <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-8 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+              <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
                 <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-white mb-4">Free</h3>
+                  <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Free</h3>
                   <div className="text-4xl font-bold text-[#00ffff] mb-4">$0</div>
-                  <p className="text-white/60">Perfect for getting started</p>
+                  <p className="text-gray-400">Perfect for getting started</p>
                 </div>
                 <ul className="space-y-4 mb-8">
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Save Prompts to Public Categories</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Access to Community Prompts</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Search the Entire Prompt Database</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Basic Prompt Creation</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Discover Trending Prompts</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Community Support</span>
                   </li>
                 </ul>
                 <Link href="/register" className="block">
-                  <Button variant="secondary" className="w-full">Get Started</Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
+                  >
+                    Get Started
+                  </Button>
                 </Link>
               </div>
 
               {/* Pro Plan */}
-              <div className="bg-black/80 backdrop-blur-lg border-2 border-[#00ffff] rounded-lg p-8 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] transition-all duration-300 transform hover:scale-105 relative">
+              <div className="bg-black/50 backdrop-blur-lg border-2 border-[#00ffff] rounded-xl p-8 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] transition-all duration-300 transform hover:scale-105 relative">
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-semibold">
                     Most Popular
                   </span>
                 </div>
                 <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-white mb-4">Pro</h3>
+                  <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Pro</h3>
                   <div className="text-4xl font-bold text-[#00ffff] mb-4">$9</div>
-                  <p className="text-white/60">Perfect for power users</p>
+                  <p className="text-gray-400">Everything you need</p>
                 </div>
                 <ul className="space-y-4 mb-8">
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Create Custom Categories</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Everything in Free</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Export Prompts</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Advanced Prompt Creation</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Exclusive Badge or Profile Perk</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Private Collections</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>AI Chatbot Integration</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Priority Support</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Support the Platform</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>AI Assistant Access</span>
                   </li>
                 </ul>
                 <Link href="/register?plan=pro" className="block">
-                  <Button className="w-full">Get Pro</Button>
+                  <Button className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-semibold">
+                    Join Us
+                  </Button>
                 </Link>
               </div>
 
               {/* Enterprise Plan */}
-              <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-8 hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300">
+              <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
                 <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-white mb-4">Enterprise</h3>
+                  <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Enterprise</h3>
                   <div className="text-4xl font-bold text-[#00ffff] mb-4">Custom</div>
-                  <p className="text-white/60">For large teams & organizations</p>
+                  <p className="text-gray-400">For large teams & organizations</p>
                 </div>
                 <ul className="space-y-4 mb-8">
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
                     <span>Everything in Pro</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Custom integrations</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Custom Integrations</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>Dedicated support</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>Dedicated Support</span>
                   </li>
-                  <li className="flex items-center text-white/80">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2" />
-                    <span>SLA guarantees</span>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>SLA Guarantees</span>
                   </li>
                 </ul>
                 <Link href="/contact" className="block">
-                  <Button variant="secondary" className="w-full">Contact Sales</Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
+                  >
+                    Contact Sales
+                  </Button>
                 </Link>
               </div>
             </div>
