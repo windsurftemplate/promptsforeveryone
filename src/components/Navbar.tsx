@@ -9,6 +9,12 @@ import { useRouter, usePathname } from 'next/navigation';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
+import { Anton } from 'next/font/google';
+
+const anton = Anton({ 
+  weight: '400',
+  subsets: ['latin'],
+});
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
@@ -95,8 +101,8 @@ export default function Navbar() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-xl font-bold text-[#00ffff]">
-                PromptsForEveryone.com
+              <span className={`${anton.className} text-2xl font-bold text-[#00ffff] tracking-tight leading-none`}>
+                Prompts For Everyone
               </span>
             </Link>
           </div>

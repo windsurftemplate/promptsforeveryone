@@ -30,11 +30,26 @@ module.exports = {
             'background-size': '200% 200%',
             'background-position': 'right center'
           }
+        },
+        blink: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0 },
+        },
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(10px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' }
+        },
+        slideIn: {
+          '0%': { opacity: 0, transform: 'translateX(-10px)' },
+          '100%': { opacity: 1, transform: 'translateX(0)' }
         }
       },
       animation: {
         "scroll": "scroll 25s linear infinite",
         "gradient": "gradient 8s linear infinite",
+        blink: 'blink 1s step-end infinite',
+        fadeIn: 'fadeIn 0.5s ease-out forwards',
+        slideIn: 'slideIn 0.3s ease-out forwards'
       },
     },
   },

@@ -9,6 +9,7 @@ import FeatureCarousel from '@/components/FeatureCarousel';
 import Image from 'next/image';
 import { SparklesIcon, LightBulbIcon, ChatBubbleBottomCenterTextIcon, ShieldCheckIcon, ArrowPathIcon, CloudArrowUpIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import ChatWindow from '@/components/ChatWindow';
 
 const TwitterIcon = dynamic(() => import('@/components/icons/TwitterIcon'), { ssr: false });
 const GitHubIcon = dynamic(() => import('@/components/icons/GitHubIcon'), { ssr: false });
@@ -83,50 +84,57 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative min-h-[calc(100vh+50px)]">
         <div className="absolute inset-0 z-0">
-          {/* Dark overlay */}
-          <div className="absolute inset-0 bg-black/80"></div>
+          {/* Dark background */}
+          <div className="absolute inset-0 bg-[#000000]"></div>
         
-          {/* Light effects */}
-          <div className="absolute inset-0">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-[#00ffff]/10 to-[#0099ff]/10 rounded-full filter blur-3xl"></div>
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-l from-[#00ffff]/10 to-[#0099ff]/10 rounded-full filter blur-3xl"></div>
-          </div>
+          {/* Subtle gradient effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#000000] via-[#001a1a] to-[#000000] opacity-80"></div>
         </div>
         
         {/* Content wrapper */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-          <div 
-            ref={textRef} 
-            className="text-center space-y-8 px-4 max-w-4xl mx-auto -mt-20"
-          >
-            <div className={anton.className}>
-              <h1 className="text-5xl md:text-7xl leading-none">
-                <span className="block text-white">
-                  {titles[currentTitleIndex]}
-                </span>
-              </h1>
-            </div>
-            <h1 className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-              A Growing Library of AI Prompts for Everyday Use
-            </h1>
-            <div className="flex gap-6 justify-center">
-              <Link href="/register">
-                <Button variant="default" size="lg" className="text-lg font-bold shadow-[0_0_15px_rgba(0,255,255,0.5)] hover:scale-105 transition-transform duration-300">
-                  Join Now
-                </Button>
-              </Link>
-              <Link href="/explore">
-                <Button variant="secondary" size="lg" className="text-lg font-bold shadow-[0_0_15px_rgba(0,255,255,0.2)] hover:scale-105 transition-transform duration-300">
-                  Explore Prompts
-                </Button>
-              </Link>
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-16">
+              {/* Left side content */}
+              <div 
+                ref={textRef} 
+                className="text-left space-y-8 max-w-2xl animate-fadeIn"
+              >
+                <h1 className={`${anton.className} text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight`}>
+                  <span className="text-white block">
+                    {titles[currentTitleIndex]}
+                  </span>
+                </h1>
+                
+                <p className="text-xl md:text-2xl text-gray-400 max-w-xl leading-relaxed">
+                  Join our community of prompt enthusiasts. Create, share, and discover prompts that spark creativity and innovation.
+                </p>
+
+                <div className="flex flex-wrap gap-4 pt-4">
+                  <Link href="/explore">
+                    <Button 
+                      className="bg-[#00ffff] hover:bg-[#00ffff]/90 text-black px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,255,0.3)]"
+                    >
+                      Explore Prompts
+                    </Button>
+                  </Link>
+                  <Link href="/submit">
+                    <Button 
+                      variant="outline"
+                      className="border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10 px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300"
+                    >
+                      Submit a Prompt
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right side - Chat Window */}
+              <div className="hidden md:block">
+                <ChatWindow />
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Carousel */}
-        <div className="absolute bottom-0 left-0 right-0 z-10 h-40 overflow-hidden">
-          <FeatureCarousel />
         </div>
       </section>
 

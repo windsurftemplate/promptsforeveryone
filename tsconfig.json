@@ -31,6 +31,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "src/types/**/*.d.ts"
-  ],
+, "src/components/ChatWindow.jsx"  ],
   "exclude": ["node_modules"]
 }
