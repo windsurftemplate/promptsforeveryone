@@ -126,6 +126,7 @@ export default function Navbar() {
                   <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-black/90 backdrop-blur-xl border border-[#00ffff]/20 shadow-lg shadow-[#00ffff]/5">
                     <div className="py-2">
                       <Link href="/price" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Pricing</Link>
+                      <Link href="/categories" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Categories</Link>
                       <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
                       <Link href="/popular" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Popular</Link>
                       <Link href="/submit" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Submit Prompt</Link>
@@ -223,6 +224,9 @@ export default function Navbar() {
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link href="/explore" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                 Explore
+              </Link>
+              <Link href="/categories" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                Categories
               </Link>
               <Link href="/popular" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                 Popular

@@ -1,59 +1,111 @@
 import { MetadataRoute } from 'next';
+import { getDatabase, ref, get } from 'firebase/database';
+import { initializeApp } from 'firebase/app';
 
-type ChangeFrequency = 'daily' | 'weekly' | 'always' | 'hourly' | 'monthly' | 'yearly' | 'never';
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
+}
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://promptsforeveryone.com';
+interface Category {
+  name: string;
+  description?: string;
+  subcategories?: {
+    [key: string]: {
+      name: string;
+      description?: string;
+    };
+  };
+}
 
-  // Core pages with high priority
-  const coreRoutes = [
-    { route: '', priority: 1.0 },
-    { route: '/dashboard', priority: 0.9 },
-    { route: '/explore', priority: 0.9 },
-    { route: '/submit', priority: 0.9 },
-  ];
+interface Prompt {
+  visibility: string;
+  updatedAt?: string;
+  createdAt: string;
+}
 
-  // Main content pages
-  const contentRoutes = [
-    { route: '/blog', priority: 0.8 },
-    { route: '/docs', priority: 0.8 },
-    { route: '/guides', priority: 0.8 },
-    { route: '/about', priority: 0.8 },
-  ];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig)
+  const db = getDatabase(app)
 
-  // User-related pages
-  const userRoutes = [
-    { route: '/profile', priority: 0.7 },
-    { route: '/favorites', priority: 0.7 },
-    { route: '/chat', priority: 0.7 },
-  ];
+  // Get all categories
+  const categoriesRef = ref(db, 'categories')
+  const categoriesSnapshot = await get(categoriesRef)
+  const categories = categoriesSnapshot.val() as Record<string, Category>
 
-  // Support and info pages
-  const supportRoutes = [
-    { route: '/contact', priority: 0.6 },
-    { route: '/price', priority: 0.6 },
-    { route: '/careers', priority: 0.6 },
-  ];
+  // Get all public prompts
+  const promptsRef = ref(db, 'prompts')
+  const promptsSnapshot = await get(promptsRef)
+  const prompts = promptsSnapshot.val() as Record<string, Prompt>
 
-  // Legal and auxiliary pages
-  const legalRoutes = [
-    { route: '/terms', priority: 0.5 },
-    { route: '/privacy', priority: 0.5 },
-  ];
+  const baseUrl = 'https://promptsforeveryone.com'
+  const currentDate = new Date().toISOString()
 
-  // Combine all routes
-  const allRoutes = [
-    ...coreRoutes,
-    ...contentRoutes,
-    ...userRoutes,
-    ...supportRoutes,
-    ...legalRoutes,
-  ].map((route) => ({
-    url: `${baseUrl}${route.route}`,
-    lastModified: new Date().toISOString(),
-    changeFrequency: (route.priority === 1.0 ? 'daily' : 'weekly') as ChangeFrequency,
-    priority: route.priority,
-  }));
+  // Start with static routes
+  const routes: MetadataRoute.Sitemap = [
+    {
+      url: baseUrl,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/categories`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/explore`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+  ]
 
-  return allRoutes;
+  // Add category pages
+  if (categories) {
+    for (const [categoryId, category] of Object.entries(categories)) {
+      routes.push({
+        url: `${baseUrl}/categories/${categoryId}`,
+        lastModified: currentDate,
+        changeFrequency: 'daily',
+        priority: 0.8,
+      })
+
+      // Add subcategory pages
+      if (category.subcategories) {
+        for (const [subcategoryId] of Object.entries(category.subcategories)) {
+          routes.push({
+            url: `${baseUrl}/categories/${categoryId}/${subcategoryId}`,
+            lastModified: currentDate,
+            changeFrequency: 'daily',
+            priority: 0.7,
+          })
+        }
+      }
+    }
+  }
+
+  // Add prompt pages
+  if (prompts) {
+    for (const [promptId, prompt] of Object.entries(prompts)) {
+      if (prompt.visibility === 'public') {
+        routes.push({
+          url: `${baseUrl}/prompt/${promptId}`,
+          lastModified: prompt.updatedAt || prompt.createdAt || currentDate,
+          changeFrequency: 'weekly',
+          priority: 0.6,
+        })
+      }
+    }
+  }
+
+  return routes
 } 
