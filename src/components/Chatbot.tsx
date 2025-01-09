@@ -116,7 +116,14 @@ const Chatbot = forwardRef<ChatbotRef, ChatbotProps>(({ chatId }, ref) => {
         throw new Error('You must be logged in to use the chat');
       }
 
-      const token = await user.getIdToken();
+      let token;
+      try {
+        token = await user.getIdToken(true); // Force token refresh
+      } catch (tokenError) {
+        console.error('Error getting token:', tokenError);
+        throw new Error('Failed to authenticate. Please try logging in again.');
+      }
+
       console.log('Sending message to API...');
       
       const response = await fetch('/api/chat', {

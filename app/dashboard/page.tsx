@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { ref, query, orderByChild, equalTo, onValue, remove, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIcon, FolderIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIcon, FolderIcon, HomeIcon, FolderOpenIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 import PromptCard from '@/components/PromptCard';
@@ -18,8 +18,9 @@ import { Prompt } from '@/types';
 interface Category {
   id: string;
   name: string;
-  items: { id: string; name: string }[];
+  items?: { id: string; name: string }[];
   isPrivate?: boolean;
+  subcategories?: { [key: string]: { id: string; name: string } };
 }
 
 interface SelectedCategory {
@@ -34,7 +35,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
-  const { selectedCategory, selectedSubcategory } = useDashboard();
+  const { selectedCategory, selectedSubcategory, setSelectedCategory, setSelectedSubcategory } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +45,19 @@ export default function DashboardPage() {
     privateCategories: 0,
     publicPrompts: 0
   });
+
+  // Get current category and subcategory
+  const currentCategory = useMemo(() => {
+    if (!selectedCategory) return null;
+    const categoryList = selectedCategory.isPrivate ? privateCategories : categories;
+    return categoryList.find(c => c.id === selectedCategory.id) || null;
+  }, [selectedCategory, categories, privateCategories]);
+
+  const currentSubcategory = useMemo(() => {
+    if (!selectedSubcategory || !currentCategory?.subcategories) return null;
+    const subcategory = currentCategory.subcategories[selectedSubcategory.id];
+    return subcategory || null;
+  }, [selectedSubcategory, currentCategory]);
 
   useEffect(() => {
     if (!user) {
@@ -68,10 +82,11 @@ export default function DashboardPage() {
             const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
               id,
               name: category.name,
-              items: Object.entries(category.items || {}).map(([itemId, item]: [string, any]) => ({
-                id: itemId,
-                name: item.name,
-              })),
+              subcategories: category.subcategories ? Object.entries(category.subcategories).reduce((acc, [subId, sub]: [string, any]) => ({
+                ...acc,
+                [subId]: { id: subId, name: sub.name }
+              }), {}) : {},
+              items: [],
             }));
             setCategories(categoriesArray);
           }
@@ -85,10 +100,11 @@ export default function DashboardPage() {
               const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
                 id,
                 name: category.name,
-                items: Object.entries(category.items || {}).map(([itemId, item]: [string, any]) => ({
-                  id: itemId,
-                  name: item.name,
-                })),
+                subcategories: category.subcategories ? Object.entries(category.subcategories).reduce((acc, [subId, sub]: [string, any]) => ({
+                  ...acc,
+                  [subId]: { id: subId, name: sub.name }
+                }), {}) : {},
+                items: [],
                 isPrivate: true,
               }));
               setPrivateCategories(categoriesArray);
@@ -320,22 +336,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Get current category and subcategory names
-  const getCurrentCategory = () => {
-    if (!selectedCategory) return null;
-    const categoryList = selectedCategory.isPrivate ? privateCategories : categories;
-    return categoryList.find((cat: Category) => cat.id === selectedCategory.id);
-  };
-
-  const getCurrentSubcategory = () => {
-    if (!selectedCategory || !selectedSubcategory) return null;
-    const category = getCurrentCategory();
-    return category?.items.find((item: { id: string; name: string }) => item.id === selectedSubcategory.id);
-  };
-
-  const currentCategory = getCurrentCategory();
-  const currentSubcategory = getCurrentSubcategory();
-
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
@@ -396,31 +396,59 @@ export default function DashboardPage() {
 
         {activeTab === 'prompts' ? (
           <>
-            {/* Header Section with Category Info */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 p-8">
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
-                  {selectedCategory 
-                    ? `${selectedCategory.isPrivate ? 'Private' : 'Public'} Prompts`
-                    : 'All Prompts'}
-                </h1>
-                {currentCategory && (
-                  <div className="flex items-center mt-2 text-white/60">
-                    <span className="text-[#00ffff]">{currentCategory.name}</span>
-                    {currentSubcategory && (
+            {/* File Path Bar */}
+            <div className="bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4 mb-8 flex items-center gap-2 group hover:border-[#00ffff]/20 transition-all duration-300">
+              <div className="flex items-center gap-2 text-sm">
+                <button 
+                  onClick={() => {
+                    setSelectedCategory(null);
+                    setSelectedSubcategory(null);
+                  }}
+                  className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors duration-200 flex items-center gap-1.5"
+                >
+                  <HomeIcon className="h-4 w-4" />
+                  Home
+                </button>
+                {selectedCategory && (
+                  <>
+                    <span className="text-[#00ffff]/40">/</span>
+                    <button 
+                      onClick={() => {
+                        setSelectedCategory(selectedCategory);
+                        setSelectedSubcategory(null);
+                      }}
+                      className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors duration-200 flex items-center gap-1.5"
+                    >
+                      <FolderOpenIcon className="h-4 w-4" />
+                      {selectedCategory.isPrivate ? 'private' : 'public'}
+                    </button>
+                    {currentCategory && (
                       <>
-                        <span className="mx-2">→</span>
-                        <span className="text-[#00ffff]">{currentSubcategory.name}</span>
+                        <span className="text-[#00ffff]/40">/</span>
+                        <span className="text-[#00ffff] flex items-center gap-1.5">
+                          <FolderIcon className="h-4 w-4" />
+                          {currentCategory.name}
+                        </span>
                       </>
                     )}
-                  </div>
+                    {currentSubcategory && (
+                      <>
+                        <span className="text-[#00ffff]/40">/</span>
+                        <span className="text-[#00ffff] flex items-center gap-1.5">
+                          <DocumentTextIcon className="h-4 w-4" />
+                          {currentSubcategory.name}
+                        </span>
+                      </>
+                    )}
+                  </>
                 )}
               </div>
-              <Link href="/submit">
-                <Button variant="default" className="shadow-[0_0_15px_rgba(0,255,255,0.5)]">
-                  Create New Prompt
-                </Button>
-              </Link>
+              <div className="ml-auto flex items-center gap-2 px-3 py-1 rounded-full bg-[#00ffff]/5 border border-[#00ffff]/10">
+                <DocumentIcon className="h-4 w-4 text-[#00ffff]/60" />
+                <span className="text-[#00ffff]/60 text-sm">
+                  {prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
+                </span>
+              </div>
             </div>
 
             {/* Prompts Grid */}

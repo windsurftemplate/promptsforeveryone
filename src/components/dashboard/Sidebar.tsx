@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, remove, update, get } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon, DocumentIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -197,8 +197,8 @@ export default function Sidebar() {
     e.stopPropagation();
     setExpandedCategories(prev => 
       prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
+        ? []  // Close all dropdowns
+        : [categoryId]  // Only open the clicked category
     );
   };
 
@@ -220,11 +220,11 @@ export default function Sidebar() {
 
   return (
     <div className={`relative h-full transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-80'}`}>
-      <div className="h-full bg-black text-white p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
-        <div className="flex justify-between items-center mb-6">
+      <div className="h-full bg-black/90 backdrop-blur-xl text-white p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
+        <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+            className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-all duration-200 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
           >
             {isCollapsed ? (
               <ChevronRightIcon className="h-5 w-5 text-[#00ffff]" />
@@ -232,41 +232,51 @@ export default function Sidebar() {
               <ChevronLeftIcon className="h-5 w-5 text-[#00ffff]" />
             )}
           </button>
-          {!isCollapsed && (
-            <button
-              onClick={() => setIsEditMode(!isEditMode)}
-              className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
-              title={isEditMode ? "Exit edit mode" : "Enter edit mode"}
-            >
-              {isEditMode ? (
-                <XMarkIcon className="h-5 w-5 text-[#00ffff]" />
-              ) : (
-                <PencilIcon className="h-5 w-5 text-[#00ffff]" />
-              )}
-            </button>
-          )}
         </div>
 
         {!isCollapsed && (
-          <div className="space-y-6">
+          <div className="space-y-8">
+            <Link href="/submit">
+              <button className="w-full px-4 py-3 rounded-lg text-left transition-all duration-200 flex items-center gap-3 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 group hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+                <PlusIcon className="h-5 w-5 text-[#00ffff] group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-[#00ffff]">Create New Prompt</span>
+              </button>
+            </Link>
+
             <button
               onClick={handleViewAllPrompts}
-              className={`w-full px-4 py-2 rounded-lg text-left transition-colors ${
+              className={`w-full px-4 py-3 rounded-lg text-left transition-all duration-200 flex items-center gap-3 ${
                 selectedCategory?.id === 'all-prompts'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-white hover:bg-[#00ffff]/10'
+                  ? 'bg-[#00ffff]/30 text-white'
+                  : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
               }`}
             >
-              View All Prompts
+              <div className="flex items-center gap-2">
+                <DocumentIcon className="h-4 w-4" />
+                View All Prompts
+              </div>
             </button>
 
             {/* Private Categories Section */}
-            <div>
+            <div className="space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-semibold text-[#00ffff]">Private Categories</h2>
+                  {!isCollapsed && (
+                    <button
+                      onClick={() => setIsEditMode(!isEditMode)}
+                      className="p-1.5 hover:bg-[#00ffff]/10 rounded-lg transition-all duration-200"
+                      title={isEditMode ? "Exit edit mode" : "Enter edit mode"}
+                    >
+                      {isEditMode ? (
+                        <XMarkIcon className="h-4 w-4 text-[#00ffff]" />
+                      ) : (
+                        <PencilIcon className="h-4 w-4 text-[#00ffff]" />
+                      )}
+                    </button>
+                  )}
                   {!isPaidUser && (
-                    <span className="px-2 py-0.5 text-xs bg-[#00ffff]/10 text-[#00ffff] rounded-full">
+                    <span className="px-2 py-0.5 text-xs bg-[#00ffff]/10 text-[#00ffff] rounded-full border border-[#00ffff]/20 shadow-[0_0_10px_rgba(0,255,255,0.1)]">
                       PRO
                     </span>
                   )}
@@ -274,7 +284,7 @@ export default function Sidebar() {
                 {isPaidUser && isEditMode && (
                   <button
                     onClick={() => setAddingCategory(true)}
-                    className="p-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-full transition-colors"
+                    className="p-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-full transition-all duration-200 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
                     title="Add new category"
                   >
                     <PlusIcon className="h-5 w-5 text-[#00ffff]" />
@@ -283,12 +293,12 @@ export default function Sidebar() {
               </div>
 
               {!isPaidUser ? (
-                <div className="p-4 bg-[#00ffff]/5 rounded-xl border border-[#00ffff]/20">
+                <div className="p-4 bg-[#00ffff]/5 backdrop-blur-xl rounded-xl border border-[#00ffff]/20 shadow-[0_0_15px_rgba(0,255,255,0.1)]">
                   <p className="text-white/60 text-sm mb-3">
                     Upgrade to Pro to create private categories and organize your prompts.
                   </p>
                   <Link href="/price">
-                    <button className="w-full px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-colors text-sm">
+                    <button className="w-full px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-200 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)] text-sm">
                       Upgrade to Pro
                     </button>
                   </Link>
@@ -296,18 +306,18 @@ export default function Sidebar() {
               ) : (
                 <>
                   {addingCategory && (
-                    <div className="mb-4 p-3 bg-[#00ffff]/5 rounded-xl border border-[#00ffff]/20">
+                    <div className="mb-4 p-3 bg-[#00ffff]/5 backdrop-blur-xl rounded-xl border border-[#00ffff]/20 shadow-lg shadow-black/20">
                       <input
                         type="text"
                         value={newCategoryName}
                         onChange={(e) => setNewCategoryName(e.target.value)}
                         placeholder="Category name"
-                        className="w-full bg-black/60 text-white px-3 py-2 rounded-lg border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
+                        className="w-full bg-black/60 text-white px-3 py-2 rounded-lg border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2 transition-colors duration-200"
                       />
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={handleAddCategory}
-                          className="px-3 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-lg transition-colors text-[#00ffff] text-sm"
+                          className="px-3 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-lg transition-all duration-200 text-[#00ffff] text-sm hover:shadow-lg hover:shadow-[#00ffff]/20"
                         >
                           Add
                         </button>
@@ -316,7 +326,7 @@ export default function Sidebar() {
                             setNewCategoryName('');
                             setAddingCategory(false);
                           }}
-                          className="px-3 py-1 bg-black/60 hover:bg-black/40 rounded-lg transition-colors text-white/60 text-sm"
+                          className="px-3 py-1 bg-black/60 hover:bg-black/40 rounded-lg transition-all duration-200 text-white/60 text-sm hover:shadow-lg hover:shadow-black/20"
                         >
                           Cancel
                         </button>
@@ -330,34 +340,34 @@ export default function Sidebar() {
                         <div className="flex items-center justify-between group">
                           <div className="flex-1 flex items-center">
                             <button
-                              onClick={(e) => toggleCategory(category.id, e)}
-                              className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
-                            >
-                              <ChevronDownIcon
-                                className={`h-4 w-4 text-[#00ffff] transition-transform ${
-                                  expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
-                                }`}
-                              />
-                            </button>
-                            <button
-                              onClick={() => handleCategoryClick(category.id, true)}
-                              className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
+                              onClick={(e) => {
+                                toggleCategory(category.id, e);
+                                handleCategoryClick(category.id, true);
+                              }}
+                              className={`flex-1 text-left px-3 py-2 rounded-lg transition-all duration-200 ${
                                 selectedCategory?.id === category.id
-                                  ? 'bg-[#00ffff] text-black'
-                                  : 'text-white hover:bg-[#00ffff]/10'
+                                  ? 'bg-[#00ffff]/30 text-white'
+                                  : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
                               }`}
                             >
-                              {editingCategory === category.id ? (
-                                <input
-                                  type="text"
-                                  value={newCategoryName}
-                                  onChange={(e) => setNewCategoryName(e.target.value)}
-                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
-                                  onClick={(e) => e.stopPropagation()}
+                              <div className="flex items-center gap-2">
+                                <ChevronDownIcon
+                                  className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                                    expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
+                                  }`}
                                 />
-                              ) : (
-                                category.name
-                              )}
+                                {editingCategory === category.id ? (
+                                  <input
+                                    type="text"
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                    className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                ) : (
+                                  category.name
+                                )}
+                              </div>
                             </button>
                           </div>
                           {isEditMode && (
@@ -410,10 +420,10 @@ export default function Sidebar() {
                               <div key={subcategoryId} className="flex items-center justify-between group">
                                 <button
                                   onClick={() => handleSubcategoryClick(category.id, subcategoryId, true)}
-                                  className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-colors ${
+                                  className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-all duration-200 ${
                                     selectedCategory?.id === category.id && selectedSubcategory?.id === subcategoryId
-                                      ? 'bg-[#00ffff] text-black'
-                                      : 'text-white/80 hover:bg-[#00ffff]/10'
+                                      ? 'bg-[#00ffff]/30 text-white'
+                                      : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
                                   }`}
                                 >
                                   {editingSubcategory?.categoryId === category.id && editingSubcategory?.itemId === subcategoryId ? (
@@ -472,18 +482,18 @@ export default function Sidebar() {
                               </div>
                             ))}
                             {isEditMode && addingSubcategory === category.id && (
-                              <div className="pl-3 pr-2 py-2 bg-[#00ffff]/5 rounded-lg border border-[#00ffff]/20">
+                              <div className="pl-3 pr-2 py-2 bg-[#00ffff]/5 backdrop-blur-xl rounded-lg border border-[#00ffff]/20 shadow-[0_0_15px_rgba(0,255,255,0.1)]">
                                 <input
                                   type="text"
                                   value={newSubcategoryName}
                                   onChange={(e) => setNewSubcategoryName(e.target.value)}
                                   placeholder="Subcategory name"
-                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
+                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2 transition-all duration-200 focus:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
                                 />
                                 <div className="flex justify-end space-x-2">
                                   <button
                                     onClick={() => handleAddSubcategory(category.id)}
-                                    className="px-2 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded transition-colors text-[#00ffff] text-sm"
+                                    className="px-2 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded transition-all duration-200 text-[#00ffff] text-sm hover:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
                                   >
                                     Add
                                   </button>
@@ -492,7 +502,7 @@ export default function Sidebar() {
                                       setNewSubcategoryName('');
                                       setAddingSubcategory(null);
                                     }}
-                                    className="px-2 py-1 bg-black/60 hover:bg-black/40 rounded transition-colors text-white/60 text-sm"
+                                    className="px-2 py-1 bg-black/60 hover:bg-black/40 rounded transition-all duration-200 text-white/60 text-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.2)]"
                                   >
                                     Cancel
                                   </button>
@@ -502,9 +512,10 @@ export default function Sidebar() {
                             {isEditMode && addingSubcategory !== category.id && (
                               <button
                                 onClick={() => setAddingSubcategory(category.id)}
-                                className="w-full px-3 py-1.5 text-left text-white/40 hover:text-white/60 hover:bg-[#00ffff]/10 rounded-lg transition-colors text-sm"
+                                className="w-full px-3 py-1.5 text-left text-white/40 hover:text-white/60 hover:bg-[#00ffff]/10 rounded-lg transition-all duration-200 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)] text-sm flex items-center gap-2"
                               >
-                                + Add subcategory
+                                <PlusIcon className="h-4 w-4" />
+                                Add subcategory
                               </button>
                             )}
                           </div>
@@ -528,24 +539,24 @@ export default function Sidebar() {
                     <div className="flex items-center justify-between">
                       <div className="flex-1 flex items-center">
                         <button
-                          onClick={(e) => toggleCategory(category.id, e)}
-                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
-                        >
-                          <ChevronDownIcon
-                            className={`h-4 w-4 text-[#00ffff] transition-transform ${
-                              expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
-                            }`}
-                          />
-                        </button>
-                        <button
-                          onClick={() => handleCategoryClick(category.id, false)}
+                          onClick={(e) => {
+                            toggleCategory(category.id, e);
+                            handleCategoryClick(category.id, false);
+                          }}
                           className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
                             selectedCategory?.id === category.id && !selectedCategory?.isPrivate
-                              ? 'bg-[#00ffff] text-black'
-                              : 'text-white hover:bg-[#00ffff]/10'
+                              ? 'bg-[#00ffff]/30 text-white'
+                              : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
                           }`}
                         >
-                          {category.name}
+                          <div className="flex items-center gap-2">
+                            <ChevronDownIcon
+                              className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                                expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
+                              }`}
+                            />
+                            {category.name}
+                          </div>
                         </button>
                       </div>
                     </div>
@@ -557,12 +568,12 @@ export default function Sidebar() {
                           <div key={subcategoryId} className="flex items-center justify-between">
                             <button
                               onClick={() => handleSubcategoryClick(category.id, subcategoryId, false)}
-                              className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-colors ${
+                              className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-all duration-200 ${
                                 selectedCategory?.id === category.id && 
                                 selectedSubcategory?.id === subcategoryId && 
                                 !selectedCategory?.isPrivate
-                                  ? 'bg-[#00ffff] text-black'
-                                  : 'text-white/80 hover:bg-[#00ffff]/10'
+                                  ? 'bg-[#00ffff]/30 text-white'
+                                  : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
                               }`}
                             >
                               {subcategory.name}

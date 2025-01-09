@@ -58,10 +58,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const userData = snapshot.val();
         
         // Combine Firebase user with additional data
-        const enhancedUser = {
-          ...firebaseUser,
-          role: userData?.role || 'user'
-        } as User;
+        const enhancedUser = Object.assign(firebaseUser, {
+          role: userData?.role || 'user',
+          isPro: userData?.plan === 'pro' || userData?.role === 'admin'
+        }) as User;
         
         setUser(enhancedUser);
         setIsPro(userData?.plan === 'pro' || userData?.role === 'admin');

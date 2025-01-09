@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/firebase-admin';
-import { db } from '@/lib/firebase';
-import { ref, get } from 'firebase/database';
+import { auth, db } from '@/lib/firebase-admin';
 
 export const runtime = 'nodejs';
 
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
-const MODEL = 'meta-llama/Llama-Vision-Free';
+const MODEL = 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K';
 
 export async function POST(req: Request) {
   try {
@@ -51,7 +49,7 @@ export async function POST(req: Request) {
     const uid = decodedToken.uid;
 
     // Check if user is pro
-    const userSnapshot = await get(ref(db, `users/${uid}`));
+    const userSnapshot = await db.ref(`users/${uid}`).get();
     const userData = userSnapshot.val();
     
     const isUserPro = userData?.role === 'admin' || userData?.plan === 'paid';
@@ -80,8 +78,13 @@ export async function POST(req: Request) {
       content: msg.content
     }));
 
+    console.log('Sending request to Together API with:', {
+      model: MODEL,
+      messages: [...formattedHistory, { role: 'user', content: message }]
+    });
+
     // Call Together API
-    const response = await fetch('https://api.together.xyz/inference', {
+    const response = await fetch('https://api.together.xyz/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -93,25 +96,42 @@ export async function POST(req: Request) {
           ...formattedHistory,
           { role: 'user', content: message }
         ],
-        max_tokens: 1024,
         temperature: 0.7,
         top_p: 0.7,
-        top_k: 50,
-        repetition_penalty: 1,
-        stop: ['</s>', 'user:', 'assistant:']
+        max_tokens: 40960,
+        stream: false
       })
     });
 
     if (!response.ok) {
-      console.error('Together API error:', await response.text());
-      return Response.json(
-        { error: 'Error generating response' },
-        { status: response.status }
-      );
+      const errorText = await response.text();
+      console.error('Together API error:', errorText);
+      try {
+        const errorJson = JSON.parse(errorText);
+        return Response.json(
+          { error: errorJson.message || 'Error generating response' },
+          { status: response.status }
+        );
+      } catch {
+        return Response.json(
+          { error: `Error generating response: ${errorText}` },
+          { status: response.status }
+        );
+      }
     }
 
     const result = await response.json();
-    return Response.json({ response: result.output.choices[0].text });
+    console.log('Together API response:', result);
+
+    if (!result.choices?.[0]?.message?.content) {
+      console.error('Unexpected API response format:', result);
+      return Response.json(
+        { error: 'Unexpected API response format' },
+        { status: 500 }
+      );
+    }
+
+    return Response.json({ response: result.choices[0].message.content });
 
   } catch (error) {
     console.error('Error in chat API:', error);

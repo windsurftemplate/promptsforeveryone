@@ -149,8 +149,32 @@ function ChatContent() {
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-6">
-          {/* Chat History Sidebar */}
-          <div className="w-64 space-y-4">
+          {/* Left Sidebar with Common Prompts */}
+          <div className="w-80 space-y-4">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+              Common Prompts
+            </h2>
+            <div className="space-y-2">
+              {COMMON_PROMPTS.map((prompt, index) => (
+                <div
+                  key={index}
+                  onClick={() => handlePromptClick(prompt.description)}
+                  className="p-3 bg-black/50 border border-[#00ffff]/20 rounded-lg hover:border-[#00ffff]/40 cursor-pointer transition-all duration-300"
+                >
+                  <h3 className="text-white font-medium mb-1">{prompt.title}</h3>
+                  <p className="text-white/60 text-sm">{prompt.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Main Chat Area */}
+          <div className="flex-1 max-w-4xl">
+            <Chatbot ref={chatbotRef} chatId={selectedChat} />
+          </div>
+
+          {/* Right Sidebar with Chat History */}
+          <div className="w-80 space-y-4">
             <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
               Chat History
             </h2>
@@ -184,26 +208,6 @@ function ChatContent() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Main Chat Area */}
-          <div className="flex-1 max-w-4xl">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-4">Common Prompts</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {COMMON_PROMPTS.map((prompt, index) => (
-                  <div
-                    key={index}
-                    onClick={() => handlePromptClick(prompt.description)}
-                    className="p-4 bg-black/50 border border-[#00ffff]/20 rounded-lg hover:border-[#00ffff]/40 cursor-pointer transition-all duration-300"
-                  >
-                    <h3 className="text-lg font-semibold text-white mb-2">{prompt.title}</h3>
-                    <p className="text-white/60 text-sm">{prompt.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Chatbot ref={chatbotRef} chatId={selectedChat} />
           </div>
         </div>
       </div>
