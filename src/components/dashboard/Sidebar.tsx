@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, remove, update, get } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 interface Category {
   id: string;
   name: string;
-  items: { id: string; name: string }[];
+  subcategories?: { [key: string]: { name: string } };
   isPrivate?: boolean;
 }
 
@@ -33,6 +33,7 @@ export default function Sidebar() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isPaidUser, setIsPaidUser] = useState(false);
   const [userStats, setUserStats] = useState({ totalPrompts: 0, publicPrompts: 0 });
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -54,10 +55,7 @@ export default function Sidebar() {
         const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
           id,
           name: category.name,
-          items: category.items ? Object.entries(category.items).map(([itemId, item]: [string, any]) => ({
-            id: itemId,
-            name: item.name
-          })) : []
+          subcategories: category.subcategories || {}
         }));
         setCategories(categoriesArray);
       } else {
@@ -73,10 +71,7 @@ export default function Sidebar() {
         const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
           id,
           name: category.name,
-          items: category.items ? Object.entries(category.items).map(([itemId, item]: [string, any]) => ({
-            id: itemId,
-            name: item.name
-          })) : [],
+          subcategories: category.subcategories || {},
           isPrivate: true
         }));
         setPrivateCategories(categoriesArray);
@@ -146,8 +141,8 @@ export default function Sidebar() {
   const handleAddSubcategory = async (categoryId: string) => {
     if (!user || !newSubcategoryName.trim()) return;
 
-    const itemsRef = ref(db, `users/${user.uid}/categories/${categoryId}/items`);
-    await push(itemsRef, {
+    const subcategoriesRef = ref(db, `users/${user.uid}/categories/${categoryId}/subcategories`);
+    await push(subcategoriesRef, {
       name: newSubcategoryName,
     });
     
@@ -162,11 +157,11 @@ export default function Sidebar() {
     await remove(categoryRef);
   };
 
-  const handleDeleteSubcategory = async (categoryId: string, itemId: string) => {
+  const handleDeleteSubcategory = async (categoryId: string, subcategoryId: string) => {
     if (!user) return;
     
-    const itemRef = ref(db, `users/${user.uid}/categories/${categoryId}/items/${itemId}`);
-    await remove(itemRef);
+    const subcategoryRef = ref(db, `users/${user.uid}/categories/${categoryId}/subcategories/${subcategoryId}`);
+    await remove(subcategoryRef);
   };
 
   const handleUpdateCategory = async (categoryId: string) => {
@@ -196,6 +191,31 @@ export default function Sidebar() {
   const handleViewAllPrompts = () => {
     setSelectedCategory({ id: 'all-prompts', isPrivate: false });
     setSelectedSubcategory(null);
+  };
+
+  const toggleCategory = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedCategories(prev => 
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
+  const handleAddSubcategoryToItem = async (categoryId: string, itemId: string, subcategoryName: string) => {
+    if (!user || !subcategoryName.trim()) return;
+
+    const subcategoriesRef = ref(db, `users/${user.uid}/categories/${categoryId}/items/${itemId}/subcategories`);
+    await push(subcategoriesRef, {
+      name: subcategoryName
+    });
+  };
+
+  const handleDeleteSubcategoryFromItem = async (categoryId: string, itemId: string, subcategoryId: string) => {
+    if (!user) return;
+    
+    const subcategoryRef = ref(db, `users/${user.uid}/categories/${categoryId}/items/${itemId}/subcategories/${subcategoryId}`);
+    await remove(subcategoryRef);
   };
 
   return (
@@ -308,26 +328,38 @@ export default function Sidebar() {
                     {privateCategories.map((category) => (
                       <div key={category.id} className="space-y-2">
                         <div className="flex items-center justify-between group">
-                          <button
-                            onClick={() => handleCategoryClick(category.id, true)}
-                            className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
-                              selectedCategory?.id === category.id
-                                ? 'bg-[#00ffff] text-black'
-                                : 'text-white hover:bg-[#00ffff]/10'
-                            }`}
-                          >
-                            {editingCategory === category.id ? (
-                              <input
-                                type="text"
-                                value={newCategoryName}
-                                onChange={(e) => setNewCategoryName(e.target.value)}
-                                className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
-                                onClick={(e) => e.stopPropagation()}
+                          <div className="flex-1 flex items-center">
+                            <button
+                              onClick={(e) => toggleCategory(category.id, e)}
+                              className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                            >
+                              <ChevronDownIcon
+                                className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                                  expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
+                                }`}
                               />
-                            ) : (
-                              category.name
-                            )}
-                          </button>
+                            </button>
+                            <button
+                              onClick={() => handleCategoryClick(category.id, true)}
+                              className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
+                                selectedCategory?.id === category.id
+                                  ? 'bg-[#00ffff] text-black'
+                                  : 'text-white hover:bg-[#00ffff]/10'
+                              }`}
+                            >
+                              {editingCategory === category.id ? (
+                                <input
+                                  type="text"
+                                  value={newCategoryName}
+                                  onChange={(e) => setNewCategoryName(e.target.value)}
+                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              ) : (
+                                category.name
+                              )}
+                            </button>
+                          </div>
                           {isEditMode && (
                             <div className="flex items-center gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               {editingCategory === category.id ? (
@@ -372,109 +404,111 @@ export default function Sidebar() {
                         </div>
 
                         {/* Subcategories */}
-                        <div className="pl-4 space-y-1">
-                          {category.items.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between group">
-                              <button
-                                onClick={() => handleSubcategoryClick(category.id, item.id, true)}
-                                className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-colors ${
-                                  selectedCategory?.id === category.id && selectedSubcategory?.id === item.id
-                                    ? 'bg-[#00ffff] text-black'
-                                    : 'text-white/80 hover:bg-[#00ffff]/10'
-                                }`}
-                              >
-                                {editingSubcategory?.categoryId === category.id && editingSubcategory?.itemId === item.id ? (
-                                  <input
-                                    type="text"
-                                    value={newSubcategoryName}
-                                    onChange={(e) => setNewSubcategoryName(e.target.value)}
-                                    className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                ) : (
-                                  item.name
-                                )}
-                              </button>
-                              {isEditMode && (
-                                <div className="flex items-center gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  {editingSubcategory?.categoryId === category.id && editingSubcategory?.itemId === item.id ? (
-                                    <>
-                                      <button
-                                        onClick={() => handleUpdateSubcategory(category.id, item.id)}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
-                                      >
-                                        <CheckIcon className="h-4 w-4 text-[#00ffff]" />
-                                      </button>
-                                      <button
-                                        onClick={() => {
-                                          setEditingSubcategory(null);
-                                          setNewSubcategoryName('');
-                                        }}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
-                                      >
-                                        <XMarkIcon className="h-4 w-4 text-[#00ffff]" />
-                                      </button>
-                                    </>
+                        {expandedCategories.includes(category.id) && (
+                          <div className="pl-4 space-y-1">
+                            {category.subcategories && Object.entries(category.subcategories).map(([subcategoryId, subcategory]) => (
+                              <div key={subcategoryId} className="flex items-center justify-between group">
+                                <button
+                                  onClick={() => handleSubcategoryClick(category.id, subcategoryId, true)}
+                                  className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-colors ${
+                                    selectedCategory?.id === category.id && selectedSubcategory?.id === subcategoryId
+                                      ? 'bg-[#00ffff] text-black'
+                                      : 'text-white/80 hover:bg-[#00ffff]/10'
+                                  }`}
+                                >
+                                  {editingSubcategory?.categoryId === category.id && editingSubcategory?.itemId === subcategoryId ? (
+                                    <input
+                                      type="text"
+                                      value={newSubcategoryName}
+                                      onChange={(e) => setNewSubcategoryName(e.target.value)}
+                                      className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
                                   ) : (
-                                    <>
-                                      <button
-                                        onClick={() => {
-                                          setEditingSubcategory({ categoryId: category.id, itemId: item.id });
-                                          setNewSubcategoryName(item.name);
-                                        }}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
-                                      >
-                                        <PencilIcon className="h-4 w-4 text-[#00ffff]" />
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteSubcategory(category.id, item.id)}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
-                                      >
-                                        <TrashIcon className="h-4 w-4 text-[#00ffff]" />
-                                      </button>
-                                    </>
+                                    subcategory.name
                                   )}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                          {isEditMode && addingSubcategory === category.id && (
-                            <div className="pl-3 pr-2 py-2 bg-[#00ffff]/5 rounded-lg border border-[#00ffff]/20">
-                              <input
-                                type="text"
-                                value={newSubcategoryName}
-                                onChange={(e) => setNewSubcategoryName(e.target.value)}
-                                placeholder="Subcategory name"
-                                className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
-                              />
-                              <div className="flex justify-end space-x-2">
-                                <button
-                                  onClick={() => handleAddSubcategory(category.id)}
-                                  className="px-2 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded transition-colors text-[#00ffff] text-sm"
-                                >
-                                  Add
                                 </button>
-                                <button
-                                  onClick={() => {
-                                    setNewSubcategoryName('');
-                                    setAddingSubcategory(null);
-                                  }}
-                                  className="px-2 py-1 bg-black/60 hover:bg-black/40 rounded transition-colors text-white/60 text-sm"
-                                >
-                                  Cancel
-                                </button>
+                                {isEditMode && (
+                                  <div className="flex items-center gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {editingSubcategory?.categoryId === category.id && editingSubcategory?.itemId === subcategoryId ? (
+                                      <>
+                                        <button
+                                          onClick={() => handleUpdateSubcategory(category.id, subcategoryId)}
+                                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        >
+                                          <CheckIcon className="h-4 w-4 text-[#00ffff]" />
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            setEditingSubcategory(null);
+                                            setNewSubcategoryName('');
+                                          }}
+                                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        >
+                                          <XMarkIcon className="h-4 w-4 text-[#00ffff]" />
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <button
+                                          onClick={() => {
+                                            setEditingSubcategory({ categoryId: category.id, itemId: subcategoryId });
+                                            setNewSubcategoryName(subcategory.name);
+                                          }}
+                                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        >
+                                          <PencilIcon className="h-4 w-4 text-[#00ffff]" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteSubcategory(category.id, subcategoryId)}
+                                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        >
+                                          <TrashIcon className="h-4 w-4 text-[#00ffff]" />
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          )}
-                          {isEditMode && addingSubcategory !== category.id && (
-                            <button
-                              onClick={() => setAddingSubcategory(category.id)}
-                              className="w-full px-3 py-1.5 text-left text-white/40 hover:text-white/60 hover:bg-[#00ffff]/10 rounded-lg transition-colors text-sm"
-                            >
-                              + Add subcategory
-                            </button>
-                          )}
-                        </div>
+                            ))}
+                            {isEditMode && addingSubcategory === category.id && (
+                              <div className="pl-3 pr-2 py-2 bg-[#00ffff]/5 rounded-lg border border-[#00ffff]/20">
+                                <input
+                                  type="text"
+                                  value={newSubcategoryName}
+                                  onChange={(e) => setNewSubcategoryName(e.target.value)}
+                                  placeholder="Subcategory name"
+                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2"
+                                />
+                                <div className="flex justify-end space-x-2">
+                                  <button
+                                    onClick={() => handleAddSubcategory(category.id)}
+                                    className="px-2 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded transition-colors text-[#00ffff] text-sm"
+                                  >
+                                    Add
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setNewSubcategoryName('');
+                                      setAddingSubcategory(null);
+                                    }}
+                                    className="px-2 py-1 bg-black/60 hover:bg-black/40 rounded transition-colors text-white/60 text-sm"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            {isEditMode && addingSubcategory !== category.id && (
+                              <button
+                                onClick={() => setAddingSubcategory(category.id)}
+                                className="w-full px-3 py-1.5 text-left text-white/40 hover:text-white/60 hover:bg-[#00ffff]/10 rounded-lg transition-colors text-sm"
+                              >
+                                + Add subcategory
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -492,37 +526,51 @@ export default function Sidebar() {
                 {categories.map((category) => (
                   <div key={category.id} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <button
-                        onClick={() => handleCategoryClick(category.id, false)}
-                        className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
-                          selectedCategory?.id === category.id && !selectedCategory?.isPrivate
-                            ? 'bg-[#00ffff] text-black'
-                            : 'text-white hover:bg-[#00ffff]/10'
-                        }`}
-                      >
-                        {category.name}
-                      </button>
+                      <div className="flex-1 flex items-center">
+                        <button
+                          onClick={(e) => toggleCategory(category.id, e)}
+                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                        >
+                          <ChevronDownIcon
+                            className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                              expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
+                            }`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleCategoryClick(category.id, false)}
+                          className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
+                            selectedCategory?.id === category.id && !selectedCategory?.isPrivate
+                              ? 'bg-[#00ffff] text-black'
+                              : 'text-white hover:bg-[#00ffff]/10'
+                          }`}
+                        >
+                          {category.name}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Public Subcategories */}
-                    <div className="pl-4 space-y-1">
-                      {category.items.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between">
-                          <button
-                            onClick={() => handleSubcategoryClick(category.id, item.id, false)}
-                            className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-colors ${
-                              selectedCategory?.id === category.id && 
-                              selectedSubcategory?.id === item.id && 
-                              !selectedCategory?.isPrivate
-                                ? 'bg-[#00ffff] text-black'
-                                : 'text-white/80 hover:bg-[#00ffff]/10'
-                            }`}
-                          >
-                            {item.name}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                    {expandedCategories.includes(category.id) && (
+                      <div className="pl-4 space-y-1">
+                        {category.subcategories && Object.entries(category.subcategories).map(([subcategoryId, subcategory]) => (
+                          <div key={subcategoryId} className="flex items-center justify-between">
+                            <button
+                              onClick={() => handleSubcategoryClick(category.id, subcategoryId, false)}
+                              className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-colors ${
+                                selectedCategory?.id === category.id && 
+                                selectedSubcategory?.id === subcategoryId && 
+                                !selectedCategory?.isPrivate
+                                  ? 'bg-[#00ffff] text-black'
+                                  : 'text-white/80 hover:bg-[#00ffff]/10'
+                              }`}
+                            >
+                              {subcategory.name}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

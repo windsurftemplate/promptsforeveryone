@@ -15,6 +15,7 @@ interface Category {
       description?: string;
     };
   };
+  isPrivate?: boolean;
 }
 
 export default function SubmitPage() {
@@ -66,6 +67,7 @@ export default function SubmitPage() {
           const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
             id,
             name: category.name,
+            subcategories: category.subcategories || {}
           }));
           setCategories(categoriesArray);
         }
@@ -79,6 +81,7 @@ export default function SubmitPage() {
             const privateCategoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
               id,
               name: category.name,
+              subcategories: category.subcategories || {},
               isPrivate: true
             }));
             setPrivateCategories(privateCategoriesArray);
@@ -110,6 +113,19 @@ export default function SubmitPage() {
       setError('Please select a category');
       return false;
     }
+
+    // Get the current category
+    const currentCategories = activeTab === 'private' ? privateCategories : categories;
+    const currentCategory = currentCategories.find(cat => cat.id === selectedCategory);
+    
+    // Check if category has subcategories and one isn't selected
+    if (currentCategory?.subcategories && 
+        Object.keys(currentCategory.subcategories).length > 0 && 
+        !selectedSubcategory) {
+      setError('Please select a subcategory');
+      return false;
+    }
+
     return true;
   };
 
@@ -289,18 +305,12 @@ export default function SubmitPage() {
               value={selectedCategory}
               onChange={(e) => {
                 setSelectedCategory(e.target.value);
-                setSelectedSubcategory('');
+                setSelectedSubcategory(''); // Reset subcategory when category changes
               }}
               className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
-              required
             >
               <option value="" className="bg-black text-white">Select a category</option>
-              {activeTab === 'public' && categories.map((category) => (
-                <option key={category.id} value={category.id} className="bg-black text-white">
-                  {category.name}
-                </option>
-              ))}
-              {activeTab === 'private' && privateCategories.map((category) => (
+              {(activeTab === 'private' ? privateCategories : categories).map((category) => (
                 <option key={category.id} value={category.id} className="bg-black text-white">
                   {category.name}
                 </option>
@@ -308,27 +318,36 @@ export default function SubmitPage() {
             </select>
           </div>
 
-          {selectedCategory && (activeTab === 'public' ? categories : privateCategories).find(cat => cat.id === selectedCategory)?.subcategories && (
-            <div>
-              <label htmlFor="subcategory" className="block text-sm font-medium text-white mb-2">
-                Subcategory
-              </label>
-              <select
-                id="subcategory"
-                value={selectedSubcategory}
-                onChange={(e) => setSelectedSubcategory(e.target.value)}
-                className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
-                required
-              >
-                <option value="" className="bg-black text-white">Select a subcategory</option>
-                {Object.entries((activeTab === 'public' ? categories : privateCategories).find(cat => cat.id === selectedCategory)?.subcategories || {}).map(([id, subcategory]) => (
-                  <option key={id} value={id} className="bg-black text-white">
-                    {subcategory.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+          {/* Subcategory Selection - Only show if selected category has subcategories */}
+          {selectedCategory && (() => {
+            const currentCategories = activeTab === 'private' ? privateCategories : categories;
+            const currentCategory = currentCategories.find(cat => cat.id === selectedCategory);
+            
+            if (currentCategory?.subcategories && Object.keys(currentCategory.subcategories).length > 0) {
+              return (
+                <div>
+                  <label htmlFor="subcategory" className="block text-sm font-medium text-white mb-2">
+                    Subcategory <span className="text-[#00ffff]">*</span>
+                  </label>
+                  <select
+                    id="subcategory"
+                    value={selectedSubcategory}
+                    onChange={(e) => setSelectedSubcategory(e.target.value)}
+                    className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
+                    required
+                  >
+                    <option value="" className="bg-black text-white">Select a subcategory</option>
+                    {Object.entries(currentCategory.subcategories).map(([id, subcategory]) => (
+                      <option key={id} value={id} className="bg-black text-white">
+                        {subcategory.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           <div>
             <label htmlFor="title" className="block text-sm font-medium text-white mb-2">

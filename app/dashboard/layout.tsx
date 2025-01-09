@@ -27,10 +27,10 @@ export default function DashboardLayout({
   return (
     <DashboardProvider>
       <div className="flex min-h-screen bg-black">
-        <div className="relative h-screen sticky top-24">
+        <div className="relative h-screen sticky top-0">
           <Sidebar />
         </div>
-        <div className="flex-1 pt-24 transition-all duration-300">
+        <div className="flex-1 transition-all duration-300">
           {children}
         </div>
       </div>
