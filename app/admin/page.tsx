@@ -13,6 +13,7 @@ interface User {
   uid: string;
   email: string;
   role?: string;
+  plan?: string;
   createdAt?: string;
   lastLogin?: string;
   promptCount?: number;
@@ -29,11 +30,10 @@ interface BlogPost {
 interface Category {
   id: string;
   name: string;
-  description?: string;
+  count: number;
   subcategories?: {
     [key: string]: {
       name: string;
-      description?: string;
     };
   };
 }
@@ -79,16 +79,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      router.push('/');
       return;
     }
 
-    // Check if current user is admin
+    // Check if user is admin
     const checkAdmin = async () => {
-      const adminRef = ref(db, `users/${user.uid}/role`);
-      const snapshot = await get(adminRef);
-      if (!snapshot.exists() || snapshot.val() !== 'admin') {
-        router.push('/dashboard');
+      const userRef = ref(db, `users/${user.uid}`);
+      const snapshot = await get(userRef);
+      if (!snapshot.exists() || snapshot.val().role !== 'admin') {
+        router.push('/');
+        return;
       }
     };
 
@@ -110,6 +111,7 @@ export default function AdminDashboard() {
               uid,
               email: userData.email,
               role: userData.role || 'user',
+              plan: userData.plan || 'free',
               createdAt: userData.createdAt,
               lastLogin: userData.lastLogin,
               promptCount,
@@ -254,46 +256,32 @@ export default function AdminDashboard() {
   };
 
   const handleAddCategory = async () => {
-    if (newCategoryName.length < 3 || newCategoryName.length > 50) {
-      setError('Category name must be between 3 and 50 characters');
-      return;
-    }
-
     try {
-      const categoriesRef = ref(db, 'categories');
-      await push(categoriesRef, {
+      const categoryId = newCategoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const categoryRef = ref(db, `categories/${categoryId}`);
+      await update(categoryRef, {
         name: newCategoryName,
-        createdAt: new Date().toISOString(),
+        count: 0,
+        subcategories: {}  // Initialize empty subcategories object
       });
       setNewCategoryName('');
       setIsAddingCategory(false);
-      setError('');
     } catch (error) {
       console.error('Error adding category:', error);
       setError('Failed to add category');
     }
   };
 
-  const handleAddSubcategory = async () => {
-    if (!selectedCategory) {
-      setError('Please select a category first');
-      return;
-    }
-
-    if (newSubcategoryName.length < 3 || newSubcategoryName.length > 50) {
-      setError('Subcategory name must be between 3 and 50 characters');
-      return;
-    }
-
+  const handleAddSubcategory = async (categoryId: string) => {
     try {
-      const categoryRef = ref(db, `categories/${selectedCategory}/subcategories`);
-      await push(categoryRef, {
-        name: newSubcategoryName,
-        createdAt: new Date().toISOString(),
+      const subcategoryRef = ref(db, `categories/${categoryId}/subcategories`);
+      const newSubcategoryRef = push(subcategoryRef);
+      await update(newSubcategoryRef, {
+        name: newSubcategoryName
       });
       setNewSubcategoryName('');
       setIsAddingSubcategory(false);
-      setError('');
+      setSelectedCategory(null);
     } catch (error) {
       console.error('Error adding subcategory:', error);
       setError('Failed to add subcategory');
@@ -357,6 +345,18 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error deleting prompt:', error);
       setError('Failed to delete prompt');
+    }
+  };
+
+  const handleUpdateUser = async (userId: string, field: 'role' | 'plan', value: string) => {
+    try {
+      const userRef = ref(db, `users/${userId}`);
+      await update(userRef, {
+        [field]: value
+      });
+    } catch (error) {
+      console.error(`Error updating user ${field}:`, error);
+      setError(`Failed to update user ${field}`);
     }
   };
 
@@ -455,6 +455,7 @@ export default function AdminDashboard() {
                   <tr className="border-b border-[#00ffff]/20">
                     <th className="px-6 py-4 text-left text-[#00ffff]">Email</th>
                     <th className="px-6 py-4 text-left text-[#00ffff]">Role</th>
+                    <th className="px-6 py-4 text-left text-[#00ffff]">Plan</th>
                     <th className="px-6 py-4 text-left text-[#00ffff]">Prompts</th>
                     <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
                     <th className="px-6 py-4 text-left text-[#00ffff]">Last Login</th>
@@ -468,13 +469,38 @@ export default function AdminDashboard() {
                     >
                       <td className="px-6 py-4 text-white">{user.email}</td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-sm ${
-                          user.role === 'admin' 
-                            ? 'bg-[#00ffff]/20 text-[#00ffff]' 
-                            : 'bg-white/10 text-white/60'
-                        }`}>
-                          {user.role}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-full text-sm ${
+                            user.role === 'admin' 
+                              ? 'bg-red-500/20 text-red-400'
+                              : 'bg-blue-500/20 text-blue-400'
+                          }`}>
+                            {user.role || 'user'}
+                          </span>
+                          <button
+                            onClick={() => handleUpdateUser(user.uid, 'role', user.role === 'admin' ? 'user' : 'admin')}
+                            className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded-full text-sm ${
+                            user.plan === 'paid' 
+                              ? 'bg-green-500/20 text-green-400'
+                              : 'bg-gray-500/20 text-gray-400'
+                          }`}>
+                            {user.plan || 'free'}
+                          </span>
+                          <button
+                            onClick={() => handleUpdateUser(user.uid, 'plan', user.plan === 'paid' ? 'free' : 'paid')}
+                            className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-white/60">{user.promptCount}</td>
                       <td className="px-6 py-4 text-white/60">
@@ -491,35 +517,42 @@ export default function AdminDashboard() {
           </div>
         ) : activeTab === 'prompts' ? (
           <div className="space-y-4">
-            <div className="flex gap-4 items-center mb-4">
-              <div className="flex-1">
-                <label className="block text-[#00ffff] text-sm mb-1">Filter by User</label>
-                <select
-                  value={selectedUser}
-                  onChange={(e) => setSelectedUser(e.target.value)}
-                  className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
-                >
-                  <option value="all" className="bg-black">All Users</option>
-                  {users.map((user) => (
-                    <option key={user.uid} value={user.uid} className="bg-black">
-                      {user.email}
-                    </option>
-                  ))}
-                </select>
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex gap-4 items-center">
+                <div className="flex-1">
+                  <label className="block text-[#00ffff] text-sm mb-1">Filter by User</label>
+                  <select
+                    value={selectedUser}
+                    onChange={(e) => setSelectedUser(e.target.value)}
+                    className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
+                  >
+                    <option value="all" className="bg-black">All Users</option>
+                    {users.map((user) => (
+                      <option key={user.uid} value={user.uid} className="bg-black">
+                        {user.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-[#00ffff] text-sm mb-1">Filter by Date</label>
+                  <select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
+                    className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
+                  >
+                    <option value="all" className="bg-black">All Time</option>
+                    <option value="today" className="bg-black">Last 24 Hours</option>
+                    <option value="week" className="bg-black">Last 7 Days</option>
+                    <option value="month" className="bg-black">Last 30 Days</option>
+                  </select>
+                </div>
               </div>
-              <div className="flex-1">
-                <label className="block text-[#00ffff] text-sm mb-1">Filter by Date</label>
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
-                  className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
-                >
-                  <option value="all" className="bg-black">All Time</option>
-                  <option value="today" className="bg-black">Last 24 Hours</option>
-                  <option value="week" className="bg-black">Last 7 Days</option>
-                  <option value="month" className="bg-black">Last 30 Days</option>
-                </select>
-              </div>
+              <Link href="/prompt/new">
+                <Button variant="default" className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black">
+                  Create New Prompt
+                </Button>
+              </Link>
             </div>
 
             <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
@@ -727,7 +760,7 @@ export default function AdminDashboard() {
                       />
                       <div className="flex gap-2">
                         <Button
-                          onClick={handleAddSubcategory}
+                          onClick={() => handleAddSubcategory(category.id)}
                           className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
                         >
                           Add Subcategory

@@ -12,7 +12,6 @@ interface Category {
   subcategories?: {
     [key: string]: {
       name: string;
-      description?: string;
     };
   };
   isPrivate?: boolean;
@@ -22,7 +21,6 @@ export default function SubmitPage() {
   const { user } = useAuth();
   const router = useRouter();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [content, setContent] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
@@ -31,15 +29,7 @@ export default function SubmitPage() {
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [isPaidUser, setIsPaidUser] = useState(false);
   const [activeTab, setActiveTab] = useState<'public' | 'private'>('public');
-
-  useEffect(() => {
-    // Reset isPrivate if user is not paid
-    if (!isPaidUser) {
-      setIsPrivate(false);
-    }
-  }, [isPaidUser]);
 
   useEffect(() => {
     // Check if user is paid and fetch categories
@@ -50,14 +40,14 @@ export default function SubmitPage() {
       }
 
       try {
-        // Check if user is paid
+        // Check if user has access to private features
         const userRef = ref(db, `users/${user.uid}`);
         const userSnapshot = await get(userRef);
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.val();
-          const isPaid = userData.role === 'admin' || userData.plan === 'paid';
-          setIsPaidUser(isPaid);
-        }
+        const userData = userSnapshot.exists() ? userSnapshot.val() : null;
+        const hasPrivateAccess = userData?.role === 'admin' || userData?.plan === 'paid' || userData?.stripeSubscriptionStatus === 'active';
+        console.log('User data:', userData); // Add debug logging
+        console.log('Has private access:', hasPrivateAccess); // Add debug logging
+        setIsPrivate(hasPrivateAccess);
 
         // Fetch public categories
         const categoriesRef = ref(db, 'categories');
@@ -72,8 +62,8 @@ export default function SubmitPage() {
           setCategories(categoriesArray);
         }
 
-        // Fetch private categories if user is paid
-        if (isPaidUser) {
+        // Fetch private categories if user has access
+        if (hasPrivateAccess) {
           const privateRef = ref(db, `users/${user.uid}/categories`);
           const privateSnapshot = await get(privateRef);
           if (privateSnapshot.exists()) {
@@ -94,19 +84,15 @@ export default function SubmitPage() {
     };
 
     checkUserAndFetchData();
-  }, [user, router, isPaidUser]);
+  }, [user, router, activeTab]);
 
   const validateFields = () => {
     if (title.length < 3 || title.length > 100) {
       setError('Title must be between 3 and 100 characters');
       return false;
     }
-    if (description.length < 10 || description.length > 500) {
-      setError('Description must be between 10 and 500 characters');
-      return false;
-    }
     if (content.length < 10 || content.length > 5000) {
-      setError('Content must be between 10 and 5000 characters');
+      setError('Prompt must be between 10 and 5000 characters');
       return false;
     }
     if (!selectedCategory) {
@@ -160,27 +146,19 @@ export default function SubmitPage() {
 
       const promptData = {
         title,
-        description,
         content,
         categoryId: selectedCategory,
         subcategoryId: selectedSubcategory || null,
-        visibility: isPrivate ? 'private' : 'public',
+        visibility: isPrivateCategory ? 'private' : 'public', // Set visibility based on category type
         userId: user.uid,
         userName: user.displayName || user.email,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       };
 
-      // Prevent non-paid users from creating private prompts
-      if (isPrivate && !isPaidUser) {
-        setError('Only paid users can create private prompts');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Save to the appropriate location based on visibility
+      // Save to the appropriate location based on category type
       try {
-        const promptsRef = isPrivateCategory 
+        const promptsRef = isPrivateCategory
           ? ref(db, `users/${user.uid}/prompts`)
           : ref(db, 'prompts');
         
@@ -235,7 +213,7 @@ export default function SubmitPage() {
             >
               Public Categories
             </button>
-            {isPaidUser && (
+            {isPrivate && (
               <button
                 type="button"
                 onClick={() => {
@@ -258,7 +236,7 @@ export default function SubmitPage() {
               <label htmlFor="category" className="block text-sm font-medium text-white">
                 Category
               </label>
-              {activeTab === 'private' && isPaidUser && (
+              {activeTab === 'private' && isPrivate && (
                 <button
                   type="button"
                   onClick={() => {
@@ -358,71 +336,23 @@ export default function SubmitPage() {
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-white mb-2">
-              Description
-            </label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full h-32 bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
-              required
+              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-3 focus:border-[#00ffff]/40 focus:outline-none"
+              placeholder="Enter prompt title"
             />
           </div>
 
           <div>
             <label htmlFor="content" className="block text-sm font-medium text-white mb-2">
-              Content
+              Prompt
             </label>
             <textarea
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full h-64 bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none font-mono"
-              required
+              rows={5}
+              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-3 focus:border-[#00ffff]/40 focus:outline-none"
+              placeholder="Enter your prompt"
             />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-white">
-                Visibility
-              </label>
-              {!isPaidUser && (
-                <span className="text-xs text-[#00ffff]">
-                  ✨ Upgrade to create private prompts
-                </span>
-              )}
-            </div>
-            <div className="flex items-center space-x-4">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  className="form-radio text-[#00ffff]"
-                  checked={!isPrivate}
-                  onChange={() => setIsPrivate(false)}
-                  name="visibility"
-                />
-                <span className="ml-2 text-white">Public</span>
-              </label>
-              <label className={`inline-flex items-center ${!isPaidUser ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                <input
-                  type="radio"
-                  className="form-radio text-[#00ffff]"
-                  checked={isPrivate}
-                  onChange={() => setIsPrivate(true)}
-                  disabled={!isPaidUser}
-                  name="visibility"
-                />
-                <span className="ml-2 text-white">Private</span>
-              </label>
-            </div>
           </div>
 
           <button

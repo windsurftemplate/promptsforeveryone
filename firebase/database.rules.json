@@ -1,16 +1,13 @@
 {
   "rules": {
+    ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
     "prompts": {
-      ".indexOn": ["createdAt", "categoryId", "userId"],
       ".read": true,
       ".write": "auth != null",
       "$promptId": {
-        ".validate": "newData.hasChildren(['title', 'description', 'content', 'categoryId', 'userId', 'createdAt'])",
+        ".validate": "newData.hasChildren(['title', 'content', 'categoryId', 'userId', 'createdAt'])",
         "title": {
           ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 100"
-        },
-        "description": {
-          ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 500"
         },
         "content": {
           ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 5000"
@@ -19,71 +16,76 @@
           ".validate": "newData.isString() && root.child('categories').child(newData.val()).exists()"
         },
         "userId": {
-          ".validate": "auth != null && newData.val() === auth.uid"
+          ".validate": "auth != null && (newData.val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')"
         },
-        "tags": {
-          ".validate": "newData.isString() || newData.hasChildren()"
+        "userName": {
+          ".validate": "newData.isString()"
+        },
+        "subcategoryId": {
+          ".validate": "!newData.exists() || newData.isString()"
+        },
+        "visibility": {
+          ".validate": "newData.isString() && (newData.val() === 'public' || newData.val() === 'private')"
         },
         "createdAt": {
           ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/)"
         },
-        "votes": {
-          ".read": true,
-          "$uid": {
-            ".write": "auth != null && $uid === auth.uid",
-            ".validate": "auth != null && $uid === auth.uid && newData.isBoolean() && (!data.exists() || data.val() === true)"
-          }
-        },
-        "$other": {
-          ".validate": false
+        "updatedAt": {
+          ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/)"
         }
       }
     },
     "users": {
       "$uid": {
-        ".read": "$uid === auth.uid",
+        ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
         ".write": "$uid === auth.uid",
         "prompts": {
-          ".indexOn": ["createdAt", "categoryId"],
+          ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
           "$promptId": {
-            ".validate": "newData.hasChildren(['title', 'description', 'content', 'categoryId', 'userId', 'createdAt'])",
-            "userId": {
-              ".validate": "newData.val() === auth.uid"
+            ".validate": "newData.hasChildren(['title', 'content', 'categoryId', 'userId', 'createdAt'])",
+            "title": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 100"
             },
-            "votes": {
-              ".read": true,
-              "$voterUid": {
-                ".write": "auth != null && $voterUid === auth.uid",
-                ".validate": "auth != null && $voterUid === auth.uid && newData.isBoolean() && (!data.exists() || data.val() === true)"
-              }
+            "content": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 5000"
+            },
+            "categoryId": {
+              ".validate": "newData.isString() && root.child('users').child(auth.uid).child('categories').child(newData.val()).exists()"
+            },
+            "userId": {
+              ".validate": "newData.val() === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'"
+            },
+            "userName": {
+              ".validate": "newData.isString()"
+            },
+            "subcategoryId": {
+              ".validate": "!newData.exists() || newData.isString()"
+            },
+            "visibility": {
+              ".validate": "newData.isString() && newData.val() === 'private'"
+            },
+            "createdAt": {
+              ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/)"
+            },
+            "updatedAt": {
+              ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/)"
             }
           }
+        },
+        "categories": {
+          ".read": "$uid === auth.uid && (root.child('users').child($uid).child('role').val() === 'admin' || root.child('users').child($uid).child('plan').val() === 'paid' || root.child('users').child($uid).child('stripeSubscriptionStatus').val() === 'active')",
+          ".write": "$uid === auth.uid && (root.child('users').child($uid).child('role').val() === 'admin' || root.child('users').child($uid).child('plan').val() === 'paid' || root.child('users').child($uid).child('stripeSubscriptionStatus').val() === 'active')"
         }
       }
     },
     "categories": {
       ".read": true,
-      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
-      "$categoryId": {
-        ".validate": "newData.hasChildren(['name'])",
-        "name": {
-          ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
-        },
-        "description": {
-          ".validate": "newData.isString() || !newData.exists()"
-        },
-        "subcategories": {
-          "$subcategoryId": {
-            ".validate": "newData.hasChildren(['name'])",
-            "name": {
-              ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 50"
-            },
-            "description": {
-              ".validate": "newData.isString() || !newData.exists()"
-            }
-          }
-        }
-      }
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+    "blog": {
+      ".read": true,
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
     }
   }
 }

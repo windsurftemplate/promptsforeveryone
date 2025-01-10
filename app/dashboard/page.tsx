@@ -202,7 +202,12 @@ export default function DashboardPage() {
               const privateSnapshot = await get(privatePromptsRef);
               if (privateSnapshot.exists()) {
                 const privatePrompts = Object.entries(privateSnapshot.val())
-                  .filter(([_, data]: [string, any]) => data.categoryId === selectedCategory.id)
+                  .filter(([_, data]: [string, any]) => {
+                    // Filter by category and subcategory if selected
+                    const categoryMatch = data.categoryId === selectedCategory.id;
+                    if (!selectedSubcategory) return categoryMatch;
+                    return categoryMatch && data.subcategoryId === selectedSubcategory.id;
+                  })
                   .map(([id, data]: [string, any]) => ({
                     id: `private-${id}`,
                     ...data,
@@ -220,9 +225,12 @@ export default function DashboardPage() {
               const publicSnapshot = await get(publicPromptsRef);
               if (publicSnapshot.exists()) {
                 const publicPrompts = Object.entries(publicSnapshot.val())
-                  .filter(([_, data]: [string, any]) => 
-                    data.userId === user.uid && data.categoryId === selectedCategory.id
-                  )
+                  .filter(([_, data]: [string, any]) => {
+                    // Filter by category and subcategory if selected
+                    const categoryMatch = data.userId === user.uid && data.categoryId === selectedCategory.id;
+                    if (!selectedSubcategory) return categoryMatch;
+                    return categoryMatch && data.subcategoryId === selectedSubcategory.id;
+                  })
                   .map(([id, data]: [string, any]) => ({
                     id: `public-${id}`,
                     ...data,
@@ -234,11 +242,6 @@ export default function DashboardPage() {
               console.error('Error fetching public prompts:', error);
             }
           }
-        }
-
-        // Filter by subcategory if selected
-        if (selectedSubcategory) {
-          promptsToShow = promptsToShow.filter(prompt => prompt.subcategory === selectedSubcategory.id);
         }
 
         // Sort by creation date
