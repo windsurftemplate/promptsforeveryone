@@ -38,20 +38,44 @@ interface Category {
   };
 }
 
+interface Prompt {
+  id: string;
+  title: string;
+  content: string;
+  userId: string;
+  userName?: string;
+  category: string;
+  subcategory?: string;
+  createdAt: string;
+  isPrivate?: boolean;
+}
+
+interface UserData {
+  name?: string;
+  email: string;
+  role?: string;
+  plan?: string;
+  createdAt?: string;
+  lastLogin?: string;
+}
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'users' | 'blog' | 'categories'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'blog' | 'categories' | 'prompts'>('users');
   const [categories, setCategories] = useState<Category[]>([]);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [isAddingSubcategory, setIsAddingSubcategory] = useState(false);
   const [error, setError] = useState('');
+  const [selectedUser, setSelectedUser] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
 
   useEffect(() => {
     if (!user) {
@@ -122,6 +146,94 @@ export default function AdminDashboard() {
         setCategories(categoriesArray);
       }
     });
+
+    // Fetch all prompts
+    const fetchPrompts = async () => {
+      // Fetch public prompts
+      const publicPromptsRef = ref(db, 'prompts');
+      onValue(publicPromptsRef, async (snapshot) => {
+        const publicPrompts: Prompt[] = [];
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          for (const [id, prompt] of Object.entries(data)) {
+            const promptData = prompt as any;
+            // Fetch user details
+            const userRef = ref(db, `users/${promptData.userId}`);
+            const userSnapshot = await get(userRef);
+            const userData = userSnapshot.val() as UserData;
+            
+            // Fetch category details to get subcategory name
+            let subcategoryName = '';
+            if (promptData.category && promptData.subcategoryId) {
+              const categoryRef = ref(db, `categories/${promptData.category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+              const categorySnapshot = await get(categoryRef);
+              if (categorySnapshot.exists()) {
+                const categoryData = categorySnapshot.val();
+                subcategoryName = categoryData.subcategories?.[promptData.subcategoryId]?.name || '';
+              }
+            }
+            
+            publicPrompts.push({
+              id,
+              ...promptData,
+              userName: userData?.name || userData?.email || 'Unknown User',
+              subcategory: subcategoryName,
+              isPrivate: false
+            });
+          }
+        }
+
+        // Fetch private prompts from all users
+        const usersRef = ref(db, 'users');
+        const usersSnapshot = await get(usersRef);
+        const privatePrompts: Prompt[] = [];
+        
+        if (usersSnapshot.exists()) {
+          const users = usersSnapshot.val();
+          for (const [userId, userData] of Object.entries(users)) {
+            const typedUserData = userData as UserData;
+            const userPromptsRef = ref(db, `users/${userId}/prompts`);
+            const userPromptsSnapshot = await get(userPromptsRef);
+            
+            if (userPromptsSnapshot.exists()) {
+              const userPrompts = userPromptsSnapshot.val();
+              for (const [promptId, prompt] of Object.entries(userPrompts)) {
+                const promptData = prompt as any;
+                
+                // Fetch category details to get subcategory name
+                let subcategoryName = '';
+                if (promptData.category && promptData.subcategoryId) {
+                  const categoryRef = ref(db, `categories/${promptData.category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                  const categorySnapshot = await get(categoryRef);
+                  if (categorySnapshot.exists()) {
+                    const categoryData = categorySnapshot.val();
+                    subcategoryName = categoryData.subcategories?.[promptData.subcategoryId]?.name || '';
+                  }
+                }
+
+                privatePrompts.push({
+                  id: promptId,
+                  ...promptData,
+                  userName: typedUserData.name || typedUserData.email || 'Unknown User',
+                  subcategory: subcategoryName,
+                  userId,
+                  isPrivate: true
+                });
+              }
+            }
+          }
+        }
+
+        // Combine and sort all prompts by creation date
+        const allPrompts = [...publicPrompts, ...privatePrompts].sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
+        setPrompts(allPrompts);
+      });
+    };
+
+    fetchPrompts();
 
     return () => {
       unsubscribeUsers();
@@ -216,6 +328,70 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeletePrompt = async (prompt: Prompt) => {
+    if (!confirm('Are you sure you want to delete this prompt?')) {
+      return;
+    }
+
+    try {
+      if (prompt.isPrivate) {
+        // Delete from user's private prompts
+        await remove(ref(db, `users/${prompt.userId}/prompts/${prompt.id}`));
+      } else {
+        // Delete from public prompts
+        await remove(ref(db, `prompts/${prompt.id}`));
+      }
+
+      // Update category count if needed
+      if (prompt.category) {
+        const categoryRef = ref(db, `categories/${prompt.category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+        const categorySnapshot = await get(categoryRef);
+        if (categorySnapshot.exists()) {
+          const categoryData = categorySnapshot.val();
+          const currentCount = categoryData.count || 0;
+          if (currentCount > 0) {
+            await update(categoryRef, { count: currentCount - 1 });
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting prompt:', error);
+      setError('Failed to delete prompt');
+    }
+  };
+
+  const filteredPrompts = prompts.filter(prompt => {
+    let passesUserFilter = true;
+    let passesDateFilter = true;
+
+    // User filter
+    if (selectedUser !== 'all') {
+      passesUserFilter = prompt.userId === selectedUser;
+    }
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const promptDate = new Date(prompt.createdAt);
+      const today = new Date();
+      const diffTime = today.getTime() - promptDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      switch (dateFilter) {
+        case 'today':
+          passesDateFilter = diffDays <= 1;
+          break;
+        case 'week':
+          passesDateFilter = diffDays <= 7;
+          break;
+        case 'month':
+          passesDateFilter = diffDays <= 30;
+          break;
+      }
+    }
+
+    return passesUserFilter && passesDateFilter;
+  });
+
   return (
     <div className="min-h-screen bg-black pt-32 pb-16">
       <div className="container mx-auto px-4">
@@ -236,14 +412,14 @@ export default function AdminDashboard() {
             Users
           </button>
           <button
-            onClick={() => setActiveTab('blog')}
+            onClick={() => setActiveTab('prompts')}
             className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === 'blog'
+              activeTab === 'prompts'
                 ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
                 : 'text-white/60 hover:text-white'
             }`}
           >
-            Blog
+            Prompts
           </button>
           <button
             onClick={() => setActiveTab('categories')}
@@ -254,6 +430,16 @@ export default function AdminDashboard() {
             }`}
           >
             Categories
+          </button>
+          <button
+            onClick={() => setActiveTab('blog')}
+            className={`px-6 py-3 font-medium text-sm transition-colors ${
+              activeTab === 'blog'
+                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            Blog
           </button>
         </div>
 
@@ -301,6 +487,107 @@ export default function AdminDashboard() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        ) : activeTab === 'prompts' ? (
+          <div className="space-y-4">
+            <div className="flex gap-4 items-center mb-4">
+              <div className="flex-1">
+                <label className="block text-[#00ffff] text-sm mb-1">Filter by User</label>
+                <select
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                  className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
+                >
+                  <option value="all" className="bg-black">All Users</option>
+                  {users.map((user) => (
+                    <option key={user.uid} value={user.uid} className="bg-black">
+                      {user.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-[#00ffff] text-sm mb-1">Filter by Date</label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
+                  className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
+                >
+                  <option value="all" className="bg-black">All Time</option>
+                  <option value="today" className="bg-black">Last 24 Hours</option>
+                  <option value="week" className="bg-black">Last 7 Days</option>
+                  <option value="month" className="bg-black">Last 30 Days</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[#00ffff]/20">
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">User</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Category</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Type</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPrompts.map((prompt) => (
+                      <tr 
+                        key={prompt.id}
+                        className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
+                      >
+                        <td className="px-6 py-4 text-white">{prompt.title}</td>
+                        <td className="px-6 py-4 text-white/60">{prompt.userName}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1">
+                            <span className="px-2 py-1 rounded-full text-sm bg-[#00ffff]/10 text-[#00ffff]">
+                              {prompt.category}
+                            </span>
+                            {prompt.subcategory && (
+                              <span className="px-2 py-1 rounded-full text-sm bg-[#00ffff]/5 text-[#00ffff]/80">
+                                {prompt.subcategory}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded-full text-sm ${
+                            prompt.isPrivate
+                              ? 'bg-gray-500/20 text-gray-400'
+                              : 'bg-green-500/20 text-green-400'
+                          }`}>
+                            {prompt.isPrivate ? 'Private' : 'Public'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-white/60">
+                          {new Date(prompt.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-4">
+                            <Link 
+                              href={`/prompt/${prompt.id}`}
+                              className="text-[#00ffff] hover:text-[#00ffff]/80"
+                            >
+                              View
+                            </Link>
+                            <button
+                              onClick={() => handleDeletePrompt(prompt)}
+                              className="text-red-500 hover:text-red-400 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         ) : activeTab === 'blog' ? (

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { ref, get, set } from 'firebase/database';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
@@ -40,7 +41,22 @@ export default function RegisterPage() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: name });
+      const user = userCredential.user;
+      
+      // Update user profile with name
+      await updateProfile(user, { displayName: name });
+
+      // Save user data to Firebase Realtime Database
+      const userRef = ref(db, `users/${user.uid}`);
+      await set(userRef, {
+        email: user.email,
+        name: name,
+        role: 'user',
+        plan: 'free',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      });
+
       router.push('/dashboard');
     } catch (err) {
       setError('Failed to create an account. Please try again.');
@@ -56,16 +72,41 @@ export default function RegisterPage() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({
         prompt: 'select_account'
       });
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user already exists in database
+      const userRef = ref(db, `users/${user.uid}`);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        // Create new user document in database
+        await set(userRef, {
+          email: user.email,
+          name: user.displayName,
+          role: 'user',
+          plan: 'free',
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        });
+      } else {
+        // Update last login time
+        await set(ref(db, `users/${user.uid}/lastLogin`), new Date().toISOString());
+      }
+
       router.push('/dashboard');
     } catch (err) {
       setError('Failed to sign in with Google. Please try again.');
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
