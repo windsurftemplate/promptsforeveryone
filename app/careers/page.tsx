@@ -3,6 +3,18 @@
 import { useState } from 'react';
 import { EnvelopeIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
+interface JobPosition {
+  title: string;
+  type: string;
+  location: string;
+  about: string;
+  overview: string;
+  responsibilities: string[];
+  qualifications: string[];
+  preferredSkills: string[];
+  benefits: string[];
+}
+
 export default function CareersPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -13,6 +25,44 @@ export default function CareersPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
+
+  const openPositions: JobPosition[] = [
+    {
+      title: "Prompt Creator and Tester",
+      type: "Part-Time / Full-Time / Freelance",
+      location: "Remote",
+      about: "Promptsforeveryone.com is an innovative platform providing a diverse library of prompts for users across education, entertainment, business, and personal development. Our goal is to inspire creativity, productivity, and learning with high-quality, engaging prompts tailored to various needs.",
+      overview: "We are seeking a creative and detail-oriented Prompt Creator and Tester to join our team. In this role, you will develop unique, engaging prompts and ensure they are effective, user-friendly, and aligned with our diverse audience's needs. You'll test prompts for clarity, engagement, and usability while contributing to the overall growth of the prompt library.",
+      responsibilities: [
+        "Create Prompts: Develop high-quality prompts across various categories, including education, entertainment, business, and personal development.",
+        "Test Prompts: Evaluate the effectiveness and usability of prompts through hands-on testing and user feedback.",
+        "Collaborate with the Team: Work with content managers and developers to refine prompts and improve their functionality.",
+        "Analyze Trends: Research popular topics, trends, and user interests to ensure prompts are timely and relevant.",
+        "Community Engagement: Interact with users to gather feedback and understand their needs for prompt customization.",
+        "Maintain Quality Standards: Ensure prompts meet our standards for creativity, inclusivity, and clarity."
+      ],
+      qualifications: [
+        "Creativity: A knack for thinking outside the box and creating engaging content.",
+        "Strong Writing Skills: Excellent grammar, clarity, and an ability to adapt writing for various audiences.",
+        "Attention to Detail: Ability to spot issues in prompt usability and ensure consistent quality.",
+        "Experience: Previous experience in creative writing, content creation, or similar roles is a plus.",
+        "Adaptability: Comfortable working with different prompt types and categories.",
+        "Tech-Savvy: Familiarity with prompt testing tools, AI models (e.g., GPT), and online platforms."
+      ],
+      preferredSkills: [
+        "Experience with AI tools like ChatGPT or similar technologies.",
+        "Background in education, marketing, or content creation.",
+        "Understanding of user experience (UX) principles."
+      ],
+      benefits: [
+        "Flexible working hours",
+        "Remote work opportunities",
+        "A chance to shape the future of creative and educational tools",
+        "Competitive compensation",
+        "Opportunities for growth within the company"
+      ]
+    }
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,10 +120,10 @@ export default function CareersPage() {
       <div className="max-w-7xl mx-auto px-4 py-12 pt-24">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">
-        Join Our Team
-      </h1>
+            Join Our Team
+          </h1>
           <p className="text-white/60 max-w-2xl mx-auto">
-            While we don't have any current openings, we're always interested in connecting with talented individuals who are passionate about AI and prompt engineering.
+            We're looking for talented individuals who are passionate about AI and prompt engineering to help us build the future of AI interactions.
           </p>
         </div>
 
@@ -81,29 +131,95 @@ export default function CareersPage() {
           <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8 mb-8">
             <h2 className="text-2xl font-semibold text-white mb-6">Why Join Us?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
+              <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Innovation First</h3>
                 <p className="text-white/60">Work on cutting-edge AI technology and shape the future of prompt engineering.</p>
               </div>
               <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Remote-First Culture</h3>
                 <p className="text-white/60">Work from anywhere in the world with our distributed team.</p>
-            </div>
-            <div className="space-y-2">
+              </div>
+              <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Growth Opportunities</h3>
                 <p className="text-white/60">Continuous learning and development in a rapidly evolving field.</p>
-            </div>
-            <div className="space-y-2">
+              </div>
+              <div className="space-y-2">
                 <h3 className="text-[#00ffff] font-medium">Impactful Work</h3>
                 <p className="text-white/60">Help democratize access to AI technology and empower users worldwide.</p>
               </div>
             </div>
           </div>
 
+          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8 mb-8">
+            <h2 className="text-2xl font-semibold text-white mb-6">Open Positions</h2>
+            
+            {openPositions.map((position, index) => (
+              <div key={index} className="mb-8 last:mb-0">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-[#00ffff]">{position.title}</h3>
+                    <div className="flex gap-4 mt-2">
+                      <span className="text-white/60 text-sm">{position.type}</span>
+                      <span className="text-white/60 text-sm">{position.location}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-white font-medium mb-2">About Us</h4>
+                    <p className="text-white/80">{position.about}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Job Overview</h4>
+                    <p className="text-white/80">{position.overview}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Key Responsibilities</h4>
+                    <ul className="list-disc list-inside text-white/60 space-y-1">
+                      {position.responsibilities.map((resp, i) => (
+                        <li key={i}>{resp}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Qualifications</h4>
+                    <ul className="list-disc list-inside text-white/60 space-y-1">
+                      {position.qualifications.map((qual, i) => (
+                        <li key={i}>{qual}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-medium mb-2">Preferred Skills</h4>
+                    <ul className="list-disc list-inside text-white/60 space-y-1">
+                      {position.preferredSkills.map((skill, i) => (
+                        <li key={i}>{skill}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="text-white font-medium mb-2">What We Offer</h4>
+                    <ul className="list-disc list-inside text-white/60 space-y-1">
+                      {position.benefits.map((benefit, i) => (
+                        <li key={i}>{benefit}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8">
-            <h2 className="text-2xl font-semibold text-white mb-6">Express Interest</h2>
+            <h2 className="text-2xl font-semibold text-white mb-6">Apply Now</h2>
             <p className="text-white/60 mb-8">
-              Submit your information below and we'll reach out when relevant opportunities become available.
+              Submit your application below and we'll get back to you as soon as possible.
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
