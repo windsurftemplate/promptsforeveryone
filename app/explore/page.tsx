@@ -8,6 +8,7 @@ import Card from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { Prompt } from '@/types';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
 
 interface Category {
   id: string;
@@ -28,6 +29,7 @@ interface SelectedCategory {
 
 export default function ExplorePage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<SelectedCategory | null>(null);
@@ -37,6 +39,23 @@ export default function ExplorePage() {
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    // Check if current user is admin
+    const checkAdmin = async () => {
+      const adminRef = ref(db, `users/${user.uid}/role`);
+      const snapshot = await get(adminRef);
+      if (!snapshot.exists() || snapshot.val() !== 'admin') {
+        router.push('/dashboard');
+        return;
+      }
+    };
+
+    checkAdmin();
+
     const fetchCategories = async () => {
       try {
         const categoriesRef = ref(db, 'categories');
@@ -121,8 +140,9 @@ export default function ExplorePage() {
     <div className="min-h-screen bg-black pt-32 pb-16">
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-8">
-          Explore Prompts
+          Admin Explore
         </h1>
+        <p className="text-white/60 mb-8">Manage and explore all prompts in the system. Only accessible to administrators.</p>
 
         <div className="flex gap-8">
           {/* Sidebar */}

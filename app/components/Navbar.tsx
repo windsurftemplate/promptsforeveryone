@@ -18,6 +18,7 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPaidUser, setIsPaidUser] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export default function Navbar() {
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
           const userData = snapshot.val();
+          setIsAdmin(userData.role === 'admin');
           setIsPaidUser(userData.plan === 'paid' || userData.role === 'admin');
         }
       } catch (error) {
@@ -127,7 +129,9 @@ export default function Navbar() {
                     <div className="py-2">
                       <Link href="/price" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Pricing</Link>
                       <Link href="/categories" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Categories</Link>
-                      <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
+                      {isAdmin && (
+                        <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
+                      )}
                       <Link href="/popular" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Popular</Link>
                       <Link href="/submit" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Submit Prompt</Link>
                     </div>
@@ -222,9 +226,11 @@ export default function Navbar() {
         {isMobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link href="/explore" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-                Explore
-              </Link>
+              {isAdmin && (
+                <Link href="/explore" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
+                  Explore
+                </Link>
+              )}
               <Link href="/categories" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
                 Categories
               </Link>

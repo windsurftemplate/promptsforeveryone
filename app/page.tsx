@@ -111,14 +111,14 @@ export default function HomePage() {
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
-                  <Link href="/explore">
+                  <Link href="/categories">
                     <Button 
                       className="bg-[#00ffff] hover:bg-[#00ffff]/90 text-black px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,255,0.3)]"
                     >
-                      Explore Prompts
+                      Browse Categories
                     </Button>
                   </Link>
-                  <Link href="/submit">
+                  <Link href="/register">
                     <Button 
                       variant="outline"
                       className="border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10 px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300"
@@ -147,7 +147,7 @@ export default function HomePage() {
               howItWorksVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-center text-[#00ffff] mb-12">
+            <h2 className="text-4xl md:text-4xl font-bold text-center text-[#00ffff] mb-12">
               How It Works
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -201,7 +201,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#00ffff] mb-4">
+            <h2 className="text-4xl md:text-4xl font-bold text-center text-[#00ffff] mb-12">
               Why Use Prompts For Everyone?
             </h2>
           </div>
@@ -269,10 +269,10 @@ export default function HomePage() {
             }`}
           >
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-[#00ffff] mb-4">
-                Pricing
+              <h2 className="text-4xl md:text-5xl font-bold text-center text-[#00ffff] mb-12">
+                Simplified Pricing
               </h2>
-              <p className="text-xl text-gray-400">Start for free, upgrade when you need it</p>
+              <p className="text-xl text-gray-400">Start for free, upgrade if you need it</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Free Plan */}

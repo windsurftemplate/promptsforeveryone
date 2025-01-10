@@ -71,7 +71,7 @@ export default function PricingPage() {
             Pricing
           </h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Start for free, upgrade when you need it
+            Start for free, upgrade if you need it
           </p>
         </div>
 

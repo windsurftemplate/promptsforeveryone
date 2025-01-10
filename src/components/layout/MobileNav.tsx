@@ -3,17 +3,49 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-
-const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Explore', href: '/explore' },
-  { name: 'Popular', href: '/popular' },
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Submit', href: '/submit' },
-];
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { ref, get } from 'firebase/database';
+import { db } from '@/lib/firebase';
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [navigation, setNavigation] = useState([
+    { name: 'Home', href: '/' },
+    { name: 'Popular', href: '/popular' },
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Submit', href: '/submit' },
+  ]);
+
+  useEffect(() => {
+    const checkUserStatus = async () => {
+      if (!user) return;
+
+      try {
+        const userRef = ref(db, `users/${user.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          setIsAdmin(userData.role === 'admin');
+          if (userData.role === 'admin') {
+            setNavigation(prev => [
+              { name: 'Home', href: '/' },
+              { name: 'Explore', href: '/explore' },
+              { name: 'Popular', href: '/popular' },
+              { name: 'Dashboard', href: '/dashboard' },
+              { name: 'Submit', href: '/submit' },
+            ]);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking user status:', error);
+      }
+    };
+
+    checkUserStatus();
+  }, [user]);
 
   return (
     <nav className="bg-surface border-t border-surface-light/10">
