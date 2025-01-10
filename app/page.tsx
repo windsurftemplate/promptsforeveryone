@@ -88,7 +88,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[#000000]"></div>
         
           {/* Subtle gradient effect */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#000000] via-[#001a1a] to-[#000000] opacity-80"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#001a1a] to-[#000000] opacity-80"></div>
         </div>
         
         {/* Content wrapper */}
