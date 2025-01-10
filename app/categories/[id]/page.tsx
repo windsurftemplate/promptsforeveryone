@@ -130,7 +130,7 @@ export default function CategoryPage({ params }: Props) {
                 {Object.entries(category.subcategories).map(([id, subcategory]) => (
                   <Link 
                     key={id}
-                    href={`/categories/${categoryId}/${id}`}
+                    href={`/categories/${categoryId}/${encodeURIComponent(subcategory.name.toLowerCase().replace(/\s+/g, '-'))}`}
                     className="group"
                   >
                     <div 

@@ -29,6 +29,11 @@ interface Props {
   }>;
 }
 
+interface Subcategory {
+  name: string;
+  description?: string;
+}
+
 export default function SubcategoryPage({ params }: Props) {
   const { id: categoryId, subId: subcategoryId } = React.use(params);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -47,42 +52,50 @@ export default function SubcategoryPage({ params }: Props) {
       if (snapshot.exists()) {
         const data = snapshot.val();
         setCategoryName(data.name);
-        if (data.subcategories && data.subcategories[subcategoryId]) {
-          setSubcategoryName(data.subcategories[subcategoryId].name);
-        }
-      }
-    });
-
-    // Fetch prompts for this subcategory
-    const promptsRef = ref(db, 'prompts');
-    onValue(promptsRef, (snapshot) => {
-      console.log('All prompts:', snapshot.val());
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const filteredPrompts = Object.entries(data)
-          .filter(([_, prompt]: [string, any]) => {
-            console.log('Checking prompt:', prompt);
-            console.log('Matching against:', {
-              categoryId,
-              subcategoryId,
-              visibility: prompt.visibility
+        
+        // Find subcategory by name
+        if (data.subcategories) {
+          const decodedSubcategoryName = decodeURIComponent(subcategoryId).toLowerCase();
+          const subcategoryEntries = Object.entries(data.subcategories) as [string, Subcategory][];
+          const subcategoryEntry = subcategoryEntries.find(([_, sub]) => 
+            sub.name.toLowerCase().replace(/\s+/g, '-') === decodedSubcategoryName
+          );
+          
+          if (subcategoryEntry) {
+            const [actualSubcategoryId, subcategory] = subcategoryEntry;
+            setSubcategoryName(subcategory.name);
+            
+            // Fetch prompts for this subcategory using the actual ID
+            const promptsRef = ref(db, 'prompts');
+            onValue(promptsRef, (snapshot) => {
+              if (snapshot.exists()) {
+                const data = snapshot.val();
+                const filteredPrompts = Object.entries(data)
+                  .filter(([_, prompt]: [string, any]) => 
+                    prompt.categoryId === categoryId && 
+                    prompt.subcategoryId === actualSubcategoryId &&
+                    prompt.visibility === 'public'
+                  )
+                  .map(([id, prompt]: [string, any]) => ({
+                    id: `public-${id}`,
+                    ...prompt
+                  }));
+                
+                // Sort by creation date
+                filteredPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                setPrompts(filteredPrompts);
+              }
+              setLoading(false);
             });
-            return prompt.categoryId === categoryId && 
-                   prompt.subcategoryId === subcategoryId &&
-                   prompt.visibility === 'public';
-          })
-          .map(([id, prompt]: [string, any]) => ({
-            id: `public-${id}`,
-            ...prompt
-          }));
-        
-        console.log('Filtered prompts:', filteredPrompts);
-        
-        // Sort by creation date
-        filteredPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setPrompts(filteredPrompts);
+          } else {
+            setLoading(false);
+          }
+        } else {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
   }, [categoryId, subcategoryId]);
 

@@ -81,9 +81,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
       // Add subcategory pages
       if (category.subcategories) {
-        for (const [subcategoryId] of Object.entries(category.subcategories)) {
+        for (const [subcategoryId, subcategory] of Object.entries(category.subcategories)) {
           routes.push({
-            url: `${baseUrl}/categories/${categoryId}/${subcategoryId}`,
+            url: `${baseUrl}/categories/${categoryId}/${encodeURIComponent(subcategory.name.toLowerCase().replace(/\s+/g, '-'))}`,
             lastModified: currentDate,
             changeFrequency: 'daily',
             priority: 0.7,
