@@ -515,6 +515,7 @@ export default function DashboardPage() {
                     description={prompt.description || ''}
                     content={prompt.content || ''}
                     tags={prompt.tags || []}
+                    userId={prompt.userId}
                     onDelete={(id) => handleDelete(id)}
                     onCopy={(content) => handleCopy(content)}
                     onClick={() => handleEdit(prompt)}

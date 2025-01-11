@@ -27,6 +27,9 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
+  // Check if current user is the creator
+  const isCreator = user && user.uid === prompt.userId;
+
   useEffect(() => {
     // Fetch categories from Firebase
     const categoriesRef = ref(db, 'categories');
@@ -125,9 +128,10 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
           <input
             type="text"
             value={editedPrompt.title}
-            onChange={(e) => setEditedPrompt({ ...editedPrompt, title: e.target.value })}
+            onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, title: e.target.value })}
             className="text-2xl font-bold bg-black/50 text-[#00ffff] border border-[#00ffff]/20 rounded px-2 py-1 w-full mr-4"
             placeholder="Prompt Title"
+            readOnly={!isCreator}
           />
           <div className="flex gap-3">
             <button
@@ -137,13 +141,15 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
             >
               <ClipboardDocumentIcon className="w-6 h-6" />
             </button>
-            <button
-              onClick={() => onDelete(prompt.id || '')}
-              className="text-white/60 hover:text-[#00ffff] transition-colors"
-              title="Delete prompt"
-            >
-              <TrashIcon className="w-6 h-6" />
-            </button>
+            {isCreator && (
+              <button
+                onClick={() => onDelete(prompt.id || '')}
+                className="text-white/60 hover:text-[#00ffff] transition-colors"
+                title="Delete prompt"
+              >
+                <TrashIcon className="w-6 h-6" />
+              </button>
+            )}
             <button
               onClick={onClose}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
@@ -159,9 +165,10 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
             <h3 className="text-[#00ffff] font-medium mb-2">Description</h3>
             <textarea
               value={editedPrompt.description}
-              onChange={(e) => setEditedPrompt({ ...editedPrompt, description: e.target.value })}
+              onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, description: e.target.value })}
               className="w-full h-32 bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2"
               placeholder="Brief description of what this prompt does"
+              readOnly={!isCreator}
             />
           </div>
 
@@ -169,16 +176,17 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
             <h3 className="text-[#00ffff] font-medium mb-2">Prompt Content</h3>
             <textarea
               value={editedPrompt.content}
-              onChange={(e) => setEditedPrompt({ ...editedPrompt, content: e.target.value })}
+              onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, content: e.target.value })}
               className="w-full h-64 bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2 font-mono"
               placeholder="Enter your prompt content here"
+              readOnly={!isCreator}
             />
           </div>
 
           <div className="flex justify-between items-center text-white/60">
             <div className="flex items-center gap-2">
               <span className="text-[#00ffff]">Category:</span>
-              {isEditingCategory ? (
+              {isCreator && isEditingCategory ? (
                 <div className="flex flex-col gap-2">
                   <select
                     value={editedPrompt.categoryId}
@@ -208,12 +216,14 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
                   <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
                     {categories.find(c => c.id === editedPrompt.categoryId)?.name || 'No category'}
                   </span>
-                  <button
-                    onClick={() => setIsEditingCategory(true)}
-                    className="text-white/60 hover:text-[#00ffff] transition-colors"
-                  >
-                    <PencilIcon className="w-4 h-4" />
-                  </button>
+                  {isCreator && (
+                    <button
+                      onClick={() => setIsEditingCategory(true)}
+                      className="text-white/60 hover:text-[#00ffff] transition-colors"
+                    >
+                      <PencilIcon className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -223,22 +233,24 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              onClick={onClose}
-              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded"
-              disabled={isSaving}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-4 py-2 rounded"
-              disabled={isSaving}
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
+          {isCreator && (
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                onClick={onClose}
+                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded"
+                disabled={isSaving}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-4 py-2 rounded"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

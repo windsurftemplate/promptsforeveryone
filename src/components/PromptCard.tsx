@@ -3,6 +3,7 @@
 import React from 'react';
 import { ClipboardDocumentIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ShareButtons from './ShareButtons';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PromptCardProps {
   id: string;
@@ -10,6 +11,7 @@ interface PromptCardProps {
   description: string;
   content: string;
   tags: string[];
+  userId?: string;
   onDelete?: (id: string) => void;
   onCopy?: (content: string) => void;
   onClick?: () => void;
@@ -21,11 +23,14 @@ export default function PromptCard({
   description,
   content,
   tags,
+  userId,
   onDelete,
   onCopy,
   onClick,
 }: PromptCardProps) {
   const shareUrl = `${window.location.origin}/prompt/${id}`;
+  const { user } = useAuth();
+  const isCreator = user && userId && user.uid === userId;
 
   return (
     <div 
@@ -44,7 +49,7 @@ export default function PromptCard({
           >
             <ClipboardDocumentIcon className="w-5 h-5" />
           </button>
-          {onDelete && (
+          {isCreator && onDelete && (
             <button
               onClick={() => onDelete(id)}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
