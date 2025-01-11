@@ -148,38 +148,43 @@ export default function DashboardPage() {
         let promptsToShow = [];
         const seenPromptIds = new Set();
 
+        // Check if user has access to private prompts
+        const userRef = ref(db, `users/${user.uid}`);
+        const userSnapshot = await get(userRef);
+        const userData = userSnapshot.val();
+        const hasAccess = userData?.role === 'admin' || userData?.plan === 'paid' || userData?.stripeSubscriptionStatus === 'active';
+
         if (selectedCategory?.id === 'all-prompts') {
-          // Fetch all prompts (both private and public)
-          // Fetch private prompts first
-          const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
-          try {
-            const privateSnapshot = await get(privatePromptsRef);
-            if (privateSnapshot.exists()) {
-              const privatePrompts = Object.entries(privateSnapshot.val())
-                .filter(([id]) => !seenPromptIds.has(id))
-                .map(([id, data]: [string, any]) => {
-                  seenPromptIds.add(id);
-                  return {
-                    id: `private-${id}`,
-                    ...data,
-                    isPrivate: true
-                  };
-                });
-              promptsToShow.push(...privatePrompts);
+          // Fetch private prompts only for users with access
+          if (hasAccess) {
+            const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
+            try {
+              const privateSnapshot = await get(privatePromptsRef);
+              if (privateSnapshot.exists()) {
+                const privatePrompts = Object.entries(privateSnapshot.val())
+                  .filter(([id]) => !seenPromptIds.has(id))
+                  .map(([id, data]: [string, any]) => {
+                    seenPromptIds.add(id);
+                    return {
+                      id: `private-${id}`,
+                      ...data,
+                      isPrivate: true
+                    };
+                  });
+                promptsToShow.push(...privatePrompts);
+              }
+            } catch (error) {
+              console.error('Error fetching private prompts:', error);
             }
-          } catch (error) {
-            console.error('Error fetching private prompts:', error);
           }
 
-          // Fetch public prompts
+          // Always fetch public prompts for all users
           const publicPromptsRef = ref(db, 'prompts');
           try {
             const publicSnapshot = await get(publicPromptsRef);
             if (publicSnapshot.exists()) {
               const publicPrompts = Object.entries(publicSnapshot.val())
-                .filter(([id, data]: [string, any]) => 
-                  data.userId === user.uid && !seenPromptIds.has(id)
-                )
+                .filter(([id]) => !seenPromptIds.has(id))
                 .map(([id, data]: [string, any]) => {
                   seenPromptIds.add(id);
                   return {
@@ -196,38 +201,38 @@ export default function DashboardPage() {
         } else if (selectedCategory) {
           // Fetch prompts based on selected category
           if (selectedCategory.isPrivate) {
-            // Fetch private prompts for the selected category
-            const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
-            try {
-              const privateSnapshot = await get(privatePromptsRef);
-              if (privateSnapshot.exists()) {
-                const privatePrompts = Object.entries(privateSnapshot.val())
-                  .filter(([_, data]: [string, any]) => {
-                    // Filter by category and subcategory if selected
-                    const categoryMatch = data.categoryId === selectedCategory.id;
-                    if (!selectedSubcategory) return categoryMatch;
-                    return categoryMatch && data.subcategoryId === selectedSubcategory.id;
-                  })
-                  .map(([id, data]: [string, any]) => ({
-                    id: `private-${id}`,
-                    ...data,
-                    isPrivate: true
-                  }));
-                promptsToShow.push(...privatePrompts);
+            // Only fetch private prompts if user has access
+            if (hasAccess) {
+              const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
+              try {
+                const privateSnapshot = await get(privatePromptsRef);
+                if (privateSnapshot.exists()) {
+                  const privatePrompts = Object.entries(privateSnapshot.val())
+                    .filter(([_, data]: [string, any]) => {
+                      const categoryMatch = data.categoryId === selectedCategory.id;
+                      if (!selectedSubcategory) return categoryMatch;
+                      return categoryMatch && data.subcategoryId === selectedSubcategory.id;
+                    })
+                    .map(([id, data]: [string, any]) => ({
+                      id: `private-${id}`,
+                      ...data,
+                      isPrivate: true
+                    }));
+                  promptsToShow.push(...privatePrompts);
+                }
+              } catch (error) {
+                console.error('Error fetching private prompts:', error);
               }
-            } catch (error) {
-              console.error('Error fetching private prompts:', error);
             }
           } else {
-            // Fetch public prompts for the selected category
+            // Fetch public prompts for the selected category (available to all users)
             const publicPromptsRef = ref(db, 'prompts');
             try {
               const publicSnapshot = await get(publicPromptsRef);
               if (publicSnapshot.exists()) {
                 const publicPrompts = Object.entries(publicSnapshot.val())
                   .filter(([_, data]: [string, any]) => {
-                    // Filter by category and subcategory if selected
-                    const categoryMatch = data.userId === user.uid && data.categoryId === selectedCategory.id;
+                    const categoryMatch = data.categoryId === selectedCategory.id;
                     if (!selectedSubcategory) return categoryMatch;
                     return categoryMatch && data.subcategoryId === selectedSubcategory.id;
                   })
@@ -244,13 +249,17 @@ export default function DashboardPage() {
           }
         }
 
-        // Sort by creation date
-        promptsToShow.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        // Sort all prompts by creation date
+        promptsToShow.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        
         setPrompts(promptsToShow);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching prompts:', error);
-      } finally {
-        setIsLoading(false);
+        setError('Failed to load prompts');
+        setLoading(false);
       }
     };
 

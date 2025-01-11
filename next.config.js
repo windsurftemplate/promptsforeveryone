@@ -14,30 +14,15 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: `
-              default-src 'self';
-              script-src 'self' 'unsafe-eval' 'unsafe-inline' 
-                https://*.firebaseio.com 
-                https://*.googleapis.com 
-                https://*.firebase.com 
-                https://apis.google.com 
-                https://accounts.google.com 
-                https://www.gstatic.com 
-                https://*.firebaseapp.com 
-                https://*.googletagmanager.com 
-                https://www.google-analytics.com
-                https://js.stripe.com;
-              style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-              img-src 'self' blob: data: https://*.googleapis.com https://*.gstatic.com https://*.google.com;
-              font-src 'self' https://fonts.gstatic.com;
-              frame-src 'self' https://*.firebaseapp.com https://*.stripe.com;
-              connect-src 'self' 
-                https://*.firebaseio.com 
-                https://*.googleapis.com 
-                wss://*.firebaseio.com 
-                https://*.stripe.com
-                https://*.google-analytics.com;
-            `.replace(/\s+/g, ' ').trim()
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https://apis.google.com https://accounts.google.com https://www.gstatic.com https://*.firebaseapp.com https://*.googletagmanager.com https://www.google-analytics.com https://js.stripe.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' blob: data: https://*.googleapis.com https://*.gstatic.com https://*.google.com https://lh3.googleusercontent.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "frame-src 'self' https://*.firebaseapp.com https://*.stripe.com",
+              "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.stripe.com https://*.google-analytics.com"
+            ].join('; ')
           }
         ]
       }
