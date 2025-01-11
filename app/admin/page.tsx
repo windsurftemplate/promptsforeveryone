@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/Button';
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import AdminPromptGenerator from '../../src/components/admin/AdminPromptGenerator';
 
 interface User {
   uid: string;
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'users' | 'blog' | 'categories' | 'prompts'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'blog' | 'categories' | 'prompts' | 'generator'>('users');
   const [categories, setCategories] = useState<Category[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -465,6 +466,16 @@ export default function AdminDashboard() {
           >
             Blog
           </button>
+          <button
+            onClick={() => setActiveTab('generator')}
+            className={`px-6 py-3 font-medium text-sm transition-colors ${
+              activeTab === 'generator'
+                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            Prompt Generator
+          </button>
         </div>
 
         {isLoading ? (
@@ -728,6 +739,12 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        ) : activeTab === 'generator' ? (
+          <div className="space-y-6">
+            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden p-6">
+              <AdminPromptGenerator />
             </div>
           </div>
         ) : (

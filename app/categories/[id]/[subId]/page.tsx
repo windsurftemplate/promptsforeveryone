@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Card from '@/components/ui/Card';
 import Script from 'next/script';
+import VoteButton from '@/components/ui/VoteButton';
 
 interface Prompt {
   id: string;
@@ -162,19 +163,19 @@ export default function SubcategoryPage({ params }: Props) {
       <Script id="subcategory-structured-data" type="application/ld+json">
         {JSON.stringify(structuredData)}
       </Script>
-      <div className="min-h-screen bg-black">
+      <div className="min-h-screen bg-black/95 backdrop-blur-lg">
         <div className="container mx-auto px-4 py-12">
           <Link 
             href={`/categories/${categoryId}`}
             className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 mb-8 group"
           >
-            <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
             Back to {categoryName}
           </Link>
 
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-8 mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">{subcategoryName}</h1>
-            <p className="text-white/60 text-lg">
+          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-8 mb-8 hover:border-[#00ffff]/30 transition-colors duration-300">
+            <h1 className="text-4xl font-bold text-[#00ffff] mb-4">{subcategoryName}</h1>
+            <p className="text-white/70 text-lg">
               Explore our collection of {subcategoryName.toLowerCase()} prompts
             </p>
           </div>
@@ -185,13 +186,19 @@ export default function SubcategoryPage({ params }: Props) {
                 key={prompt.id} 
                 href={`/prompt/${prompt.id.replace('public-', '')}`}
               >
-                <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
+                <Card className="p-6 hover:border-[#00ffff]/50 hover:bg-black/60 transition-all duration-300 group cursor-pointer h-full backdrop-blur-lg">
                   <div className="flex flex-col h-full">
                     <div className="mb-4">
-                      <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors mb-2">
-                        {prompt.title}
-                      </h3>
-                      <p className="text-white/70 text-sm">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-xl font-semibold text-[#00ffff] group-hover:text-[#00ffff] transition-colors duration-300">
+                          {prompt.title}
+                        </h3>
+                        <VoteButton 
+                          promptId={prompt.id} 
+                          initialVotes={prompt.likes || 0}
+                        />
+                      </div>
+                      <p className="text-white/70 text-sm group-hover:text-white/80 transition-colors duration-300">
                         {prompt.description}
                       </p>
                     </div>
@@ -202,7 +209,7 @@ export default function SubcategoryPage({ params }: Props) {
                           {prompt.tags.map((tag, index) => (
                             <span 
                               key={`${prompt.id}-tag-${index}`}
-                              className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
+                              className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/20"
                             >
                               {tag}
                             </span>
@@ -210,11 +217,13 @@ export default function SubcategoryPage({ params }: Props) {
                         </div>
                       )}
                       
-                      <div className="flex justify-between items-center text-sm text-white/50">
+                      <div className="flex justify-between items-center text-sm text-white/60">
                         <div className="flex items-center gap-2">
-                          <span>{prompt.userName}</span>
+                          <span className="group-hover:text-white/70 transition-colors duration-300">{prompt.userName}</span>
                           <span>•</span>
-                          <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                          <span className="group-hover:text-white/70 transition-colors duration-300">
+                            {new Date(prompt.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
                         <button
                           onClick={(e) => {
@@ -224,11 +233,11 @@ export default function SubcategoryPage({ params }: Props) {
                             setCopiedPromptId(prompt.id);
                             setTimeout(() => setCopiedPromptId(null), 2000);
                           }}
-                          className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors relative"
+                          className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors duration-300 relative"
                           title="Copy prompt"
                         >
                           {copiedPromptId === prompt.id ? (
-                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff]/90 text-black text-xs px-2 py-1 rounded">
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg">
                               Copied!
                             </span>
                           ) : null}
@@ -244,7 +253,7 @@ export default function SubcategoryPage({ params }: Props) {
               </Link>
             ))}
             {prompts.length === 0 && (
-              <div className="col-span-full text-center text-white/60 py-12">
+              <div className="col-span-full text-center text-white/70 py-12 bg-black/60 backdrop-blur-lg rounded-lg border border-[#00ffff]/20">
                 No prompts found in this subcategory yet.
               </div>
             )}
