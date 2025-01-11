@@ -17,72 +17,42 @@ interface ChatHistory {
 
 const COMMON_PROMPTS = [
   {
-    title: "Code Review",
-    description: "Review this code for best practices and potential improvements..."
+    title: "Write a Prompt",
+    description: "Help me write an effective prompt for..."
   },
   {
-    title: "Bug Fix",
-    description: "Help me fix this bug in my code..."
+    title: "Improve a Prompt",
+    description: "Help me improve this existing prompt..."
   },
   {
-    title: "Feature Implementation",
-    description: "Help me implement this feature..."
+    title: "Analyze a Prompt",
+    description: "Help me understand why this prompt works or doesn't work..."
   },
   {
-    title: "Code Optimization",
-    description: "Help me optimize this code for better performance..."
+    title: "Prompt Templates",
+    description: "Give me a template for a specific type of prompt..."
   }
 ];
 
-export default function ChatPage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ChatContent />
-    </Suspense>
-  );
-}
-
 function ChatContent() {
   const searchParams = useSearchParams();
-  const { user, isPro } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(searchParams?.get('id'));
   const chatbotRef = useRef<{ setInput: (text: string) => void } | null>(null);
 
+  // Redirect if not logged in
   useEffect(() => {
     if (!user) {
       router.push('/login');
       return;
     }
-
-    const checkProStatus = async () => {
-      try {
-        const userRef = ref(db, `users/${user.uid}`);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          const userData = snapshot.val();
-          const isUserPro = userData.role === 'admin' || userData.plan === 'paid';
-          if (!isUserPro) {
-            router.push('/pro-plan');
-            return;
-          }
-        } else {
-          router.push('/pro-plan');
-          return;
-        }
-      } catch (error) {
-        console.error('Error checking pro status:', error);
-        router.push('/pro-plan');
-        return;
-      }
-    };
-
-    checkProStatus();
     setLoading(false);
   }, [user, router]);
 
+  // Load chat history
   useEffect(() => {
     if (!user) return;
 
@@ -94,10 +64,16 @@ function ChatContent() {
     const unsubscribe = onValue(chatHistoryRef, (snapshot) => {
       const chats: ChatHistory[] = [];
       snapshot.forEach((childSnapshot) => {
-        chats.unshift({
-          id: childSnapshot.key!,
-          ...childSnapshot.val()
-        });
+        const data = childSnapshot.val();
+        if (data) {
+          chats.unshift({
+            id: childSnapshot.key!,
+            title: data.title || 'New Chat',
+            lastMessage: data.lastMessage || '',
+            timestamp: data.timestamp || new Date().toISOString(),
+            messages: data.messages || []
+          });
+        }
       });
       setChatHistory(chats);
     });
@@ -122,12 +98,16 @@ function ChatContent() {
   };
 
   const handleDeleteChat = async (chatId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent chat selection when clicking delete
+    e.stopPropagation();
     if (!user) return;
 
     try {
-      const chatRef = ref(db, `chatHistory/${user.uid}/${chatId}`);
+      const chatRef = ref(db, `chats/${user.uid}/${chatId}`);
       await set(chatRef, null);
+      if (selectedChat === chatId) {
+        setSelectedChat(null);
+        router.push('/chat');
+      }
     } catch (error) {
       console.error('Error deleting chat:', error);
     }
@@ -141,18 +121,14 @@ function ChatContent() {
     );
   }
 
-  if (!isPro) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
         <div className="flex gap-6">
-          {/* Left Sidebar with Common Prompts */}
+          {/* Left Sidebar - Common Prompts */}
           <div className="w-80 space-y-4">
             <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
-              Common Prompts
+              Prompt Templates
             </h2>
             <div className="space-y-2">
               {COMMON_PROMPTS.map((prompt, index) => (
@@ -173,7 +149,7 @@ function ChatContent() {
             <Chatbot ref={chatbotRef} chatId={selectedChat} />
           </div>
 
-          {/* Right Sidebar with Chat History */}
+          {/* Right Sidebar - Chat History */}
           <div className="w-80 space-y-4">
             <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
               Chat History
@@ -184,7 +160,7 @@ function ChatContent() {
             >
               New Chat
             </button>
-            <div className="space-y-2">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-transparent">
               {chatHistory.map((chat) => (
                 <div
                   key={chat.id}
@@ -196,15 +172,19 @@ function ChatContent() {
                   }`}
                 >
                   <div className="flex justify-between items-center">
-                    <h3 className="text-white font-medium truncate">{chat.title || 'New Chat'}</h3>
+                    <h3 className="text-white font-medium truncate flex-1 mr-2">
+                      {chat.title || 'New Chat'}
+                    </h3>
                     <button
                       onClick={(e) => handleDeleteChat(chat.id, e)}
-                      className="text-white/40 hover:text-[#00ffff] transition-colors"
+                      className="text-white/40 hover:text-[#00ffff] transition-colors p-1"
                     >
                       ×
                     </button>
                   </div>
-                  <p className="text-white/60 text-sm truncate">{chat.lastMessage}</p>
+                  <p className="text-white/60 text-sm truncate mt-1">
+                    {chat.lastMessage}
+                  </p>
                 </div>
               ))}
             </div>
@@ -212,5 +192,13 @@ function ChatContent() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatContent />
+    </Suspense>
   );
 } 

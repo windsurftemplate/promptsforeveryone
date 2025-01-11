@@ -151,56 +151,28 @@ export default function AdminDashboard() {
 
     // Fetch all prompts
     const fetchPrompts = async () => {
-      // Fetch public prompts
-      const publicPromptsRef = ref(db, 'prompts');
-      onValue(publicPromptsRef, async (snapshot) => {
-        const publicPrompts: Prompt[] = [];
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          for (const [id, prompt] of Object.entries(data)) {
-            const promptData = prompt as any;
-            // Fetch user details
-            const userRef = ref(db, `users/${promptData.userId}`);
-            const userSnapshot = await get(userRef);
-            const userData = userSnapshot.val() as UserData;
-            
-            // Fetch category details to get subcategory name
-            let subcategoryName = '';
-            if (promptData.category && promptData.subcategoryId) {
-              const categoryRef = ref(db, `categories/${promptData.category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
-              const categorySnapshot = await get(categoryRef);
-              if (categorySnapshot.exists()) {
-                const categoryData = categorySnapshot.val();
-                subcategoryName = categoryData.subcategories?.[promptData.subcategoryId]?.name || '';
-              }
-            }
-            
-            publicPrompts.push({
-              id,
-              ...promptData,
-              userName: userData?.name || userData?.email || 'Unknown User',
-              subcategory: subcategoryName,
-              isPrivate: false
-            });
-          }
+      try {
+        // Check admin status first
+        const adminRef = ref(db, `users/${user.uid}`);
+        const adminSnapshot = await get(adminRef);
+        if (!adminSnapshot.exists() || adminSnapshot.val().role !== 'admin') {
+          router.push('/');
+          return;
         }
 
-        // Fetch private prompts from all users
-        const usersRef = ref(db, 'users');
-        const usersSnapshot = await get(usersRef);
-        const privatePrompts: Prompt[] = [];
-        
-        if (usersSnapshot.exists()) {
-          const users = usersSnapshot.val();
-          for (const [userId, userData] of Object.entries(users)) {
-            const typedUserData = userData as UserData;
-            const userPromptsRef = ref(db, `users/${userId}/prompts`);
-            const userPromptsSnapshot = await get(userPromptsRef);
-            
-            if (userPromptsSnapshot.exists()) {
-              const userPrompts = userPromptsSnapshot.val();
-              for (const [promptId, prompt] of Object.entries(userPrompts)) {
+        // Fetch public prompts
+        const publicPromptsRef = ref(db, 'prompts');
+        onValue(publicPromptsRef, async (snapshot) => {
+          try {
+            const publicPrompts: Prompt[] = [];
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              for (const [id, prompt] of Object.entries(data)) {
                 const promptData = prompt as any;
+                // Fetch user details
+                const userRef = ref(db, `users/${promptData.userId}`);
+                const userSnapshot = await get(userRef);
+                const userData = userSnapshot.val() as UserData;
                 
                 // Fetch category details to get subcategory name
                 let subcategoryName = '';
@@ -212,27 +184,79 @@ export default function AdminDashboard() {
                     subcategoryName = categoryData.subcategories?.[promptData.subcategoryId]?.name || '';
                   }
                 }
-
-                privatePrompts.push({
-                  id: promptId,
+                
+                publicPrompts.push({
+                  id,
                   ...promptData,
-                  userName: typedUserData.name || typedUserData.email || 'Unknown User',
+                  userName: userData?.name || userData?.email || 'Unknown User',
                   subcategory: subcategoryName,
-                  userId,
-                  isPrivate: true
+                  isPrivate: false
                 });
               }
             }
-          }
-        }
 
-        // Combine and sort all prompts by creation date
-        const allPrompts = [...publicPrompts, ...privatePrompts].sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        
-        setPrompts(allPrompts);
-      });
+            // Fetch private prompts from all users
+            const usersRef = ref(db, 'users');
+            const usersSnapshot = await get(usersRef);
+            const privatePrompts: Prompt[] = [];
+            
+            if (usersSnapshot.exists()) {
+              const users = usersSnapshot.val();
+              for (const [userId, userData] of Object.entries(users)) {
+                const typedUserData = userData as UserData;
+                const userPromptsRef = ref(db, `users/${userId}/prompts`);
+                const userPromptsSnapshot = await get(userPromptsRef);
+                
+                if (userPromptsSnapshot.exists()) {
+                  const userPrompts = userPromptsSnapshot.val();
+                  for (const [promptId, prompt] of Object.entries(userPrompts)) {
+                    const promptData = prompt as any;
+                    
+                    // Fetch category details to get subcategory name
+                    let subcategoryName = '';
+                    if (promptData.category && promptData.subcategoryId) {
+                      const categoryRef = ref(db, `categories/${promptData.category.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                      const categorySnapshot = await get(categoryRef);
+                      if (categorySnapshot.exists()) {
+                        const categoryData = categorySnapshot.val();
+                        subcategoryName = categoryData.subcategories?.[promptData.subcategoryId]?.name || '';
+                      }
+                    }
+
+                    privatePrompts.push({
+                      id: promptId,
+                      ...promptData,
+                      userName: typedUserData.name || typedUserData.email || 'Unknown User',
+                      subcategory: subcategoryName,
+                      userId,
+                      isPrivate: true
+                    });
+                  }
+                }
+              }
+            }
+
+            // Combine and sort all prompts by creation date
+            const allPrompts = [...publicPrompts, ...privatePrompts].sort((a, b) => 
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            
+            setPrompts(allPrompts);
+            setError(''); // Clear any previous errors
+          } catch (error) {
+            console.error('Error processing prompts:', error);
+            setError('Error loading prompts. Please try again.');
+          }
+        });
+      } catch (error) {
+        console.error('Error in fetchPrompts:', error);
+        if (error instanceof Error && error.message.includes('Permission denied')) {
+          router.push('/');
+        } else {
+          setError('Failed to load prompts. Please try again.');
+        }
+        setPrompts([]);
+      }
     };
 
     fetchPrompts();

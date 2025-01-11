@@ -36,12 +36,12 @@
       }
     },
     "users": {
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       "$uid": {
         ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-        ".write": "$uid === auth.uid",
+        ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
         "prompts": {
-          ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
-          ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
           "$promptId": {
             ".validate": "newData.hasChildren(['title', 'content', 'categoryId', 'userId', 'createdAt'])",
             "title": {
@@ -74,8 +74,8 @@
           }
         },
         "categories": {
-          ".read": "$uid === auth.uid && (root.child('users').child($uid).child('role').val() === 'admin' || root.child('users').child($uid).child('plan').val() === 'paid' || root.child('users').child($uid).child('stripeSubscriptionStatus').val() === 'active')",
-          ".write": "$uid === auth.uid && (root.child('users').child($uid).child('role').val() === 'admin' || root.child('users').child($uid).child('plan').val() === 'paid' || root.child('users').child($uid).child('stripeSubscriptionStatus').val() === 'active')"
+          ".read": "root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('plan').val() === 'paid' || root.child('users').child(auth.uid).child('stripeSubscriptionStatus').val() === 'active'",
+          ".write": "root.child('users').child(auth.uid).child('role').val() === 'admin' || root.child('users').child(auth.uid).child('plan').val() === 'paid' || root.child('users').child(auth.uid).child('stripeSubscriptionStatus').val() === 'active'"
         }
       }
     },
