@@ -23,7 +23,54 @@ const PROMPTS: Prompt[] = [
         "discovers they can communicate with plants",
         "finds a mysterious package on their doorstep",
         "switches bodies with their pet",
-        "can suddenly see everyone's memories"
+        "can suddenly see everyone's memories",
+        "receives letters from their future self",
+        "inherits a library of impossible books",
+        "discovers their dreams affect reality",
+        "can travel through paintings",
+        "finds a door that leads to any place they imagine"
+      ]
+    }
+  },
+  {
+    text: "Create a dialogue between [character1] and [character2] about [topic]",
+    category: "creative-writing",
+    placeholders: {
+      character1: [
+        "a time traveler",
+        "an AI",
+        "a ghost",
+        "a superhero",
+        "a mythical creature",
+        "an ancient deity",
+        "a talking animal",
+        "a space explorer",
+        "a magical object",
+        "a dream walker"
+      ],
+      character2: [
+        "their past self",
+        "a skeptical scientist",
+        "a wise child",
+        "a forgotten god",
+        "a modern philosopher",
+        "a celestial being",
+        "a dimensional traveler",
+        "a memory keeper",
+        "an immortal being",
+        "a reality bender"
+      ],
+      topic: [
+        "the nature of consciousness",
+        "the meaning of time",
+        "the power of imagination",
+        "the future of humanity",
+        "the secrets of the universe",
+        "the essence of reality",
+        "the purpose of dreams",
+        "the boundaries of existence",
+        "the fabric of reality",
+        "the mystery of existence"
       ]
     }
   },
@@ -31,34 +78,173 @@ const PROMPTS: Prompt[] = [
     text: "Explain [topic] to [audience] using [format]",
     category: "education",
     placeholders: {
-      topic: ["quantum computing", "photosynthesis", "climate change", "blockchain", "artificial intelligence"],
-      audience: ["a 10-year-old", "a high school student", "a complete beginner", "your grandmother", "an alien"],
-      format: ["simple analogies", "a story", "real-world examples", "a step-by-step guide", "a comic strip"]
+      topic: [
+        "quantum computing",
+        "photosynthesis",
+        "climate change",
+        "blockchain",
+        "artificial intelligence",
+        "black holes",
+        "DNA replication",
+        "neural networks",
+        "renewable energy",
+        "space-time continuum",
+        "quantum entanglement",
+        "genetic engineering",
+        "dark matter",
+        "machine learning algorithms",
+        "ecosystem balance"
+      ],
+      audience: [
+        "a 10-year-old",
+        "a high school student",
+        "a complete beginner",
+        "your grandmother",
+        "an alien",
+        "a medieval peasant",
+        "a time traveler from the past",
+        "a curious toddler",
+        "a group of artists",
+        "someone from the 1800s"
+      ],
+      format: [
+        "simple analogies",
+        "a story",
+        "real-world examples",
+        "a step-by-step guide",
+        "a comic strip",
+        "a cooking recipe",
+        "a superhero origin story",
+        "a fairy tale",
+        "a video game tutorial",
+        "a time travel adventure"
+      ]
     }
   },
   {
-    text: "Suggest [number] ways to [business_goal] for a [business_type]",
+    text: "Create a [timeframe] strategy to [business_objective] focusing on [aspect]",
     category: "business",
     placeholders: {
-      number: ["3", "5", "7", "10"],
-      business_goal: ["increase customer retention", "improve online presence", "boost employee productivity", "reduce costs", "enhance customer experience"],
-      business_type: ["small retail store", "tech startup", "restaurant", "online marketplace", "consulting firm"]
+      timeframe: [
+        "90-day",
+        "6-month",
+        "quarterly",
+        "annual",
+        "5-year",
+        "immediate",
+        "phased",
+        "long-term",
+        "adaptive",
+        "scalable"
+      ],
+      business_objective: [
+        "increase market share",
+        "improve customer satisfaction",
+        "optimize operations",
+        "boost team productivity",
+        "enhance brand awareness",
+        "accelerate growth",
+        "reduce operational costs",
+        "expand globally",
+        "transform digitally",
+        "innovate products"
+      ],
+      aspect: [
+        "customer experience",
+        "employee engagement",
+        "technological innovation",
+        "sustainability",
+        "market positioning",
+        "competitive advantage",
+        "operational efficiency",
+        "brand loyalty",
+        "digital presence",
+        "team collaboration"
+      ]
     }
   },
   {
-    text: "Create a [duration] action plan to [personal_goal]",
+    text: "Design a [duration] challenge to [goal] by implementing [strategy]",
     category: "personal-development",
     placeholders: {
-      duration: ["30-day", "weekly", "3-month", "daily"],
-      personal_goal: ["improve time management", "develop a new habit", "learn a new skill", "boost productivity", "reduce stress"]
+      duration: [
+        "30-day",
+        "weekly",
+        "3-month",
+        "daily",
+        "21-day",
+        "quarterly",
+        "year-long",
+        "weekend",
+        "morning",
+        "evening"
+      ],
+      goal: [
+        "build better habits",
+        "increase productivity",
+        "improve mindfulness",
+        "enhance creativity",
+        "boost energy levels",
+        "develop leadership skills",
+        "master time management",
+        "strengthen relationships",
+        "achieve work-life balance",
+        "cultivate emotional intelligence"
+      ],
+      strategy: [
+        "micro-habits",
+        "accountability partnerships",
+        "progress tracking",
+        "reward systems",
+        "reflection exercises",
+        "skill stacking",
+        "environmental design",
+        "feedback loops",
+        "visualization techniques",
+        "habit bundling"
+      ]
     }
   },
   {
-    text: "Imagine [fun_scenario] and describe [aspect]",
+    text: "Imagine [scenario] and describe [aspect] with [twist]",
     category: "fun",
     placeholders: {
-      fun_scenario: ["if animals could vote", "if food could talk", "if clouds had personalities", "if colors had flavors", "if dreams were shareable"],
-      aspect: ["their daily routines", "their biggest complaints", "their favorite activities", "their social media posts", "their secret wishes"]
+      scenario: [
+        "if books could feel emotions",
+        "if music was visible",
+        "if time ran backwards",
+        "if shadows were colorful",
+        "if dreams were tradeable",
+        "if memories had flavors",
+        "if emotions were weather",
+        "if thoughts were audible",
+        "if age was reversible",
+        "if gravity was optional"
+      ],
+      aspect: [
+        "daily interactions",
+        "social media trends",
+        "entertainment",
+        "transportation",
+        "communication",
+        "fashion choices",
+        "food preferences",
+        "holiday celebrations",
+        "sports events",
+        "education system"
+      ],
+      twist: [
+        "in a parallel universe",
+        "during a cosmic event",
+        "in an alternate timeline",
+        "with magical consequences",
+        "through a time traveler's eyes",
+        "in a world without technology",
+        "from an AI's perspective",
+        "in a dimension of dreams",
+        "with supernatural elements",
+        "in a reality show format"
+      ]
     }
   },
   {
@@ -74,7 +260,13 @@ const PROMPTS: Prompt[] = [
         "steampunk",
         "minimalist",
         "anime",
-        "3D rendered"
+        "3D rendered",
+        "concept art",
+        "surrealist",
+        "impressionist",
+        "pixel art",
+        "gothic",
+        "art nouveau"
       ],
       subject: [
         "a mystical forest guardian",
@@ -85,7 +277,13 @@ const PROMPTS: Prompt[] = [
         "a space explorer",
         "a magical library",
         "a steampunk inventor",
-        "a peaceful garden"
+        "a peaceful garden",
+        "a cosmic wanderer",
+        "a time machine",
+        "a dream catcher",
+        "a crystal palace",
+        "a mechanical beast",
+        "an ethereal spirit"
       ],
       setting: [
         "during sunset",
@@ -96,7 +294,13 @@ const PROMPTS: Prompt[] = [
         "in a crystal cave",
         "during a meteor shower",
         "in an underwater city",
-        "during a magical storm"
+        "during a magical storm",
+        "between dimensions",
+        "in a quantum realm",
+        "through a time portal",
+        "in a forgotten sanctuary",
+        "above the clouds",
+        "beneath an aurora"
       ],
       mood: [
         "dreamy",
@@ -107,7 +311,13 @@ const PROMPTS: Prompt[] = [
         "dramatic",
         "whimsical",
         "melancholic",
-        "magical"
+        "magical",
+        "surreal",
+        "nostalgic",
+        "futuristic",
+        "otherworldly",
+        "enchanted",
+        "cosmic"
       ]
     }
   },
@@ -223,13 +433,14 @@ const CATEGORIES = [
   { id: 'fun', name: 'Fun & Entertainment' },
 ]
 
-const PromptGenerator: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<Category>('all')
-  const [currentPrompt, setCurrentPrompt] = useState<string>('')
-  const [enhancedPrompt, setEnhancedPrompt] = useState<string>('')
-  const [copied, setCopied] = useState(false)
-  const [isEnhancing, setIsEnhancing] = useState(false)
-  const [error, setError] = useState('')
+export default function PromptGenerator() {
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [currentPrompt, setCurrentPrompt] = useState<string>('');
+  const [enhancedPrompt, setEnhancedPrompt] = useState<string>('');
+  const [enhancedTitle, setEnhancedTitle] = useState<string>('');
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [copied, setCopied] = useState(false);
 
   const replacePlaceholders = (prompt: Prompt): string => {
     let result = prompt.text
@@ -256,39 +467,36 @@ const PromptGenerator: React.FC = () => {
   }
 
   const enhanceWithAI = async () => {
-    if (!currentPrompt) return
+    if (!currentPrompt) return;
     
-    setIsEnhancing(true)
-    setError('')
-    setEnhancedPrompt('')
-
+    setIsEnhancing(true);
     try {
       const response = await fetch('/api/prompt-generator', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          prompt: currentPrompt,
           category: selectedCategory,
-        }),
-      })
+          instruction: `Enhance and improve the following prompt while maintaining its core purpose: ${currentPrompt}`,
+        })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to enhance prompt')
+        throw new Error(data.error || 'Failed to enhance prompt');
       }
 
-      setEnhancedPrompt(data.enhancedPrompt)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to enhance prompt'
-      setError(message)
-      console.error('Error:', err)
+      setEnhancedPrompt(data.prompt);
+      setEnhancedTitle(data.title);
+    } catch (error) {
+      console.error('Error enhancing prompt:', error);
+      // Handle error appropriately
     } finally {
-      setIsEnhancing(false)
+      setIsEnhancing(false);
     }
-  }
+  };
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -431,6 +639,4 @@ const PromptGenerator: React.FC = () => {
       )}
     </div>
   )
-}
-
-export default PromptGenerator 
+} 

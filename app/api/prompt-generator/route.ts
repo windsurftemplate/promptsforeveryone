@@ -14,83 +14,65 @@ export async function POST(request: Request) {
   try {
     const { category, instruction } = await request.json()
 
+    // Validate required parameters
     if (!category || !instruction) {
       return NextResponse.json(
-        { error: 'Category and instruction are required' },
+        { error: 'Category and instruction are required.' },
         { status: 400 }
       )
     }
 
-    // First, generate the prompt
-    const promptResponse = await fetch(TOGETHER_API_URL, {
+    // Call Together API to generate a prompt
+    const response = await fetch(TOGETHER_API_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${TOGETHER_API_KEY}`,
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${TOGETHER_API_KEY}`
       },
       body: JSON.stringify({
         model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
-        prompt: `You are a creative prompt generator. Generate a high-quality prompt based on the following instruction:
-
-${instruction}
-
-The prompt should be engaging, specific, and actionable. Focus on creating a prompt that will inspire creative and meaningful responses.
-
-Generate the prompt:`,
-        temperature: 0.7,
-        top_p: 0.7,
+        prompt: `You are a creative prompt generator. Generate a high-quality prompt for the following category: ${category}. Follow this instruction: ${instruction}. The prompt should be engaging, specific, and actionable. Format your response as a JSON object with "title" and "prompt" fields.`,
+        temperature: 0.8,
+        top_p: 0.9,
         top_k: 50,
-        repetition_penalty: 1.1,
         max_tokens: 200,
-      }),
+        repetition_penalty: 1.1
+      })
     })
 
-    if (!promptResponse.ok) {
-      throw new Error('Failed to generate prompt')
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`)
     }
 
-    const promptData = await promptResponse.json()
-    const generatedPrompt = promptData.output.choices[0].text.trim()
+    const data = await response.json()
+    const generatedText = data.output.choices[0].text
 
-    // Then, generate a title for the prompt
-    const titleResponse = await fetch(TOGETHER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${TOGETHER_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
-        prompt: `You are a title generator. Create a concise, descriptive title for the following prompt:
+    try {
+      // Parse the generated text as JSON
+      const parsedResponse = JSON.parse(generatedText)
+      return NextResponse.json(parsedResponse)
+    } catch (parseError) {
+      // If parsing fails, try to extract title and prompt using regex
+      const titleMatch = generatedText.match(/"title":\s*"([^"]+)"/)
+      const promptMatch = generatedText.match(/"prompt":\s*"([^"]+)"/)
 
-${generatedPrompt}
-
-The title should be brief (3-6 words) and capture the essence of the prompt. It should be engaging and help users quickly understand the prompt's purpose.
-
-Generate only the title without any additional text or punctuation:`,
-        temperature: 0.7,
-        top_p: 0.7,
-        top_k: 50,
-        repetition_penalty: 1.1,
-        max_tokens: 50,
-      }),
-    })
-
-    if (!titleResponse.ok) {
-      throw new Error('Failed to generate title')
+      if (titleMatch && promptMatch) {
+        return NextResponse.json({
+          title: titleMatch[1],
+          prompt: promptMatch[1]
+        })
+      } else {
+        // If regex fails, return the raw text as prompt
+        return NextResponse.json({
+          title: `${category} Prompt`,
+          prompt: generatedText.trim()
+        })
+      }
     }
-
-    const titleData = await titleResponse.json()
-    const generatedTitle = titleData.output.choices[0].text.trim()
-
-    return NextResponse.json({ 
-      prompt: generatedPrompt,
-      title: generatedTitle
-    })
   } catch (error) {
-    console.error('Error in prompt generation:', error)
+    console.error('Error generating prompt:', error)
     return NextResponse.json(
-      { error: 'Failed to generate prompt' },
+      { error: 'Failed to generate prompt. Please try again.' },
       { status: 500 }
     )
   }
