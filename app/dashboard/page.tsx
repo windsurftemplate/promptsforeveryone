@@ -257,11 +257,21 @@ export default function DashboardPage() {
     fetchPrompts();
   }, [user, selectedCategory, selectedSubcategory]);
 
+  const createSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
   const handleEdit = (prompt: Prompt) => {
+    const slug = createSlug(prompt.title);
+    window.history.pushState({}, '', `/dashboard/${slug}`);
     setSelectedPrompt(prompt);
   };
 
   const handleCloseModal = () => {
+    window.history.pushState({}, '', '/dashboard');
     setSelectedPrompt(null);
   };
 

@@ -34,16 +34,23 @@ export default function Sidebar() {
   const [isPaidUser, setIsPaidUser] = useState(false);
   const [userStats, setUserStats] = useState({ totalPrompts: 0, publicPrompts: 0 });
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [userPlan, setUserPlan] = useState<string>('Free Plan');
+  const [userData, setUserData] = useState<{ name?: string; plan?: string }>({});
 
   useEffect(() => {
     if (!user) return;
 
-    // Check if user is paid
-    const userRef = ref(db, `users/${user.uid}`);
-    get(userRef).then((snapshot) => {
+    // Fetch user data including name, plan, and paid status
+    const userDataRef = ref(db, `users/${user.uid}`);
+    const unsubscribeUser = onValue(userDataRef, (snapshot) => {
       if (snapshot.exists()) {
-        const userData = snapshot.val();
-        setIsPaidUser(userData.role === 'admin' || userData.plan === 'paid');
+        const data = snapshot.val();
+        setUserData({
+          name: data.name || user.displayName || user.email?.split('@')[0],
+          plan: data.plan === 'paid' ? 'Premium Plan' : 'Free Plan'
+        });
+        setIsPaidUser(data.role === 'admin' || data.plan === 'paid');
+        setUserPlan(data.plan === 'paid' ? 'Premium Plan' : 'Free Plan');
       }
     });
 
@@ -103,6 +110,7 @@ export default function Sidebar() {
     return () => {
       unsubscribePublic();
       unsubscribePrivate();
+      unsubscribeUser();
     };
   }, [user]);
 
@@ -221,6 +229,29 @@ export default function Sidebar() {
   return (
     <div className={`relative h-full transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-80'}`}>
       <div className="h-full bg-black/90 backdrop-blur-xl text-white p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
+        {/* Profile Section */}
+        {!isCollapsed && user && (
+          <div className="mb-6 p-4 bg-black/40 rounded-lg border border-[#00ffff]/10">
+            <div className="flex items-center space-x-3">
+              {user.photoURL ? (
+                <img src={user.photoURL} alt="Profile" className="w-10 h-10 rounded-full" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#00ffff]/10 flex items-center justify-center">
+                  <span className="text-[#00ffff] text-lg">
+                    {userData.name?.[0] || user.email?.[0] || '?'}
+                  </span>
+                </div>
+              )}
+              <div>
+                <h3 className="text-white font-medium">
+                  {userData.name || user.email?.split('@')[0]}
+                </h3>
+                <p className="text-[#00ffff] text-sm">{userData.plan}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-8">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
