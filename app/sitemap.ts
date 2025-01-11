@@ -67,11 +67,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/about`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
   ]
 
   // Add category pages
   if (categories) {
     for (const [categoryId, category] of Object.entries(categories)) {
+      // Add main category page
       routes.push({
         url: `${baseUrl}/categories/${categoryId}`,
         lastModified: currentDate,
@@ -82,8 +101,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Add subcategory pages
       if (category.subcategories) {
         for (const [subcategoryId, subcategory] of Object.entries(category.subcategories)) {
+          const subcategorySlug = subcategory.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
           routes.push({
-            url: `${baseUrl}/categories/${categoryId}/${encodeURIComponent(subcategory.name.toLowerCase().replace(/\s+/g, '-'))}`,
+            url: `${baseUrl}/categories/${categoryId}/${subcategorySlug}`,
             lastModified: currentDate,
             changeFrequency: 'daily',
             priority: 0.7,

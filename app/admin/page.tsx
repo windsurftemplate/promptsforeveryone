@@ -448,178 +448,206 @@ export default function AdminDashboard() {
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
           </div>
         ) : activeTab === 'users' ? (
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-[#00ffff]/20">
-                    <th className="px-6 py-4 text-left text-[#00ffff]">Email</th>
-                    <th className="px-6 py-4 text-left text-[#00ffff]">Role</th>
-                    <th className="px-6 py-4 text-left text-[#00ffff]">Plan</th>
-                    <th className="px-6 py-4 text-left text-[#00ffff]">Prompts</th>
-                    <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
-                    <th className="px-6 py-4 text-left text-[#00ffff]">Last Login</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr 
-                      key={user.uid}
-                      className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-white">{user.email}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded-full text-sm ${
-                            user.role === 'admin' 
-                              ? 'bg-red-500/20 text-red-400'
-                              : 'bg-blue-500/20 text-blue-400'
-                          }`}>
-                            {user.role || 'user'}
-                          </span>
-                          <button
-                            onClick={() => handleUpdateUser(user.uid, 'role', user.role === 'admin' ? 'user' : 'admin')}
-                            className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-1 rounded-full text-sm ${
-                            user.plan === 'paid' 
-                              ? 'bg-green-500/20 text-green-400'
-                              : 'bg-gray-500/20 text-gray-400'
-                          }`}>
-                            {user.plan || 'free'}
-                          </span>
-                          <button
-                            onClick={() => handleUpdateUser(user.uid, 'plan', user.plan === 'paid' ? 'free' : 'paid')}
-                            className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
-                          >
-                            <PencilIcon className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-white/60">{user.promptCount}</td>
-                      <td className="px-6 py-4 text-white/60">
-                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 text-white/60">
-                        {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'N/A'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : activeTab === 'prompts' ? (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex gap-4 items-center">
-                <div className="flex-1">
-                  <label className="block text-[#00ffff] text-sm mb-1">Filter by User</label>
-                  <select
-                    value={selectedUser}
-                    onChange={(e) => setSelectedUser(e.target.value)}
-                    className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
-                  >
-                    <option value="all" className="bg-black">All Users</option>
-                    {users.map((user) => (
-                      <option key={user.uid} value={user.uid} className="bg-black">
-                        {user.email}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex-1">
-                  <label className="block text-[#00ffff] text-sm mb-1">Filter by Date</label>
-                  <select
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
-                    className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
-                  >
-                    <option value="all" className="bg-black">All Time</option>
-                    <option value="today" className="bg-black">Last 24 Hours</option>
-                    <option value="week" className="bg-black">Last 7 Days</option>
-                    <option value="month" className="bg-black">Last 30 Days</option>
-                  </select>
-                </div>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                <h3 className="text-[#00ffff] text-sm mb-1">Total Users</h3>
+                <p className="text-2xl font-semibold text-white">{users.length}</p>
               </div>
-              <Link href="/prompt/new">
-                <Button variant="default" className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black">
-                  Create New Prompt
-                </Button>
-              </Link>
+              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                <h3 className="text-[#00ffff] text-sm mb-1">Admin Users</h3>
+                <p className="text-2xl font-semibold text-white">
+                  {users.filter(user => user.role === 'admin').length}
+                </p>
+              </div>
             </div>
-
             <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[#00ffff]/20">
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">User</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Category</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Type</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Email</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Role</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Plan</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Prompts</th>
                       <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                      <th className="px-6 py-4 text-left text-[#00ffff]">Last Login</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPrompts.map((prompt) => (
+                    {users.map((user) => (
                       <tr 
-                        key={prompt.id}
+                        key={user.uid}
                         className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
                       >
-                        <td className="px-6 py-4 text-white">{prompt.title}</td>
-                        <td className="px-6 py-4 text-white/60">{prompt.userName}</td>
+                        <td className="px-6 py-4 text-white">{user.email}</td>
                         <td className="px-6 py-4">
-                          <div className="flex flex-col gap-1">
-                            <span className="px-2 py-1 rounded-full text-sm bg-[#00ffff]/10 text-[#00ffff]">
-                              {prompt.category}
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded-full text-sm ${
+                              user.role === 'admin' 
+                                ? 'bg-red-500/20 text-red-400'
+                                : 'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {user.role || 'user'}
                             </span>
-                            {prompt.subcategory && (
-                              <span className="px-2 py-1 rounded-full text-sm bg-[#00ffff]/5 text-[#00ffff]/80">
-                                {prompt.subcategory}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded-full text-sm ${
-                            prompt.isPrivate
-                              ? 'bg-gray-500/20 text-gray-400'
-                              : 'bg-green-500/20 text-green-400'
-                          }`}>
-                            {prompt.isPrivate ? 'Private' : 'Public'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-white/60">
-                          {new Date(prompt.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-4">
-                            <Link 
-                              href={`/prompt/${prompt.id}`}
-                              className="text-[#00ffff] hover:text-[#00ffff]/80"
-                            >
-                              View
-                            </Link>
                             <button
-                              onClick={() => handleDeletePrompt(prompt)}
-                              className="text-red-500 hover:text-red-400 transition-colors"
+                              onClick={() => handleUpdateUser(user.uid, 'role', user.role === 'admin' ? 'user' : 'admin')}
+                              className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
                             >
-                              Delete
+                              <PencilIcon className="h-4 w-4" />
                             </button>
                           </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded-full text-sm ${
+                              user.plan === 'paid' 
+                                ? 'bg-green-500/20 text-green-400'
+                                : 'bg-gray-500/20 text-gray-400'
+                            }`}>
+                              {user.plan || 'free'}
+                            </span>
+                            <button
+                              onClick={() => handleUpdateUser(user.uid, 'plan', user.plan === 'paid' ? 'free' : 'paid')}
+                              className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-white/60">{user.promptCount}</td>
+                        <td className="px-6 py-4 text-white/60">
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 text-white/60">
+                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'N/A'}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        ) : activeTab === 'prompts' ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                <h3 className="text-[#00ffff] text-sm mb-1">Total Prompts</h3>
+                <p className="text-2xl font-semibold text-white">{prompts.length}</p>
+              </div>
+              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                <h3 className="text-[#00ffff] text-sm mb-1">Public Prompts</h3>
+                <p className="text-2xl font-semibold text-white">
+                  {prompts.filter(prompt => !prompt.isPrivate).length}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex gap-4 items-center">
+                  <div className="flex-1">
+                    <label className="block text-[#00ffff] text-sm mb-1">Filter by User</label>
+                    <select
+                      value={selectedUser}
+                      onChange={(e) => setSelectedUser(e.target.value)}
+                      className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
+                    >
+                      <option value="all" className="bg-black">All Users</option>
+                      {users.map((user) => (
+                        <option key={user.uid} value={user.uid} className="bg-black">
+                          {user.email}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-[#00ffff] text-sm mb-1">Filter by Date</label>
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
+                      className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
+                    >
+                      <option value="all" className="bg-black">All Time</option>
+                      <option value="today" className="bg-black">Last 24 Hours</option>
+                      <option value="week" className="bg-black">Last 7 Days</option>
+                      <option value="month" className="bg-black">Last 30 Days</option>
+                    </select>
+                  </div>
+                </div>
+                <Link href="/prompt/new">
+                  <Button variant="default" className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black">
+                    Create New Prompt
+                  </Button>
+                </Link>
+              </div>
+
+              <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[#00ffff]/20">
+                        <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
+                        <th className="px-6 py-4 text-left text-[#00ffff]">User</th>
+                        <th className="px-6 py-4 text-left text-[#00ffff]">Category</th>
+                        <th className="px-6 py-4 text-left text-[#00ffff]">Type</th>
+                        <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
+                        <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredPrompts.map((prompt) => (
+                        <tr 
+                          key={prompt.id}
+                          className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
+                        >
+                          <td className="px-6 py-4 text-white">{prompt.title}</td>
+                          <td className="px-6 py-4 text-white/60">{prompt.userName}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-1">
+                              <span className="px-2 py-1 rounded-full text-sm bg-[#00ffff]/10 text-[#00ffff]">
+                                {prompt.category}
+                              </span>
+                              {prompt.subcategory && (
+                                <span className="px-2 py-1 rounded-full text-sm bg-[#00ffff]/5 text-[#00ffff]/80">
+                                  {prompt.subcategory}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded-full text-sm ${
+                              prompt.isPrivate
+                                ? 'bg-gray-500/20 text-gray-400'
+                                : 'bg-green-500/20 text-green-400'
+                            }`}>
+                              {prompt.isPrivate ? 'Private' : 'Public'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-white/60">
+                            {new Date(prompt.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-4">
+                              <Link 
+                                href={`/prompt/${prompt.id}`}
+                                className="text-[#00ffff] hover:text-[#00ffff]/80"
+                              >
+                                View
+                              </Link>
+                              <button
+                                onClick={() => handleDeletePrompt(prompt)}
+                                className="text-red-500 hover:text-red-400 transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -680,6 +708,20 @@ export default function AdminDashboard() {
           </div>
         ) : (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                <h3 className="text-[#00ffff] text-sm mb-1">Total Categories</h3>
+                <p className="text-2xl font-semibold text-white">{categories.length}</p>
+              </div>
+              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                <h3 className="text-[#00ffff] text-sm mb-1">Total Subcategories</h3>
+                <p className="text-2xl font-semibold text-white">
+                  {categories.reduce((total, category) => 
+                    total + (category.subcategories ? Object.keys(category.subcategories).length : 0), 
+                  0)}
+                </p>
+              </div>
+            </div>
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">Categories</h2>
               <Button
