@@ -1,0 +1,25 @@
+[debug] [2025-01-11T17:39:31.790Z] ----------------------------------------------------------------------
+[debug] [2025-01-11T17:39:31.792Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\nelso\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2025-01-11T17:39:31.793Z] CLI Version:   13.29.1
+[debug] [2025-01-11T17:39:31.793Z] Platform:      win32
+[debug] [2025-01-11T17:39:31.793Z] Node Version:  v22.11.0
+[debug] [2025-01-11T17:39:31.793Z] Time:          Sat Jan 11 2025 09:39:31 GMT-0800 (Pacific Standard Time)
+[debug] [2025-01-11T17:39:31.793Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-01-11T17:39:31.858Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-01-11T17:39:31.859Z] > authorizing via signed-in user (yee.nelsonk@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\nelso\Desktop\stuff\projects\CascadeProjects\promptsforeveryone
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
