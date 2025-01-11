@@ -38,7 +38,6 @@ export default function DashboardPage() {
   const { selectedCategory, selectedSubcategory, setSelectedCategory, setSelectedSubcategory } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'prompts' | 'profile'>('prompts');
   const [userStats, setUserStats] = useState({
     totalPrompts: 0,
@@ -61,9 +60,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!user) {
-      setIsLoading(false);
+      setLoading(false);
       return;
     }
+
+    console.log('Dashboard effect running with:', {
+      user: user.uid,
+      selectedCategory,
+      selectedSubcategory
+    });
 
     // Check user's subscription status
     const userRef = ref(db, `users/${user.uid}`);
@@ -88,7 +93,14 @@ export default function DashboardPage() {
               }), {}) : {},
               items: [],
             }));
-            setCategories(categoriesArray);
+            // Add the "All Prompts" category if it doesn't exist
+            const allPromptsCategory = {
+              id: 'all-prompts',
+              name: 'All Prompts',
+              subcategories: {},
+              items: []
+            };
+            setCategories([allPromptsCategory, ...categoriesArray]);
           }
         });
 
@@ -153,13 +165,17 @@ export default function DashboardPage() {
         const userSnapshot = await get(userRef);
         const userData = userSnapshot.val();
         const hasAccess = userData?.role === 'admin' || userData?.plan === 'paid' || userData?.stripeSubscriptionStatus === 'active';
+        
+        console.log('User access status:', { hasAccess, userData });
 
-        if (selectedCategory?.id === 'all-prompts') {
+        if (selectedCategory?.id === 'all-prompts' || !selectedCategory) {
+          console.log('Fetching all prompts');
           // Fetch private prompts only for users with access
           if (hasAccess) {
             const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
             try {
               const privateSnapshot = await get(privatePromptsRef);
+              console.log('Private prompts:', privateSnapshot.val());
               if (privateSnapshot.exists()) {
                 const privatePrompts = Object.entries(privateSnapshot.val())
                   .filter(([id]) => !seenPromptIds.has(id))
@@ -182,6 +198,7 @@ export default function DashboardPage() {
           const publicPromptsRef = ref(db, 'prompts');
           try {
             const publicSnapshot = await get(publicPromptsRef);
+            console.log('Public prompts:', publicSnapshot.val());
             if (publicSnapshot.exists()) {
               const publicPrompts = Object.entries(publicSnapshot.val())
                 .filter(([id]) => !seenPromptIds.has(id))
@@ -248,7 +265,9 @@ export default function DashboardPage() {
             }
           }
         }
-
+        
+        console.log('Final prompts to show:', promptsToShow);
+        
         // Sort all prompts by creation date
         promptsToShow.sort((a, b) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -474,7 +493,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Prompts Grid */}
-            {isLoading ? (
+            {loading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
               </div>

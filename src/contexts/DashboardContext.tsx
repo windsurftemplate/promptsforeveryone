@@ -19,7 +19,10 @@ interface DashboardContextType {
 const DashboardContext = createContext<DashboardContextType | null>(null);
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
-  const [selectedCategory, setSelectedCategory] = useState<CategorySelection | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<CategorySelection | null>({
+    id: 'all-prompts',
+    isPrivate: false
+  });
   const [selectedSubcategory, setSelectedSubcategory] = useState<{ id: string } | null>(null);
   const [filterTag, setFilterTag] = useState<string>('');
 
