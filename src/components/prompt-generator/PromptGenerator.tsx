@@ -1,7 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Copy, Share2, Sparkles, RefreshCw, BookmarkPlus, Wand2, ArrowRight } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 
 type Category = 'all' | 'creative-writing' | 'business' | 'education' | 'personal-development' | 'fun' | 'image'
 
@@ -434,6 +437,8 @@ const CATEGORIES = [
 ]
 
 export default function PromptGenerator() {
+  const { user } = useAuth();
+  const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [currentPrompt, setCurrentPrompt] = useState<string>('');
   const [enhancedPrompt, setEnhancedPrompt] = useState<string>('');
@@ -441,6 +446,24 @@ export default function PromptGenerator() {
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [error, setError] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <h2 className="text-xl font-semibold text-[#00ffff]">Please log in to use the Prompt Generator</h2>
+        <Button onClick={() => router.push('/login')} className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]">
+          Log In
+        </Button>
+      </div>
+    );
+  }
 
   const replacePlaceholders = (prompt: Prompt): string => {
     let result = prompt.text
@@ -520,6 +543,34 @@ export default function PromptGenerator() {
     }
   }
 
+  const savePrompt = async (prompt: string) => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/prompt-generator', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          category: selectedCategory,
+          prompt: prompt,
+          title: enhancedTitle
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save prompt');
+      }
+
+      // Handle success
+    } catch (error) {
+      console.error('Error saving prompt:', error);
+      // Handle error appropriately
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Category Selection */}
@@ -573,7 +624,12 @@ export default function PromptGenerator() {
                 </button>
               </div>
             </div>
-            <p className="text-white/90 text-lg mb-4">{currentPrompt}</p>
+            <textarea
+              value={currentPrompt}
+              onChange={(e) => setCurrentPrompt(e.target.value)}
+              className="w-full text-white/90 text-lg mb-4 bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none min-h-[100px]"
+              placeholder="Enter or edit your prompt here..."
+            />
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => copyToClipboard(currentPrompt)}
@@ -592,11 +648,21 @@ export default function PromptGenerator() {
               </button>
 
               <button
-                onClick={() => {}} // TODO: Implement save functionality
-                className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40"
+                onClick={() => savePrompt(currentPrompt)}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <BookmarkPlus className="w-4 h-4" />
-                Save
+                {isSaving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <BookmarkPlus className="w-4 h-4" />
+                    Save
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -613,7 +679,12 @@ export default function PromptGenerator() {
                 <div className="text-red-500 text-sm">{error}</div>
               ) : enhancedPrompt && (
                 <>
-                  <p className="text-white/90 text-lg mb-4">{enhancedPrompt}</p>
+                  <textarea
+                    value={enhancedPrompt}
+                    onChange={(e) => setEnhancedPrompt(e.target.value)}
+                    className="w-full text-white/90 text-lg mb-4 bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none min-h-[600px]"
+                    placeholder="Edit the enhanced prompt here..."
+                  />
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => copyToClipboard(enhancedPrompt)}
@@ -629,6 +700,24 @@ export default function PromptGenerator() {
                     >
                       <Share2 className="w-4 h-4" />
                       Share
+                    </button>
+
+                    <button
+                      onClick={() => savePrompt(enhancedPrompt)}
+                      disabled={isSaving}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSaving ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <BookmarkPlus className="w-4 h-4" />
+                          Save
+                        </>
+                      )}
                     </button>
                   </div>
                 </>

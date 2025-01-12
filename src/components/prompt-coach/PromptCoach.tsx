@@ -1,7 +1,12 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { CheckCircle, XCircle, Loader2, Wand2 } from 'lucide-react'
+import { CheckCircle, XCircle, Loader2, Wand2, BookmarkPlus } from 'lucide-react'
+import { ref, push } from 'firebase/database'
+import { db } from '@/lib/firebase'
+import { useAuth } from '@/contexts/AuthContext'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/Button'
 
 interface FeedbackItem {
   category: string
@@ -21,6 +26,8 @@ interface APIError {
 }
 
 const PromptCoach: React.FC = () => {
+  const { user } = useAuth();
+  const router = useRouter();
   const [prompt, setPrompt] = useState('')
   const [analysis, setAnalysis] = useState<PromptAnalysis>({
     score: 0,
@@ -30,6 +37,26 @@ const PromptCoach: React.FC = () => {
   const [aiAnalysis, setAiAnalysis] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [editedAIAnalysis, setEditedAIAnalysis] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [successMessage, setSuccessMessage] = useState('')
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <h2 className="text-xl font-semibold text-[#00ffff]">Please log in to use the Prompt Coach</h2>
+        <Button onClick={() => router.push('/login')} className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]">
+          Log In
+        </Button>
+      </div>
+    );
+  }
 
   const analyzePrompt = (text: string): PromptAnalysis => {
     const feedback: FeedbackItem[] = []
@@ -168,6 +195,44 @@ const PromptCoach: React.FC = () => {
     setAnalysis(result)
   }, [prompt])
 
+  useEffect(() => {
+    if (aiAnalysis) {
+      setEditedAIAnalysis(aiAnalysis)
+    }
+  }, [aiAnalysis])
+
+  const savePrompt = async () => {
+    if (!prompt || !editedAIAnalysis) return
+    
+    setIsSaving(true)
+    try {
+      const timestamp = new Date().toISOString()
+      const promptData = {
+        title: 'AI Coached Prompt',
+        content: prompt,
+        analysis: editedAIAnalysis,
+        categoryId: 'prompt-coach',
+        userId: 'admin',
+        userName: 'Admin',
+        visibility: 'public',
+        createdAt: timestamp,
+        updatedAt: timestamp
+      }
+
+      // Save to prompts collection
+      const promptsRef = ref(db, 'prompts')
+      await push(promptsRef, promptData)
+
+      setSuccessMessage('Prompt saved successfully!')
+      setTimeout(() => setSuccessMessage(''), 3000)
+    } catch (err) {
+      console.error('Error saving prompt:', err)
+      setError('Failed to save prompt. Please try again.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <div className="w-full space-y-6">
       <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
@@ -226,7 +291,28 @@ const PromptCoach: React.FC = () => {
 
       {/* AI Analysis Section */}
       <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-        <h2 className="text-xl font-semibold text-[#00ffff] mb-4">AI Feedback</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-[#00ffff]">AI Feedback</h2>
+          {aiAnalysis && !isLoading && !error && (
+            <button
+              onClick={savePrompt}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <BookmarkPlus className="w-4 h-4" />
+                  Save Prompt
+                </>
+              )}
+            </button>
+          )}
+        </div>
         <div className="rounded-lg bg-black/50 p-4 border border-[#00ffff]/10 min-h-[100px]">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
@@ -244,13 +330,25 @@ const PromptCoach: React.FC = () => {
             </div>
           ) : aiAnalysis ? (
             <div className="prose prose-invert max-w-none">
-              <p className="text-white/80 text-sm whitespace-pre-wrap">{aiAnalysis}</p>
+              <textarea
+                value={editedAIAnalysis}
+                onChange={(e) => setEditedAIAnalysis(e.target.value)}
+                className="w-full bg-transparent text-white/80 text-sm whitespace-pre-wrap focus:outline-none min-h-[200px] resize-none"
+                placeholder="AI feedback will appear here..."
+              />
             </div>
           ) : (
             <p className="text-white/60 text-sm">Click the Analyze button to get AI feedback on your prompt...</p>
           )}
         </div>
       </div>
+
+      {successMessage && (
+        <div className="fixed bottom-4 right-4 bg-emerald-500/90 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+          {successMessage}
+        </div>
+      )}
     </div>
   )
 }
