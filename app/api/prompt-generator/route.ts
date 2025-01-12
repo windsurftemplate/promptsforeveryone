@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${TOGETHER_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+        model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
         prompt: `You are a creative prompt generator. Generate a high-quality prompt for the following category: ${category}. Follow this instruction: ${instruction}. The prompt should be engaging, specific, and actionable. Format your response as a JSON object with "title" and "prompt" fields.`,
         temperature: 0.8,
         top_p: 0.9,

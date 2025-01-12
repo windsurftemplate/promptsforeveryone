@@ -289,7 +289,7 @@ export default function AdminPromptGenerator() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-6 max-w-[1000px]">
           {/* Generate Button */}
           <button
             onClick={generatePrompt}
@@ -319,7 +319,13 @@ export default function AdminPromptGenerator() {
                   <h2 className="text-lg font-semibold">Prompt Title</h2>
                 </div>
                 <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4">
-                  <p className="text-lg text-white font-medium">{currentTitle}</p>
+                  <input
+                    type="text"
+                    value={currentTitle}
+                    onChange={(e) => setCurrentTitle(e.target.value)}
+                    className="w-full bg-transparent text-lg text-white font-medium focus:outline-none"
+                    placeholder="Enter prompt title"
+                  />
                 </div>
               </div>
 
@@ -331,7 +337,12 @@ export default function AdminPromptGenerator() {
                 </div>
                 <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6">
                   <div className="flex justify-between items-start gap-4">
-                    <p className="text-lg text-white">{currentPrompt}</p>
+                    <textarea
+                      value={currentPrompt}
+                      onChange={(e) => setCurrentPrompt(e.target.value)}
+                      className="flex-grow bg-transparent text-lg text-white resize-none focus:outline-none min-h-[100px] min-w-[800px]"
+                      placeholder="Enter prompt content"
+                    />
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
@@ -398,7 +409,13 @@ export default function AdminPromptGenerator() {
                         <span className="text-sm font-medium">Enhanced Title</span>
                       </div>
                       <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4">
-                        <p className="text-lg text-white font-medium">{enhancedTitle}</p>
+                        <input
+                          type="text"
+                          value={enhancedTitle}
+                          onChange={(e) => setEnhancedTitle(e.target.value)}
+                          className="w-full bg-transparent text-lg text-white font-medium focus:outline-none"
+                          placeholder="Enter enhanced title"
+                        />
                       </div>
                     </div>
 
@@ -410,7 +427,12 @@ export default function AdminPromptGenerator() {
                       </div>
                       <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6">
                         <div className="flex justify-between items-start gap-4">
-                          <p className="text-lg text-white">{enhancedPrompt}</p>
+                          <textarea
+                            value={enhancedPrompt}
+                            onChange={(e) => setEnhancedPrompt(e.target.value)}
+                            className="flex-grow bg-transparent text-lg text-white resize-none focus:outline-none min-h-[200px] min-w-[800px]"
+                            placeholder="Enter enhanced prompt content"
+                          />
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+        model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
         prompt: `You are a creative prompt enhancement expert. Your task is to take a basic prompt and enhance it by:
 1. Adding more specific details and context
 2. Making it more engaging and creative

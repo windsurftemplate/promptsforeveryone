@@ -33,7 +33,12 @@ export default function RegisterPage() {
     setError('');
 
     if (!tosAgreed) {
-      setError('You must agree to the Terms of Service to create an account');
+      setError('⚠️ Please check the Terms of Service box to continue');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
       return;
     }
 
@@ -58,8 +63,21 @@ export default function RegisterPage() {
       });
 
       router.push('/dashboard');
-    } catch (err) {
-      setError('Failed to create an account. Please try again.');
+    } catch (err: any) {
+      // Handle specific Firebase auth errors
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          setError('This email is already registered. Please try logging in instead.');
+          break;
+        case 'auth/invalid-email':
+          setError('Please enter a valid email address.');
+          break;
+        case 'auth/weak-password':
+          setError('Password is too weak. Please use a stronger password.');
+          break;
+        default:
+          setError('Failed to create an account. Please try again.');
+      }
       console.error(err);
     }
 
@@ -160,7 +178,7 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 rounded bg-red-500/10 border border-red-500/20 text-red-500">
+            <div className={`mb-4 p-3 rounded ${error.includes('Terms of Service') ? 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-500' : 'bg-red-500/10 border border-red-500/20 text-red-500'}`}>
               {error}
             </div>
           )}
@@ -179,6 +197,9 @@ export default function RegisterPage() {
                 className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
                 placeholder="Enter your name"
               />
+              <p className="mt-1 text-sm text-white/60">
+                This will be your public display name
+              </p>
             </div>
 
             <div>
@@ -194,6 +215,9 @@ export default function RegisterPage() {
                 className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
                 placeholder="Enter your email"
               />
+              <p className="mt-1 text-sm text-white/60">
+                Your email will be used to sign in to your account
+              </p>
             </div>
 
             <div>
@@ -209,6 +233,9 @@ export default function RegisterPage() {
                 className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
                 placeholder="Create a password"
               />
+              <p className="mt-1 text-sm text-white/60">
+                Password must be at least 6 characters long. For better security, include numbers, symbols, and mixed case letters.
+              </p>
             </div>
 
             <div className="flex items-start">
@@ -219,11 +246,11 @@ export default function RegisterPage() {
                   type="checkbox"
                   checked={tosAgreed}
                   onChange={(e) => setTosAgreed(e.target.checked)}
-                  className="h-4 w-4 rounded border-[#00ffff]/20 bg-black/50 text-[#00ffff] focus:ring-[#00ffff]/50"
+                  className={`h-4 w-4 rounded border-[#00ffff]/20 bg-black/50 text-[#00ffff] focus:ring-[#00ffff]/50 ${!tosAgreed && error && error.includes('Terms of Service') ? 'ring-2 ring-red-500' : ''}`}
                 />
               </div>
               <div className="ml-3">
-                <label htmlFor="tos" className="text-sm text-white/80">
+                <label htmlFor="tos" className={`text-sm ${!tosAgreed && error && error.includes('Terms of Service') ? 'text-red-500' : 'text-white/80'}`}>
                   I agree to the{' '}
                   <Link href="/terms" className="text-[#00ffff] hover:text-[#00ffff]/80" target="_blank">
                     Terms of Service
@@ -234,7 +261,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              disabled={loading || !tosAgreed}
+              disabled={loading}
               className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating Account...' : 'Create Account'}

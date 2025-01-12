@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { SparklesIcon, LightBulbIcon, ChatBubbleBottomCenterTextIcon, ShieldCheckIcon, ArrowPathIcon, CloudArrowUpIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import ChatWindow from '@/components/ChatWindow';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 const TwitterIcon = dynamic(() => import('@/components/icons/TwitterIcon'), { ssr: false });
 const GitHubIcon = dynamic(() => import('@/components/icons/GitHubIcon'), { ssr: false });
@@ -20,6 +22,8 @@ const anton = Anton({
 });
 
 export default function HomePage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const promptSectionRef = useRef<HTMLDivElement>(null);
@@ -40,6 +44,12 @@ export default function HomePage() {
     'Welcome to the Prompt Community',
     'Explore Community-Driven Prompts'
   ];
+
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   useEffect(() => {
     const interval = setInterval(() => {
