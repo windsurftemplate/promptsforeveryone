@@ -20,7 +20,7 @@ export default function Sidebar() {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const { setSelectedCategory, setSelectedSubcategory, selectedCategory, selectedSubcategory } = useDashboard();
+  const { setSelectedCategory, setSelectedSubcategory, selectedCategory, selectedSubcategory, isSidebarCollapsed, setIsSidebarCollapsed } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
@@ -29,7 +29,6 @@ export default function Sidebar() {
   const [newSubcategoryName, setNewSubcategoryName] = useState('');
   const [addingCategory, setAddingCategory] = useState(false);
   const [addingSubcategory, setAddingSubcategory] = useState<string | null>(null);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isPaidUser, setIsPaidUser] = useState(false);
   const [userStats, setUserStats] = useState({ totalPrompts: 0, publicPrompts: 0 });
@@ -206,13 +205,13 @@ export default function Sidebar() {
   };
 
   return (
-    <div className={`relative h-full transition-all duration-300 ease-in-out ${isCollapsed ? 'w-16' : 'w-80'}`}>
+    <div className={`relative h-full transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-80'}`}>
       {/* Collapse button - positioned outside the scrollable area */}
       <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         className="absolute -right-3 top-6 p-1 bg-black border border-[#00ffff]/20 rounded-full hover:border-[#00ffff]/40 transition-colors z-50"
       >
-        {isCollapsed ? (
+        {isSidebarCollapsed ? (
           <ChevronRightIcon className="h-4 w-4 text-[#00ffff]" />
         ) : (
           <ChevronLeftIcon className="h-4 w-4 text-[#00ffff]" />
@@ -220,7 +219,7 @@ export default function Sidebar() {
       </button>
 
       <div className="h-full bg-black/90 backdrop-blur-xl text-white p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
-        {!isCollapsed && (
+        {!isSidebarCollapsed && (
           <div className="space-y-8">
             <Link href="/submit">
               <button className="w-full px-4 py-3 rounded-lg text-left transition-all duration-200 flex items-center gap-3 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 group hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
@@ -249,7 +248,7 @@ export default function Sidebar() {
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">
                     <h2 className="text-lg font-semibold text-[#00ffff]">Private Categories</h2>
-                    {!isCollapsed && (
+                    {!isSidebarCollapsed && (
                       <button
                         onClick={() => setIsEditMode(!isEditMode)}
                         className="p-1.5 hover:bg-[#00ffff]/10 rounded-lg transition-all duration-200"

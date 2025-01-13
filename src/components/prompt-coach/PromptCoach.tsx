@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { CheckCircle, XCircle, Loader2, Wand2, BookmarkPlus } from 'lucide-react'
+import { CheckCircle, XCircle, Loader2, Wand2, BookmarkPlus, RefreshCw } from 'lucide-react'
 import { ref, push } from 'firebase/database'
 import { db } from '@/lib/firebase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -234,119 +234,114 @@ const PromptCoach: React.FC = () => {
   }
 
   return (
-    <div className="w-full space-y-6">
-      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-        <label htmlFor="prompt" className="block text-sm font-medium text-[#00ffff] mb-2">
-          Enter your prompt
-        </label>
-        <textarea
-          id="prompt"
-          rows={4}
-          className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none mb-4"
-          placeholder="Type your prompt here..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button
-          onClick={() => getAIAnalysis(prompt)}
-          disabled={isLoading || !prompt.trim()}
-          className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 disabled:opacity-50 disabled:cursor-not-allowed text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40"
-        >
-          <Wand2 className="w-4 h-4" />
-          {isLoading ? 'Analyzing...' : 'Analyze with AI'}
-        </button>
-      </div>
-
-      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-        <h2 className="text-xl font-semibold text-[#00ffff] mb-4">Prompt Analysis</h2>
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-lg font-medium text-white/80">Score:</span>
-            <span className="text-lg font-bold text-[#00ffff]">{analysis.score}/{analysis.totalChecks}</span>
-          </div>
-          <div className="h-2 w-full rounded-full bg-black/50">
+    <div className="space-y-8 w-1/2 mx-auto relative">
+      {/* Quick Analysis - Positioned absolutely to the left */}
+      <div className="absolute right-full top-0 pr-6 w-80">
+        <div className="space-y-3 sticky top-6">
+          {analysis.feedback.map((item) => (
             <div
-              className="h-2 rounded-full bg-[#00ffff]"
-              style={{ width: `${(analysis.score / analysis.totalChecks) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          {analysis.feedback.map((item, index) => (
-            <div key={index} className="flex items-start gap-3 rounded-lg bg-black/50 p-4 border border-[#00ffff]/10">
+              key={item.category}
+              className={`flex items-start gap-3 p-4 rounded-lg border ${
+                item.passed
+                  ? 'bg-[#00ffff]/5 border-[#00ffff]/20'
+                  : 'bg-red-500/5 border-red-500/20'
+              }`}
+            >
               {item.passed ? (
-                <CheckCircle className="h-5 w-5 text-[#00ffff] shrink-0" />
+                <CheckCircle className="w-5 h-5 text-[#00ffff] shrink-0" />
               ) : (
-                <XCircle className="h-5 w-5 text-red-500 shrink-0" />
+                <XCircle className="w-5 h-5 text-red-500 shrink-0" />
               )}
               <div>
-                <h3 className="font-medium text-[#00ffff]">{item.category}</h3>
-                <p className="text-sm text-white/60">{item.message}</p>
+                <h3 className={`font-medium mb-1 ${item.passed ? 'text-[#00ffff]' : 'text-red-500'}`}>
+                  {item.category}
+                </h3>
+                <p className="text-sm text-white/70">{item.message}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* AI Analysis Section */}
+      {/* Input Section */}
       <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-[#00ffff]">AI Feedback</h2>
-          {aiAnalysis && !isLoading && !error && (
-            <button
-              onClick={savePrompt}
-              disabled={isSaving}
-              className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <BookmarkPlus className="w-4 h-4" />
-                  Save Prompt
-                </>
-              )}
-            </button>
-          )}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-[#00ffff]">Your Prompt</h2>
+          <Button
+            onClick={() => getAIAnalysis(prompt)}
+            disabled={isLoading || !prompt.trim()}
+            className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Wand2 className="w-4 h-4" />
+                Get AI Analysis
+              </>
+            )}
+          </Button>
         </div>
-        <div className="rounded-lg bg-black/50 p-4 border border-[#00ffff]/10 min-h-[100px]">
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          className="w-full min-h-[200px] text-white/90 text-lg bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none"
+          placeholder="Enter your prompt here..."
+        />
+      </div>
+
+      {/* AI Analysis Section */}
+      {(isLoading || aiAnalysis || error) && (
+        <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-[#00ffff]">AI Analysis & Suggestions</h2>
+            {aiAnalysis && (
+              <Button
+                onClick={savePrompt}
+                disabled={isSaving}
+                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <BookmarkPlus className="w-4 h-4" />
+                    Save Analysis
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="w-6 h-6 text-[#00ffff] animate-spin" />
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ffff]" />
             </div>
           ) : error ? (
-            <div className="flex flex-col gap-2">
-              <p className="text-red-500 text-sm font-medium">{error}</p>
-              <button
-                onClick={() => getAIAnalysis(prompt)}
-                className="self-start text-sm text-[#00ffff]/80 hover:text-[#00ffff] transition-colors"
-              >
-                Try Again
-              </button>
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">
+              {error}
             </div>
-          ) : aiAnalysis ? (
-            <div className="prose prose-invert max-w-none">
+          ) : aiAnalysis && (
+            <div className="space-y-4">
               <textarea
                 value={editedAIAnalysis}
                 onChange={(e) => setEditedAIAnalysis(e.target.value)}
-                className="w-full bg-transparent text-white/80 text-sm whitespace-pre-wrap focus:outline-none min-h-[200px] resize-none"
-                placeholder="AI feedback will appear here..."
+                className="w-full min-h-[800px] text-white/90 text-lg bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none"
+                placeholder="AI analysis will appear here..."
               />
+              {successMessage && (
+                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-500">
+                  {successMessage}
+                </div>
+              )}
             </div>
-          ) : (
-            <p className="text-white/60 text-sm">Click the Analyze button to get AI feedback on your prompt...</p>
           )}
-        </div>
-      </div>
-
-      {successMessage && (
-        <div className="fixed bottom-4 right-4 bg-emerald-500/90 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
-          <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-          {successMessage}
         </div>
       )}
     </div>

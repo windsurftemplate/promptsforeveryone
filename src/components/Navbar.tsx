@@ -111,31 +111,6 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-8" ref={dropdownRef}>
-            {/* AI Dropdown */}
-            <div className="relative">
-              <button 
-                className={`flex items-center space-x-1 transition-colors duration-300 ${
-                  activeDropdown === 'ai' 
-                    ? 'text-[#00ffff]' 
-                    : 'text-white/80 hover:text-[#00ffff]'
-                }`}
-                onClick={(e) => handleDropdownClick('ai', e)}
-              >
-                <span>AI</span>
-                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
-                  activeDropdown === 'ai' ? 'rotate-180' : ''
-                }`} />
-              </button>
-              {activeDropdown === 'ai' && (
-                <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-black/90 backdrop-blur-xl border border-[#00ffff]/20 shadow-lg shadow-[#00ffff]/5">
-                  <div className="py-2">
-                    <Link href="/prompt-generator" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Prompt Generator</Link>
-                    <Link href="/prompt-coach" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Prompt Coach</Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Product Dropdown */}
             <div className="relative">
               <button 

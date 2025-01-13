@@ -12,6 +12,8 @@ import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 import PromptCard from '@/components/PromptCard';
 import ProfileSettings from '@/components/dashboard/ProfileSettings';
+import { default as PromptGenerator } from '@/components/prompt-generator/PromptGenerator';
+import { default as PromptCoach } from '@/components/prompt-coach/PromptCoach';
 
 import { Prompt } from '@/types';
 
@@ -35,15 +37,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
-  const { selectedCategory, selectedSubcategory, setSelectedCategory, setSelectedSubcategory } = useDashboard();
+  const { selectedCategory, selectedSubcategory, setSelectedCategory, setSelectedSubcategory, isSidebarCollapsed } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'prompts' | 'profile'>('prompts');
+  const [activeTab, setActiveTab] = useState<'prompts' | 'generator' | 'coach' | 'profile'>('prompts');
   const [userStats, setUserStats] = useState({
     totalPrompts: 0,
     privateCategories: 0,
     publicPrompts: 0
   });
+  const [visiblePrompts, setVisiblePrompts] = useState<Prompt[]>([]);
+  const [hasScrolledToThreshold, setHasScrolledToThreshold] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(20);
 
   // Get current category and subcategory
   const currentCategory = useMemo(() => {
@@ -57,6 +62,27 @@ export default function DashboardPage() {
     const subcategory = currentCategory.subcategories[selectedSubcategory.id];
     return subcategory || null;
   }, [selectedSubcategory, currentCategory]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolledToBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100;
+      if (scrolledToBottom && visibleCount < prompts.length) {
+        setVisibleCount(prevCount => Math.min(prevCount + 20, prompts.length));
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [visibleCount, prompts.length]);
+
+  useEffect(() => {
+    setVisiblePrompts(prompts.slice(0, visibleCount));
+  }, [prompts, visibleCount]);
+
+  // Reset visible count when category/subcategory changes
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [selectedCategory, selectedSubcategory]);
 
   useEffect(() => {
     if (!user) {
@@ -379,9 +405,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-8">
+      <div className="py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mx-4">
           <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
             <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
               <DocumentIcon className="h-6 w-6 text-[#00ffff]" />
@@ -424,6 +450,26 @@ export default function DashboardPage() {
             Prompts
           </button>
           <button
+            onClick={() => setActiveTab('generator')}
+            className={`px-6 py-3 font-medium text-sm transition-colors ${
+              activeTab === 'generator'
+                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            Prompt Generator
+          </button>
+          <button
+            onClick={() => setActiveTab('coach')}
+            className={`px-6 py-3 font-medium text-sm transition-colors ${
+              activeTab === 'coach'
+                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            Prompt Coach
+          </button>
+          <button
             onClick={() => setActiveTab('profile')}
             className={`px-6 py-3 font-medium text-sm transition-colors ${
               activeTab === 'profile'
@@ -438,7 +484,7 @@ export default function DashboardPage() {
         {activeTab === 'prompts' ? (
           <>
             {/* File Path Bar */}
-            <div className="bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4 mb-8 flex items-center gap-2 group hover:border-[#00ffff]/20 transition-all duration-300">
+            <div className="bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4 mx-4 mb-8 flex items-center gap-2 group hover:border-[#00ffff]/20 transition-all duration-300">
               <div className="flex items-center gap-2 text-sm">
                 <button 
                   onClick={() => {
@@ -506,22 +552,34 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 m-[15px]">
-                {prompts.map((prompt) => (
-                  <PromptCard
-                    key={prompt.id}
-                    id={prompt.id || ''}
-                    title={prompt.title || ''}
-                    description={prompt.description || ''}
-                    content={prompt.content || ''}
-                    tags={prompt.tags || []}
-                    userId={prompt.userId}
-                    onDelete={(id) => handleDelete(id)}
-                    onCopy={(content) => handleCopy(content)}
-                    onClick={() => handleEdit(prompt)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isSidebarCollapsed ? '2xl:grid-cols-5' : ''} gap-6`}>
+                  {visiblePrompts.map((prompt) => (
+                    <PromptCard
+                      key={prompt.id}
+                      id={prompt.id || ''}
+                      title={prompt.title || ''}
+                      description={prompt.description || ''}
+                      content={prompt.content || ''}
+                      tags={prompt.tags || []}
+                      userId={prompt.userId}
+                      onDelete={(id) => handleDelete(id)}
+                      onCopy={(content) => handleCopy(content)}
+                      onClick={() => handleEdit(prompt)}
+                    />
+                  ))}
+                </div>
+                {visibleCount < prompts.length && (
+                  <div className="text-center py-8 mt-8">
+                    <p className="text-white/60 mb-4">Scroll down to load more prompts</p>
+                    <div className="animate-bounce">
+                      <svg className="w-6 h-6 text-[#00ffff] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {selectedPrompt && selectedPrompt.id && (
@@ -533,6 +591,14 @@ export default function DashboardPage() {
               />
             )}
           </>
+        ) : activeTab === 'generator' ? (
+          <div className="mx-4">
+            <PromptGenerator />
+          </div>
+        ) : activeTab === 'coach' ? (
+          <div className="mx-4">
+            <PromptCoach />
+          </div>
         ) : (
           <ProfileSettings />
         )}

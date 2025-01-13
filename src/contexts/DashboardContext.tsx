@@ -14,6 +14,8 @@ interface DashboardContextType {
   setSelectedSubcategory: (subcategory: { id: string } | null) => void;
   filterTag: string;
   setFilterTag: (tag: string) => void;
+  isSidebarCollapsed: boolean;
+  setIsSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -25,6 +27,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   });
   const [selectedSubcategory, setSelectedSubcategory] = useState<{ id: string } | null>(null);
   const [filterTag, setFilterTag] = useState<string>('');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   return (
     <DashboardContext.Provider value={{ 
@@ -33,7 +36,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       selectedSubcategory,
       setSelectedSubcategory,
       filterTag, 
-      setFilterTag 
+      setFilterTag,
+      isSidebarCollapsed,
+      setIsSidebarCollapsed
     }}>
       {children}
     </DashboardContext.Provider>
