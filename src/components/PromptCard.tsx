@@ -12,6 +12,8 @@ interface PromptCardProps {
   content: string;
   tags: string[];
   userId?: string;
+  category: string;
+  subcategory: string;
   onDelete?: (id: string) => void;
   onCopy?: (content: string) => void;
   onClick?: () => void;
@@ -24,11 +26,13 @@ export default function PromptCard({
   content,
   tags,
   userId,
+  category,
+  subcategory,
   onDelete,
   onCopy,
   onClick,
 }: PromptCardProps) {
-  const shareUrl = `${window.location.origin}/prompt/${id}`;
+  const shareUrl = `${window.location.origin}/categories/${category}/${subcategory}/prompts/${id}`;
   const { user } = useAuth();
   const isCreator = user && userId && user.uid === userId;
 

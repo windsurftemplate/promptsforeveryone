@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { TrashIcon, ClipboardDocumentIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { Button } from './ui/Button';
-import { ref, update, onValue } from 'firebase/database';
+import { ref, update, onValue, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { Prompt } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,6 +26,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
   const [isSaving, setIsSaving] = useState(false);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryName, setCategoryName] = useState('');
 
   // Check if current user is the creator
   const isCreator = user && user.uid === prompt.userId;
@@ -47,58 +48,49 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const fetchCategoryNames = async () => {
+      // Get category name
+      const categoryRef = ref(db, `categories/${prompt.category}`);
+      const categorySnapshot = await get(categoryRef);
+      if (categorySnapshot.exists()) {
+        const categoryData = categorySnapshot.val();
+        setCategoryName(categoryData.name);
+      }
+
+      // Get subcategory name
+      if (prompt.subcategory) {
+        const subcategoryRef = ref(db, `categories/${prompt.category}/subcategories/${prompt.subcategory}`);
+        const subcategorySnapshot = await get(subcategoryRef);
+        if (subcategorySnapshot.exists()) {
+          const subcategoryData = subcategorySnapshot.val();
+          setCategoryName(subcategoryData.name);
+        }
+      }
+    };
+
+    fetchCategoryNames();
+  }, [prompt.category, prompt.subcategory]);
+
   const handleSave = async () => {
-    if (!prompt.userId) {
-      console.error('No user ID found for prompt');
-      return;
-    }
-
+    if (!user) return;
+    
     try {
-      setIsSaving(true);
-      
-      // Remove the prefix to get the original ID
-      const originalId = editedPrompt.id?.replace(/^(private-|public-)/, '');
-      if (!originalId) {
-        console.error('No prompt ID found');
-        return;
-      }
-
-      // Check user authorization
-      if (!user || user.uid !== prompt.userId) {
-        console.error('User not authorized to edit this prompt');
-        return;
-      }
-      
-      // Determine the correct path based on visibility
-      const promptPath = editedPrompt.visibility === 'private'
-        ? `users/${user.uid}/prompts/${originalId}`
-        : `prompts/${originalId}`;
-      
-      const promptRef = ref(db, promptPath);
-
-      // Only include fields that have values
-      const updatedPrompt: Record<string, any> = {
+      const promptRef = ref(db, `prompts/${prompt.id}`);
+      await update(promptRef, {
         title: editedPrompt.title || prompt.title || '',
         description: editedPrompt.description || prompt.description || '',
         content: editedPrompt.content || prompt.content || '',
-        categoryId: editedPrompt.categoryId || prompt.categoryId || '',
+        category: editedPrompt.category || prompt.category || '',
+        subcategory: editedPrompt.subcategory || prompt.subcategory || '',
         visibility: editedPrompt.visibility || prompt.visibility || 'public',
         userId: user.uid,
         createdAt: prompt.createdAt,
-        updatedAt: new Date().toISOString()
-      };
-
-      // Only add userName if it exists
-      if (user.displayName || user.email) {
-        updatedPrompt.userName = user.displayName || user.email;
-      }
-      
-      await update(promptRef, updatedPrompt);
+        updatedAt: new Date().toISOString(),
+      });
       onClose();
     } catch (error) {
       console.error('Error updating prompt:', error);
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -110,12 +102,11 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
     }
   };
 
-  const handleCategoryChange = (categoryId: string) => {
-    setEditedPrompt(prev => ({
-      ...prev,
-      categoryId
-    }));
-    setIsEditingCategory(false);
+  const handleCategoryChange = (category: string) => {
+    setEditedPrompt({
+      ...editedPrompt,
+      category
+    });
   };
 
   return (
@@ -189,18 +180,14 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
               {isCreator && isEditingCategory ? (
                 <div className="flex flex-col gap-2">
                   <select
-                    value={editedPrompt.categoryId}
+                    value={editedPrompt.category}
                     onChange={(e) => handleCategoryChange(e.target.value)}
-                    className="bg-black/50 text-[#00ffff] border border-[#00ffff]/20 rounded px-2 py-1 hover:border-[#00ffff]/40 transition-colors"
-                    style={{
-                      background: '#000',
-                      outline: 'none'
-                    }}
+                    className="w-full p-2 rounded bg-black/50 border border-[#00ffff]/20"
                   >
                     <option value="">Select a category</option>
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
-                        {category.name}
+                        {categories.find(c => c.id === editedPrompt.category)?.name || 'No category'}
                       </option>
                     ))}
                   </select>
@@ -214,7 +201,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
-                    {categories.find(c => c.id === editedPrompt.categoryId)?.name || 'No category'}
+                    {categories.find(c => c.id === editedPrompt.category)?.name || 'No category'}
                   </span>
                   {isCreator && (
                     <button

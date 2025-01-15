@@ -406,39 +406,8 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-black">
       <div className="py-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mx-4">
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
-            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
-              <DocumentIcon className="h-6 w-6 text-[#00ffff]" />
-            </div>
-            <div>
-              <p className="text-white/60">Total Prompts</p>
-              <p className="text-2xl font-bold text-white">{userStats.totalPrompts}</p>
-            </div>
-          </div>
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
-            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
-              <FolderIcon className="h-6 w-6 text-[#00ffff]" />
-            </div>
-            <div>
-              <p className="text-white/60">Private Categories</p>
-              <p className="text-2xl font-bold text-white">{userStats.privateCategories}</p>
-            </div>
-          </div>
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
-            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
-              <ChartBarIcon className="h-6 w-6 text-[#00ffff]" />
-            </div>
-            <div>
-              <p className="text-white/60">Public Prompts</p>
-              <p className="text-2xl font-bold text-white">{userStats.publicPrompts}</p>
-            </div>
-          </div>
-        </div>
-
         {/* Tabs */}
-        <div className="flex border-b border-[#00ffff]/20 mb-8">
+        <div className="flex border-b border-[#00ffff]/20 mb-8 mx-4">
           <button
             onClick={() => setActiveTab('prompts')}
             className={`px-6 py-3 font-medium text-sm transition-colors ${
@@ -563,6 +532,8 @@ export default function DashboardPage() {
                       content={prompt.content || ''}
                       tags={prompt.tags || []}
                       userId={prompt.userId}
+                      category={prompt.category || ''}
+                      subcategory={prompt.subcategory || ''}
                       onDelete={(id) => handleDelete(id)}
                       onCopy={(content) => handleCopy(content)}
                       onClick={() => handleEdit(prompt)}

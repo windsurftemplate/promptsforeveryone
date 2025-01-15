@@ -7,10 +7,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
 
 export default function MobileNav() {
+  const { user, signOut } = useAuth();
   const pathname = usePathname();
-  const { user } = useAuth();
+  const router = useRouter();
   const [isAdmin, setIsAdmin] = useState(false);
   const [navigation, setNavigation] = useState([
     { name: 'Home', href: '/' },
@@ -18,6 +20,15 @@ export default function MobileNav() {
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'Submit', href: '/submit' },
   ]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -67,6 +78,14 @@ export default function MobileNav() {
             </Link>
           );
         })}
+        {user && (
+          <button
+            onClick={handleSignOut}
+            className="flex flex-col items-center px-4 py-2 text-xs font-medium text-red-500 hover:text-red-400"
+          >
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );

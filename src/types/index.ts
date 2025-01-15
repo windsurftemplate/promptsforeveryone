@@ -3,8 +3,8 @@ export interface Prompt {
   title: string;
   description: string;
   content: string;
-  categoryId?: string;
-  category?: string;
+  category: string;
+  subcategory: string;
   categories?: string[];
   userId: string;
   userName?: string;

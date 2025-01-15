@@ -27,6 +27,8 @@ interface Prompt {
   visibility: string;
   updatedAt?: string;
   createdAt: string;
+  category: string;
+  subcategory: string;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -118,7 +120,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const [promptId, prompt] of Object.entries(prompts)) {
       if (prompt.visibility === 'public') {
         routes.push({
-          url: `${baseUrl}/prompt/${promptId}`,
+          url: `${baseUrl}/categories/${prompt.category}/${prompt.subcategory}/prompts/${promptId}`,
           lastModified: prompt.updatedAt || prompt.createdAt || currentDate,
           changeFrequency: 'weekly',
           priority: 0.6,

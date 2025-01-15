@@ -8,6 +8,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Card from '@/components/ui/Card';
 import Script from 'next/script';
 import VoteButton from '@/components/ui/VoteButton';
+import { motion } from 'framer-motion';
 
 interface Prompt {
   id: string;
@@ -163,99 +164,209 @@ export default function SubcategoryPage({ params }: Props) {
       <Script id="subcategory-structured-data" type="application/ld+json">
         {JSON.stringify(structuredData)}
       </Script>
-      <div className="min-h-screen bg-black/95 backdrop-blur-lg">
-        <div className="container mx-auto px-4 py-12">
-          <Link 
-            href={`/categories/${categoryId}`}
-            className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 mb-8 group"
-          >
-            <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to {categoryName}
-          </Link>
-
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-8 mb-8 hover:border-[#00ffff]/30 transition-colors duration-300">
-            <h1 className="text-4xl font-bold text-[#00ffff] mb-4">{subcategoryName}</h1>
-            <p className="text-white/70 text-lg">
-              Explore our collection of {subcategoryName.toLowerCase()} prompts
-            </p>
+      <div className="min-h-screen bg-black">
+        {/* Hero Section */}
+        <div className="relative overflow-hidden">
+          {/* Animated background grid */}
+          <div className="absolute inset-0 grid grid-cols-8 gap-1 opacity-20">
+            {Array.from({ length: 64 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 2,
+                  ease: "linear"
+                }}
+                className="aspect-square bg-[#00ffff]"
+              />
+            ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {prompts.map((prompt) => (
+          {/* Hero content */}
+          <div className="relative container mx-auto px-4 pt-32 pb-24">
+            {/* Breadcrumb Navigation */}
+            <div className="flex items-center gap-2 text-sm text-white/60 mb-4">
               <Link 
-                key={prompt.id} 
-                href={`/prompt/${prompt.id.replace('public-', '')}`}
+                href="/categories"
+                className="hover:text-[#00ffff] transition-colors"
               >
-                <Card className="p-6 hover:border-[#00ffff]/50 hover:bg-black/60 transition-all duration-300 group cursor-pointer h-full backdrop-blur-lg">
-                  <div className="flex flex-col h-full">
-                    <div className="mb-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-semibold text-[#00ffff] group-hover:text-[#00ffff] transition-colors duration-300">
-                          {prompt.title}
-                        </h3>
-                        <VoteButton 
-                          promptId={prompt.id} 
-                          initialVotes={prompt.likes || 0}
-                        />
-                      </div>
-                      <p className="text-white/70 text-sm group-hover:text-white/80 transition-colors duration-300">
-                        {prompt.description}
-                      </p>
-                    </div>
-                    
-                    <div className="mt-auto">
-                      {prompt.tags && prompt.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {prompt.tags.map((tag, index) => (
-                            <span 
-                              key={`${prompt.id}-tag-${index}`}
-                              className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/20"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-between items-center text-sm text-white/60">
-                        <div className="flex items-center gap-2">
-                          <span className="group-hover:text-white/70 transition-colors duration-300">{prompt.userName}</span>
-                          <span>•</span>
-                          <span className="group-hover:text-white/70 transition-colors duration-300">
-                            {new Date(prompt.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(prompt.content);
-                            setCopiedPromptId(prompt.id);
-                            setTimeout(() => setCopiedPromptId(null), 2000);
-                          }}
-                          className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors duration-300 relative"
-                          title="Copy prompt"
-                        >
-                          {copiedPromptId === prompt.id ? (
-                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg">
-                              Copied!
-                            </span>
-                          ) : null}
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                Categories
               </Link>
+              <span>/</span>
+              <Link 
+                href={`/categories/${encodeURIComponent(categoryId)}`}
+                className="hover:text-[#00ffff] transition-colors"
+              >
+                {categoryName}
+              </Link>
+              <span>/</span>
+              <span className="text-[#00ffff]">
+                {subcategoryName}
+              </span>
+            </div>
+
+            <Link 
+              href={`/categories/${encodeURIComponent(categoryId)}`}
+              className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 mb-8 group"
+            >
+              <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Back to {categoryName}
+            </Link>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="max-w-3xl"
+            >
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-white to-[#00ffff] bg-clip-text text-transparent mb-6">
+                {subcategoryName}
+              </h1>
+              <p className="text-xl text-white/70 mb-12">
+                Explore our collection of {subcategoryName.toLowerCase()} prompts in the {categoryName.toLowerCase()} category
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Decorative elements */}
+          <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent" />
+          <div className="absolute top-0 left-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
+        </div>
+
+        {/* Prompts Grid */}
+        <div className="container mx-auto px-4 py-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {prompts.map((prompt, index) => (
+              <motion.div
+                key={prompt.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.4, 
+                  delay: index * 0.1,
+                  ease: "easeOut"
+                }}
+                whileHover={{ 
+                  y: -5,
+                  transition: { duration: 0.2 }
+                }}
+              >
+                <Link 
+                  href={`/categories/${categoryId}/${subcategoryId}/prompts/${prompt.id.replace('public-', '')}`}
+                  className="block h-full"
+                >
+                  <Card className="relative p-6 hover:border-[#00ffff]/50 hover:bg-black/60 transition-all duration-300 group cursor-pointer h-full backdrop-blur-lg overflow-hidden">
+                    {/* Decorative corner accent */}
+                    <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-[#00ffff]/10 transform rotate-45 translate-x-8 -translate-y-8 group-hover:bg-[#00ffff]/20 transition-all duration-300" />
+                    </div>
+
+                    <div className="flex flex-col h-full">
+                      <motion.div 
+                        className="mb-4"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <h3 className="text-xl font-semibold text-[#00ffff] group-hover:text-[#00ffff] transition-colors duration-300">
+                            {prompt.title}
+                          </h3>
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                          >
+                            <VoteButton 
+                              promptId={prompt.id} 
+                              initialVotes={prompt.likes || 0}
+                            />
+                          </motion.div>
+                        </div>
+                        <p className="text-white/70 text-sm group-hover:text-white/90 transition-colors duration-300 line-clamp-2">
+                          {prompt.description}
+                        </p>
+                      </motion.div>
+                      
+                      <div className="mt-auto space-y-4">
+                        {prompt.tags && prompt.tags.length > 0 && (
+                          <motion.div 
+                            className="flex flex-wrap gap-2"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 + 0.3 }}
+                          >
+                            {prompt.tags.map((tag, index) => (
+                              <span 
+                                key={`${prompt.id}-tag-${index}`}
+                                className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/20 group-hover:border-[#00ffff]/40 transition-all duration-300"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </motion.div>
+                        )}
+
+                        <motion.div 
+                          className="flex justify-between items-center text-sm text-white/60"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3, delay: index * 0.1 + 0.4 }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="group-hover:text-white/90 transition-colors duration-300">{prompt.userName}</span>
+                            <span>•</span>
+                            <span className="group-hover:text-white/90 transition-colors duration-300">
+                              {new Date(prompt.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <motion.button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(prompt.content);
+                              setCopiedPromptId(prompt.id);
+                              setTimeout(() => setCopiedPromptId(null), 2000);
+                            }}
+                            className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors duration-300 relative"
+                            title="Copy prompt"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            {copiedPromptId === prompt.id ? (
+                              <motion.span 
+                                className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg"
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -5 }}
+                              >
+                                Copied!
+                              </motion.span>
+                            ) : null}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                            </svg>
+                          </motion.button>
+                        </motion.div>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              </motion.div>
             ))}
             {prompts.length === 0 && (
-              <div className="col-span-full text-center text-white/70 py-12 bg-black/60 backdrop-blur-lg rounded-lg border border-[#00ffff]/20">
+              <motion.div 
+                className="col-span-full text-center text-white/70 py-12 bg-black/60 backdrop-blur-lg rounded-lg border border-[#00ffff]/20"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+              >
                 No prompts found in this subcategory yet.
-              </div>
+              </motion.div>
             )}
           </div>
         </div>

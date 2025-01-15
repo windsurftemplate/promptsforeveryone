@@ -202,7 +202,7 @@ export default function PopularPromptsPage() {
             {prompts.map((prompt) => (
               <Link 
                 key={prompt.id} 
-                href={`/prompt/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
+                href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
               >
                 <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
                   <div className="flex flex-col h-full">

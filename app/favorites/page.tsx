@@ -21,6 +21,8 @@ interface Prompt {
   userId: string;
   userName: string;
   createdAt: string;
+  category: string;
+  subcategory: string;
 }
 
 export default function FavoritesPage() {
@@ -141,7 +143,7 @@ export default function FavoritesPage() {
             {favorites.map((prompt) => (
               <Link
                 key={prompt.id}
-                href={`/prompt/${prompt.id}`}
+                href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id}`}
                 className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 transition-all duration-300"
               >
                 <h2 className="text-xl font-semibold text-white mb-2">{prompt.title}</h2>
