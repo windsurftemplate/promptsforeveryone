@@ -111,7 +111,10 @@ export default function HomePage() {
                 className="text-left space-y-8 max-w-2xl animate-fadeIn"
               >
                 <h1 className={`${anton.className} text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight`}>
-                  <span className="text-white block">
+                  <span className="text-white block md:hidden">
+                    Organize, Discover, and Share Ideas
+                  </span>
+                  <span className="text-white hidden md:block">
                     {titles[currentTitleIndex]}
                   </span>
                 </h1>
