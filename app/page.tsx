@@ -325,7 +325,7 @@ export default function HomePage() {
               </div>
 
               {/* Pro Plan */}
-              <div className="bg-black/50 backdrop-blur-lg border-2 border-[#00ffff] rounded-xl p-8 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] transition-all duration-300 transform hover:scale-105 relative">
+              <div className="bg-black/50 backdrop-blur-lg border-2 border-[#00ffff] rounded-xl p-8 hover:border-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300 transform hover:-translate-y-1 relative">
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-semibold">
                     Most Popular
