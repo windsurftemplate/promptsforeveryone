@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Anton } from 'next/font/google';
 import dynamic from 'next/dynamic';
-import FeatureCarousel from '@/components/FeatureCarousel';
-import Image from 'next/image';
 import { SparklesIcon, LightBulbIcon, ChatBubbleBottomCenterTextIcon, ShieldCheckIcon, ArrowPathIcon, CloudArrowUpIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import ChatWindow from '@/components/ChatWindow';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Lazy load non-critical components
+const ChatWindow = dynamic(() => import('@/components/ChatWindow'), { 
+  ssr: false,
+  loading: () => <div className="w-[400px] h-[500px] bg-black/50 animate-pulse rounded-lg" />
+});
+const FeatureCarousel = dynamic(() => import('@/components/FeatureCarousel'), { ssr: false });
 const TwitterIcon = dynamic(() => import('@/components/icons/TwitterIcon'), { ssr: false });
 const GitHubIcon = dynamic(() => import('@/components/icons/GitHubIcon'), { ssr: false });
 
@@ -26,14 +29,9 @@ export default function HomePage() {
   const { user } = useAuth();
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const promptSectionRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
   const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
-  const [currentNumberIndex, setCurrentNumberIndex] = useState(0);
-  const [isSliding, setIsSliding] = useState(false);
-  const numbers = ['01', '02', '03', '04', '05'];
   const { ref: howItWorksRef, isVisible: howItWorksVisible } = useScrollAnimation();
   const { ref: whyUseRef, isVisible: whyUseVisible } = useScrollAnimation();
   const { ref: pricingRef, isVisible: pricingVisible } = useScrollAnimation();
@@ -41,7 +39,6 @@ export default function HomePage() {
   const titles = [
     'Organize, Discover, and Share Ideas',
     'Unlimited Inspiration and Ideas',
-    'Welcome to Prompts for Everyone',
     'Explore Our Library of Prompts'
   ];
 
@@ -51,42 +48,56 @@ export default function HomePage() {
     }
   }, [user, router]);
 
+  // Only run title rotation on desktop and when component is visible
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTitleIndex((current) =>
-        current === titles.length - 1 ? 0 : current + 1
+    if (window.innerWidth >= 768) { // md breakpoint
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsVisible(entry.isIntersecting);
+        },
+        { threshold: 0.1 }
       );
-    }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+      if (textRef.current) {
+        observer.observe(textRef.current);
+      }
 
+      let interval: NodeJS.Timeout;
+      if (isVisible) {
+        interval = setInterval(() => {
+          setCurrentTitleIndex((current) =>
+            current === titles.length - 1 ? 0 : current + 1
+          );
+        }, 3000);
+      }
+
+      return () => {
+        observer.disconnect();
+        if (interval) clearInterval(interval);
+      };
+    }
+  }, [isVisible]);
+
+  // Optimize scroll handler with throttling
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      if (heroRef.current && textRef.current) {
-        const scrolled = window.scrollY;
-        const rate = scrolled * 0.5;
-        heroRef.current.style.transform = `translate3d(0, ${rate}px, 0)`;
-        textRef.current.style.transform = `translate3d(0, ${rate * 0.8}px, 0)`;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (heroRef.current && textRef.current) {
+            const scrolled = window.scrollY;
+            const rate = scrolled * 0.5;
+            heroRef.current.style.transform = `translate3d(0, ${rate}px, 0)`;
+            textRef.current.style.transform = `translate3d(0, ${rate * 0.8}px, 0)`;
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsSliding(true);
-      setTimeout(() => {
-        setCurrentNumberIndex((current) =>
-          current === numbers.length - 1 ? 0 : current + 1
-        );
-        setIsSliding(false);
-      }, 500);
-    }, 3000);
-
-    return () => clearInterval(interval);
   }, []);
 
   return (
