@@ -70,6 +70,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/popular`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/submit`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/dashboard`,
+      lastModified: currentDate,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/blog`,
       lastModified: currentDate,
       changeFrequency: 'weekly',
@@ -87,6 +105,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/docs`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
   ]
 
   // Add category pages
@@ -103,9 +139,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Add subcategory pages
       if (category.subcategories) {
         for (const [subcategoryId, subcategory] of Object.entries(category.subcategories)) {
-          const subcategorySlug = subcategory.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
           routes.push({
-            url: `${baseUrl}/categories/${categoryId}/${subcategorySlug}`,
+            url: `${baseUrl}/categories/${categoryId}/${subcategoryId}`,
             lastModified: currentDate,
             changeFrequency: 'daily',
             priority: 0.7,

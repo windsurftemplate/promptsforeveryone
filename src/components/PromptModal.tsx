@@ -10,9 +10,9 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface PromptModalProps {
   prompt: Prompt;
-  onClose: () => void;
-  onEdit: (prompt: Prompt) => void;
-  onDelete: (id: string) => void;
+  onCloseAction: () => void;
+  onEditAction: (prompt: Prompt) => void;
+  onDeleteAction: (id: string) => void;
 }
 
 interface Category {
@@ -20,7 +20,7 @@ interface Category {
   name: string;
 }
 
-export default function PromptModal({ prompt, onClose, onEdit, onDelete }: PromptModalProps) {
+export default function PromptModal({ prompt, onCloseAction, onEditAction, onDeleteAction }: PromptModalProps) {
   const { user } = useAuth();
   const [editedPrompt, setEditedPrompt] = useState(prompt);
   const [isSaving, setIsSaving] = useState(false);
@@ -88,7 +88,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
         createdAt: prompt.createdAt,
         updatedAt: new Date().toISOString(),
       });
-      onClose();
+      onCloseAction();
     } catch (error) {
       console.error('Error updating prompt:', error);
     }
@@ -110,7 +110,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onClick={onCloseAction}>
       <div 
         className="bg-black/90 border border-[#00ffff]/20 rounded-lg p-8 max-w-4xl w-full mx-4 shadow-[0_0_50px_rgba(0,255,255,0.1)] max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
@@ -134,7 +134,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
             </button>
             {isCreator && (
               <button
-                onClick={() => onDelete(prompt.id || '')}
+                onClick={() => onDeleteAction(prompt.id || '')}
                 className="text-white/60 hover:text-[#00ffff] transition-colors"
                 title="Delete prompt"
               >
@@ -142,7 +142,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
               </button>
             )}
             <button
-              onClick={onClose}
+              onClick={onCloseAction}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
               title="Close"
             >
@@ -223,7 +223,7 @@ export default function PromptModal({ prompt, onClose, onEdit, onDelete }: Promp
           {isCreator && (
             <div className="flex justify-end gap-3 pt-4">
               <Button
-                onClick={onClose}
+                onClick={onCloseAction}
                 className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded"
                 disabled={isSaving}
               >

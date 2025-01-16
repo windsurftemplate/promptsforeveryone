@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, get } from 'firebase/database';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Category {
   id: string;
@@ -21,14 +22,13 @@ interface Category {
 }
 
 export default function CategoriesPage() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalPrompts, setTotalPrompts] = useState(0);
 
   useEffect(() => {
     const categoriesRef = ref(db, 'categories');
-    const promptsRef = ref(db, 'prompts');
-    const usersRef = ref(db, 'users');
 
     // Fetch categories
     const unsubscribeCategories = onValue(categoriesRef, (snapshot) => {
@@ -39,34 +39,23 @@ export default function CategoriesPage() {
           ...category
         }));
         setCategories(categoriesArray);
+        setLoading(false);
+      } else {
+        setCategories([]);
+        setLoading(false);
       }
     });
 
-    // Fetch total prompts count (both public and private)
+    // Fetch total prompts count (public prompts only)
     const fetchTotalPrompts = async () => {
-      let count = 0;
-
-      // Count public prompts
-      const publicPromptsSnapshot = await get(promptsRef);
-      if (publicPromptsSnapshot.exists()) {
-        count += Object.keys(publicPromptsSnapshot.val()).length;
+      try {
+        const publicPromptsRef = ref(db, 'prompts');
+        const publicSnapshot = await get(publicPromptsRef);
+        const totalCount = publicSnapshot.exists() ? Object.keys(publicSnapshot.val()).length : 0;
+        setTotalPrompts(totalCount);
+      } catch (error) {
+        console.error('Error fetching total prompts:', error);
       }
-
-      // Count private prompts from all users
-      const usersSnapshot = await get(usersRef);
-      if (usersSnapshot.exists()) {
-        const users = usersSnapshot.val();
-        for (const userId in users) {
-          const userPromptsRef = ref(db, `users/${userId}/prompts`);
-          const userPromptsSnapshot = await get(userPromptsRef);
-          if (userPromptsSnapshot.exists()) {
-            count += Object.keys(userPromptsSnapshot.val()).length;
-          }
-        }
-      }
-
-      setTotalPrompts(count);
-      setLoading(false);
     };
 
     fetchTotalPrompts();

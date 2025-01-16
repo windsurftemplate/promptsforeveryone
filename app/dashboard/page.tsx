@@ -241,6 +241,47 @@ export default function DashboardPage() {
           } catch (error) {
             console.error('Error fetching public prompts:', error);
           }
+        } else if (selectedCategory.id === 'my-prompts') {
+          // Fetch user's private prompts if they have access
+          if (hasAccess) {
+            const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
+            try {
+              const privateSnapshot = await get(privatePromptsRef);
+              if (privateSnapshot.exists()) {
+                const privatePrompts = Object.entries(privateSnapshot.val())
+                  .filter(([id]) => !seenPromptIds.has(id))
+                  .map(([id, data]: [string, any]) => {
+                    seenPromptIds.add(id);
+                    return {
+                      id: `private-${id}`,
+                      ...data,
+                      isPrivate: true
+                    };
+                  });
+                promptsToShow.push(...privatePrompts);
+              }
+            } catch (error) {
+              console.error('Error fetching private prompts:', error);
+            }
+          }
+
+          // Fetch user's public prompts
+          const publicPromptsRef = ref(db, 'prompts');
+          try {
+            const publicSnapshot = await get(publicPromptsRef);
+            if (publicSnapshot.exists()) {
+              const publicPrompts = Object.entries(publicSnapshot.val())
+                .filter(([_, data]: [string, any]) => data.userId === user.uid)
+                .map(([id, data]: [string, any]) => ({
+                  id: `public-${id}`,
+                  ...data,
+                  isPrivate: false
+                }));
+              promptsToShow.push(...publicPrompts);
+            }
+          } catch (error) {
+            console.error('Error fetching public prompts:', error);
+          }
         } else if (selectedCategory) {
           // Fetch prompts based on selected category
           if (selectedCategory.isPrivate) {
@@ -404,8 +445,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black">
-      <div className="py-8">
+    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">
+      {/* Fixed background gradient */}
+      <div className="fixed inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
+      {/* Fixed cyan overlay */}
+      <div className="fixed inset-0 bg-[#00ffff]/5 pointer-events-none" />
+      
+      {/* Content */}
+      <div className="relative py-8">
         {/* Tabs */}
         <div className="flex border-b border-[#00ffff]/20 mb-8 mx-4">
           <button
@@ -556,9 +603,9 @@ export default function DashboardPage() {
             {selectedPrompt && selectedPrompt.id && (
               <PromptModal
                 prompt={selectedPrompt}
-                onClose={handleCloseModal}
-                onEdit={handleEditInModal}
-                onDelete={handleDelete}
+                onCloseAction={handleCloseModal}
+                onEditAction={handleEditInModal}
+                onDeleteAction={handleDelete}
               />
             )}
           </>

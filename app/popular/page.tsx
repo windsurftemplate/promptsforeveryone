@@ -8,6 +8,7 @@ import Card from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { Prompt } from '@/types';
 import { ChartBarIcon, FireIcon } from '@heroicons/react/24/outline';
+import { motion } from 'framer-motion';
 
 export default function PopularPromptsPage() {
   const { user } = useAuth();
@@ -82,15 +83,19 @@ export default function PopularPromptsPage() {
   }, [prompts]);
 
   return (
-    <div className="min-h-screen bg-black pt-32 pb-16">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">
+      {/* Fixed background gradient */}
+      <div className="fixed inset-0 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+      <div className="fixed inset-0 bg-[#00ffff]/5 pointer-events-none" />
+
+      <div className="relative container mx-auto px-4 pt-32 pb-16">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
             Popular Prompts
           </h1>
 
           {/* Time Filter */}
-          <div className="flex gap-2 mb-8">
+          <div className="flex gap-2">
             <button
               onClick={() => setTimeFilter('all')}
               className={`px-4 py-2 rounded-lg transition-colors ${
@@ -126,7 +131,12 @@ export default function PopularPromptsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center"
+          >
             <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
               <FireIcon className="h-6 w-6 text-[#00ffff]" />
             </div>
@@ -139,9 +149,14 @@ export default function PopularPromptsPage() {
                 {prompts[0]?.title || 'No prompts yet'}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center"
+          >
             <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
               <ChartBarIcon className="h-6 w-6 text-[#00ffff]" />
             </div>
@@ -152,9 +167,14 @@ export default function PopularPromptsPage() {
                 {timeFilter === 'all' ? 'All time' : timeFilter === 'week' ? 'This week' : 'This month'}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center"
+          >
             <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#00ffff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -169,7 +189,7 @@ export default function PopularPromptsPage() {
               </p>
               <p className="text-sm text-white/60">Per prompt</p>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Trending Categories */}
@@ -177,14 +197,17 @@ export default function PopularPromptsPage() {
           <h2 className="text-xl font-semibold text-white mb-4">Trending Categories</h2>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {trendingCategories.map((category, index) => (
-              <div 
+              <motion.div
                 key={category.name}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
                 className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4 flex flex-col items-center justify-center text-center"
               >
                 <span className="text-2xl font-bold text-[#00ffff] mb-1">{category.count}</span>
                 <span className="text-sm text-white/60">{category.name}</span>
                 <span className="text-xs text-[#00ffff]/40 mt-1">#{index + 1}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -199,72 +222,78 @@ export default function PopularPromptsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {prompts.map((prompt) => (
-              <Link 
-                key={prompt.id} 
-                href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
+            {prompts.map((prompt, index) => (
+              <motion.div
+                key={prompt.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
-                  <div className="flex flex-col h-full">
-                    <div className="mb-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
-                          {prompt.title}
-                        </h3>
-                        <span className="flex items-center text-[#00ffff] bg-[#00ffff]/10 px-2 py-1 rounded">
-                          <FireIcon className="h-4 w-4 mr-1" />
-                          {(prompt.votes ?? 0).toString()}
-                        </span>
-                      </div>
-                      <p className="text-white/70 text-sm line-clamp-2 mb-2">
-                        {prompt.description}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-white/50">
-                        <span className="bg-[#00ffff]/5 px-2 py-1 rounded">
-                          {new Date(prompt.createdAt).toLocaleDateString()}
-                        </span>
-                        {prompt.category && (
-                          <>
-                            <span>•</span>
-                            <span className="bg-[#00ffff]/5 px-2 py-1 rounded">
-                              {prompt.category}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="mt-auto">
-                      {prompt.tags && prompt.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {prompt.tags.map((tag, index) => (
-                            <span 
-                              key={`${prompt.id}-tag-${index}`}
-                              className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="flex justify-between items-center text-sm">
-                        <div className="flex items-center gap-2 text-white/50">
-                          <span className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            {prompt.userName}
+                <Link 
+                  href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
+                >
+                  <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
+                    <div className="flex flex-col h-full">
+                      <div className="mb-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
+                            {prompt.title}
+                          </h3>
+                          <span className="flex items-center text-[#00ffff] bg-[#00ffff]/10 px-2 py-1 rounded">
+                            <FireIcon className="h-4 w-4 mr-1" />
+                            {(prompt.votes ?? 0).toString()}
                           </span>
                         </div>
-                        <span className="text-[#00ffff]/60 text-xs">
-                          {timeFilter === 'all' ? 'Rank #' + (prompts.indexOf(prompt) + 1) : ''}
-                        </span>
+                        <p className="text-white/70 text-sm line-clamp-2 mb-2">
+                          {prompt.description}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs text-white/50">
+                          <span className="bg-[#00ffff]/5 px-2 py-1 rounded">
+                            {new Date(prompt.createdAt).toLocaleDateString()}
+                          </span>
+                          {prompt.category && (
+                            <>
+                              <span>•</span>
+                              <span className="bg-[#00ffff]/5 px-2 py-1 rounded">
+                                {prompt.category}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-auto">
+                        {prompt.tags && prompt.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {prompt.tags.map((tag, index) => (
+                              <span 
+                                key={`${prompt.id}-tag-${index}`}
+                                className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2 text-white/50">
+                            <span className="flex items-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              {prompt.userName}
+                            </span>
+                          </div>
+                          <span className="text-[#00ffff]/60 text-xs">
+                            {timeFilter === 'all' ? 'Rank #' + (prompts.indexOf(prompt) + 1) : ''}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              </Link>
+                  </Card>
+                </Link>
+              </motion.div>
             ))}
           </div>
         )}
