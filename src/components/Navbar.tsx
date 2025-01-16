@@ -6,7 +6,19 @@ import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { useRouter, usePathname } from 'next/navigation';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { 
+  ChevronDownIcon,
+  GlobeAltIcon,
+  FolderIcon,
+  FireIcon,
+  InformationCircleIcon,
+  Squares2X2Icon,
+  ArrowRightOnRectangleIcon,
+  ArrowLeftOnRectangleIcon,
+  UserPlusIcon,
+  Bars3Icon,
+  XMarkIcon
+} from '@heroicons/react/24/outline';
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { Anton } from 'next/font/google';
@@ -206,17 +218,11 @@ export default function Navbar() {
               aria-label="Toggle menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
+              {isMobileMenuOpen ? (
+                <XMarkIcon className="h-6 w-6" />
+              ) : (
+                <Bars3Icon className="h-6 w-6" />
+              )}
             </button>
           </div>
         </div>
@@ -224,16 +230,45 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden px-2 pt-2 pb-3 space-y-1">
-          <Link href="/explore" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-            Explore
-          </Link>
-          <Link href="/categories" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-            Categories
-          </Link>
-          <Link href="/popular" className="block px-3 py-2 text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-            Popular
-          </Link>
+        <div className="md:hidden bg-black/90 backdrop-blur-xl border-t border-[#00ffff]/10">
+          <div className="grid grid-cols-4 gap-2 p-4">
+            {isAdmin && (
+              <Link href="/explore" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+                <GlobeAltIcon className="h-5 w-5" />
+              </Link>
+            )}
+            <Link href="/categories" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+              <FolderIcon className="h-5 w-5" />
+            </Link>
+            <Link href="/popular" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+              <FireIcon className="h-5 w-5" />
+            </Link>
+            <Link href="/about" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+              <InformationCircleIcon className="h-5 w-5" />
+            </Link>
+            {user ? (
+              <>
+                <Link href="/dashboard" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+                  <Squares2X2Icon className="h-5 w-5" />
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300"
+                >
+                  <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+                  <ArrowLeftOnRectangleIcon className="h-5 w-5" />
+                </Link>
+                <Link href="/register" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
+                  <UserPlusIcon className="h-5 w-5" />
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>
