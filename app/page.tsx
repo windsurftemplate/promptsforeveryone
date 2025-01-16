@@ -41,8 +41,8 @@ export default function HomePage() {
   const titles = [
     'Organize, Discover, and Share Ideas',
     'Unlimited Inspiration and Ideas',
-    'Welcome to the Prompt Community',
-    'Explore Community-Driven Prompts'
+    'Welcome to Prompts for Everyone',
+    'Explore Our Library of Prompts'
   ];
 
   useEffect(() => {
@@ -187,7 +187,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Share & Collaborate</h3>
                 <p className="text-gray-400">
-                  Share your prompts with others and collaborate in real-time
+                Share your prompts with the community and put them to use today!
                 </p>
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function HomePage() {
                 <ShieldCheckIcon className="h-6 w-6 text-[#00ffff]" />
               </div>
               <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Private Collections</h3>
-              <p className="text-gray-400">Create and manage private prompt collections for personal or team use.</p>
+              <p className="text-gray-400">Create and manage private prompt collections for personal or team use for Pro users.</p>
             </div>
 
             <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
@@ -282,7 +282,7 @@ export default function HomePage() {
               <h2 className="text-4xl md:text-5xl font-bold text-center text-[#00ffff] mb-12">
                 Simplified Pricing
               </h2>
-              <p className="text-xl text-gray-400">Start for free, upgrade if you need it</p>
+              <p className="text-xl text-gray-400">Start for free upgrade to save private collections</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Free Plan */}
@@ -290,7 +290,7 @@ export default function HomePage() {
                 <div className="text-center mb-8">
                   <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Free</h3>
                   <div className="text-4xl font-bold text-[#00ffff] mb-4">$0</div>
-                  <p className="text-gray-400">Perfect for getting started</p>
+                  <p className="text-gray-400">Perfect for sharing and always free!</p>
                 </div>
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-center text-gray-300">
@@ -303,7 +303,15 @@ export default function HomePage() {
                   </li>
                   <li className="flex items-center text-gray-300">
                     <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Community Support</span>
+                    <span>Discover and Share Ideas</span>
+                  </li>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>AI Random Prompt Generator</span>
+                  </li>
+                  <li className="flex items-center text-gray-300">
+                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                    <span>AI Prompt Coach </span>
                   </li>
                 </ul>
                 <Link href="/register" className="block">
@@ -339,15 +347,15 @@ export default function HomePage() {
                   </li>
                   <li className="flex items-center text-gray-300">
                     <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Private Collections</span>
+                    <span>Save and Organize Unlimited Prompts</span>
                   </li>
                   <li className="flex items-center text-gray-300">
                     <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Priority Support</span>
+                    <span>Priority Access to New Features</span>
                   </li>
                   <li className="flex items-center text-gray-300">
                     <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>AI Assistant Access</span>
+                    <span>Ad-Free Experience</span>
                   </li>
                 </ul>
                 <Link href="/register?plan=pro" className="block">
@@ -412,7 +420,7 @@ export default function HomePage() {
                   Get Started Free
                 </Button>
               </Link>
-              <Link href="/explore">
+              <Link href="/categories">
                 <Button variant="secondary" className="px-8 py-4 text-lg">
                   Explore Prompts
                 </Button>

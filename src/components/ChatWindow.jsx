@@ -49,7 +49,7 @@ const ChatWindow = () => {
           <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
           <div className="w-3 h-3 rounded-full bg-green-500"></div>
         </div>
-        <div className="text-[#00ffff] font-medium">AI Assistant</div>
+        <div className="text-[#00ffff] font-medium">AI Prompt Engineer</div>
         <div className="w-16"></div>
       </div>
 
@@ -62,7 +62,7 @@ const ChatWindow = () => {
               AI
             </div>
             <div className="bg-[#444654] p-4 rounded-2xl text-gray-100 leading-relaxed shadow-lg border border-[#00ffff]/10">
-              Welcome to PFE! I'm your AI assistant, ready to help you discover and create amazing prompts.
+              Welcome to PFE! PromptsForEveryone.com is a versatile platform that helps users discover, create, and save personalized prompts across diverse categories like education, creativity, business, and more.
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ const ChatWindow = () => {
         <div className="bg-[#40414f] rounded-xl border border-[#00ffff]/20 p-3 flex items-center shadow-lg transform transition-all duration-300 hover:border-[#00ffff]/40">
           <input
             type="text"
-            placeholder="Message AI assistant..."
+            placeholder="Message AI Prompt Engineer..."
             className="bg-transparent border-0 focus:ring-0 text-gray-200 flex-1 px-2 placeholder-gray-500"
             disabled
           />
