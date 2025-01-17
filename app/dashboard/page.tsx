@@ -14,6 +14,8 @@ import PromptCard from '@/components/PromptCard';
 import ProfileSettings from '@/components/dashboard/ProfileSettings';
 import { default as PromptGenerator } from '@/components/prompt-generator/PromptGenerator';
 import { default as PromptCoach } from '@/components/prompt-coach/PromptCoach';
+import AdDisplay from '@/components/AdDisplay';
+import { ads as staticAds } from '@/config/ads';
 
 import { Prompt } from '@/types';
 
@@ -28,6 +30,15 @@ interface Category {
 interface SelectedCategory {
   id: string;
   isPrivate: boolean;
+}
+
+interface Ad {
+  id: string;
+  title: string;
+  type: 'banner' | 'inline';
+  content: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
 }
 
 export default function DashboardPage() {
@@ -49,6 +60,7 @@ export default function DashboardPage() {
   const [visiblePrompts, setVisiblePrompts] = useState<Prompt[]>([]);
   const [hasScrolledToThreshold, setHasScrolledToThreshold] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
+  const [ads] = useState(staticAds.filter(ad => ad.status === 'active'));
 
   // Get current category and subcategory
   const currentCategory = useMemo(() => {
@@ -444,6 +456,49 @@ export default function DashboardPage() {
     }
   };
 
+  // Function to insert ads between prompts
+  const promptsWithAds = useMemo(() => {
+    const result = [];
+    const activeInlineAds = ads.filter(ad => ad.type === 'inline' && ad.status === 'active');
+    const activeBannerAds = ads.filter(ad => ad.type === 'banner' && ad.status === 'active');
+    
+    // Add banner ad at the top if available
+    if (activeBannerAds.length > 0) {
+      result.push(
+        <AdDisplay key={`ad-banner-top`} ad={activeBannerAds[0]} />
+      );
+    }
+
+    visiblePrompts.forEach((prompt, index) => {
+      result.push(
+        <PromptCard
+          key={prompt.id}
+          id={prompt.id || ''}
+          title={prompt.title || ''}
+          description={prompt.description || ''}
+          content={prompt.content || ''}
+          tags={prompt.tags || []}
+          userId={prompt.userId}
+          category={prompt.category || ''}
+          subcategory={prompt.subcategory || ''}
+          onDelete={(id) => handleDelete(id)}
+          onCopy={(content) => handleCopy(content)}
+          onClick={() => handleEdit(prompt)}
+        />
+      );
+
+      // Insert inline ad every 5 prompts
+      if ((index + 1) % 5 === 0 && activeInlineAds.length > 0) {
+        const adIndex = Math.floor(index / 5) % activeInlineAds.length;
+        result.push(
+          <AdDisplay key={`ad-${index}`} ad={activeInlineAds[adIndex]} />
+        );
+      }
+    });
+
+    return result;
+  }, [visiblePrompts, ads, handleDelete, handleCopy, handleEdit]);
+
   return (
     <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">
       {/* Fixed background gradient */}
@@ -570,22 +625,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isSidebarCollapsed ? '2xl:grid-cols-5' : ''} gap-6`}>
-                  {visiblePrompts.map((prompt) => (
-                    <PromptCard
-                      key={prompt.id}
-                      id={prompt.id || ''}
-                      title={prompt.title || ''}
-                      description={prompt.description || ''}
-                      content={prompt.content || ''}
-                      tags={prompt.tags || []}
-                      userId={prompt.userId}
-                      category={prompt.category || ''}
-                      subcategory={prompt.subcategory || ''}
-                      onDelete={(id) => handleDelete(id)}
-                      onCopy={(content) => handleCopy(content)}
-                      onClick={() => handleEdit(prompt)}
-                    />
-                  ))}
+                  {promptsWithAds}
                 </div>
                 {visibleCount < prompts.length && (
                   <div className="text-center py-8 mt-8">

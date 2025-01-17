@@ -10,7 +10,7 @@ interface Category {
   id: string;
   name: string;
   description?: string;
-  count?: number;
+  promptCount: number;
   subcategories?: {
     [key: string]: {
       name: string;
@@ -42,12 +42,9 @@ export default function CategoriesPage() {
         }));
         setCategories(categoriesArray);
 
-        // Fetch total prompts count
-        const promptsResponse = await fetch('/api/prompts/count');
-        if (promptsResponse.ok) {
-          const { count } = await promptsResponse.json();
-          setTotalPrompts(count);
-        }
+        // Calculate total prompts from all categories
+        const total = categoriesArray.reduce((sum, category) => sum + (category.promptCount || 0), 0);
+        setTotalPrompts(total);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -98,7 +95,7 @@ export default function CategoriesPage() {
           >
             <h1 className="text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-white to-[#00ffff] bg-clip-text text-transparent mb-6">
               Explore Our Prompt Categories
-        </h1>
+            </h1>
             <p className="text-xl text-white/70 mb-12">
               Discover a world of prompts organized by categories. Find the perfect prompt for your next project.
             </p>
@@ -161,34 +158,27 @@ export default function CategoriesPage() {
             >
               <Link href={`/categories/${category.id}`} className="group h-full">
                 <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 transition-all duration-300 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
-                    {category.name}
-                  </h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
+                      {category.name}
+                    </h2>
                     <ChevronRightIcon className="h-5 w-5 text-[#00ffff] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
-                </div>
+                  </div>
                   <p className="text-white/60 mb-6 flex-grow">
-                  {category.description || `Explore our collection of ${category.name.toLowerCase()} prompts`}
-                </p>
-                {category.subcategories && Object.keys(category.subcategories).length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-auto">
-                    {Object.entries(category.subcategories).slice(0, 3).map(([id, subcategory]) => (
-                      <span 
-                        key={id}
-                        className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] text-sm rounded-full"
-                      >
-                        {subcategory.name}
-                      </span>
-                    ))}
-                    {Object.keys(category.subcategories).length > 3 && (
-                      <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] text-sm rounded-full">
-                        +{Object.keys(category.subcategories).length - 3} more
-                      </span>
+                    {category.description || `Explore our collection of ${category.name.toLowerCase()} prompts`}
+                  </p>
+                  <div className="flex items-center justify-between mt-auto">
+                    <div className="text-[#00ffff]/80">
+                      {category.promptCount} {category.promptCount === 1 ? 'prompt' : 'prompts'}
+                    </div>
+                    {category.subcategories && Object.keys(category.subcategories).length > 0 && (
+                      <div className="text-white/40">
+                        {Object.keys(category.subcategories).length} {Object.keys(category.subcategories).length === 1 ? 'subcategory' : 'subcategories'}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            </Link>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>
