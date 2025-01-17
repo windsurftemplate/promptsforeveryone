@@ -49,21 +49,30 @@ export default function PromptPage() {
         // Fetch category and subcategory names
         if (categoryId && subcategoryId) {
           const categoryResponse = await fetch(`/api/categories?id=${categoryId}`);
-          if (categoryResponse.ok) {
-            const categoryData = await categoryResponse.json();
-            if (categoryData.error) {
-              console.error('Category not found:', categoryData.error);
-              return;
-            }
-            setCategoryName(categoryData.name || '');
-            
-            if (categoryData.subcategories && categoryData.subcategories[subcategoryId]) {
-              setSubcategoryName(categoryData.subcategories[subcategoryId].name || '');
-            } else {
-              console.error('Subcategory not found');
-            }
-          } else {
+          if (!categoryResponse.ok) {
             console.error('Failed to fetch category:', categoryResponse.statusText);
+            setError('Failed to load category information');
+            setLoading(false);
+            return;
+          }
+
+          const categoryData = await categoryResponse.json();
+          if (categoryData.error) {
+            console.error('Category error:', categoryData.error);
+            setError('Category not found');
+            setLoading(false);
+            return;
+          }
+
+          setCategoryName(categoryData.name || '');
+          
+          if (categoryData.subcategories?.[subcategoryId]) {
+            setSubcategoryName(categoryData.subcategories[subcategoryId].name || '');
+          } else {
+            console.error('Subcategory not found');
+            setError('Subcategory not found');
+            setLoading(false);
+            return;
           }
         }
         

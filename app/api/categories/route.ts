@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Firebase database URL
 const FIREBASE_DB_URL = 'https://promptsforall-8068a-default-rtdb.firebaseio.com';
-const ALLOWED_ORIGIN = 'https://promptsforeveryone.com';
+const ALLOWED_ORIGINS = ['https://promptsforeveryone.com', 'https://www.promptsforeveryone.com'];
 
 /**
  * Middleware to check request method and origin
@@ -20,7 +20,11 @@ function validateRequest(request: NextRequest) {
   // Check origin in production
   if (process.env.NODE_ENV === 'production') {
     const origin = request.headers.get('origin');
-    if (origin !== ALLOWED_ORIGIN) {
+    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+      // Allow same-origin requests (no origin header)
+      if (!origin && request.url.startsWith('https://promptsforeveryone.com')) {
+        return null;
+      }
       return NextResponse.json(
         { error: 'Unauthorized origin' },
         { status: 403 }
@@ -42,11 +46,6 @@ export async function GET(request: NextRequest) {
       return validationError;
     }
 
-    // Get category ID from URL if present
-    const url = new URL(request.url);
-    const categoryId = url.searchParams.get('id');
-    const subcategoryId = url.searchParams.get('subId');
-
     // Fetch all categories first
     const response = await axios.get(`${FIREBASE_DB_URL}/categories.json`);
 
@@ -58,6 +57,10 @@ export async function GET(request: NextRequest) {
     }
 
     // If no category ID is provided, return all categories
+    const url = new URL(request.url);
+    const categoryId = url.searchParams.get('id');
+    const subcategoryId = url.searchParams.get('subId');
+
     if (!categoryId) {
       return NextResponse.json(response.data, {
         status: 200,
