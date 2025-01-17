@@ -1,16 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getDatabase, ref, get } from 'firebase/database';
-import { initializeApp } from 'firebase/app';
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
-}
+import axios from 'axios';
 
 interface Category {
   name: string;
@@ -32,20 +21,6 @@ interface Prompt {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig)
-  const db = getDatabase(app)
-
-  // Get all categories
-  const categoriesRef = ref(db, 'categories')
-  const categoriesSnapshot = await get(categoriesRef)
-  const categories = categoriesSnapshot.val() as Record<string, Category>
-
-  // Get all public prompts
-  const promptsRef = ref(db, 'prompts')
-  const promptsSnapshot = await get(promptsRef)
-  const prompts = promptsSnapshot.val() as Record<string, Prompt>
-
   const baseUrl = 'https://promptsforeveryone.com'
   const currentDate = new Date().toISOString()
 
@@ -113,43 +88,57 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Add category pages
-  if (categories) {
-    for (const [categoryId, category] of Object.entries(categories)) {
-      // Add main category page
-      routes.push({
-        url: `${baseUrl}/categories/${categoryId}`,
-        lastModified: currentDate,
-        changeFrequency: 'daily',
-        priority: 0.8,
-      })
+  try {
+    // Get all categories using our API endpoint
+    const categoriesResponse = await axios.get(`${baseUrl}/api/categories`);
+    const categories = categoriesResponse.data as Record<string, Category>;
 
-      // Add subcategory pages
-      if (category.subcategories) {
-        for (const [subcategoryId, subcategory] of Object.entries(category.subcategories)) {
+    // Add category pages
+    if (categories) {
+      for (const [categoryId, category] of Object.entries(categories)) {
+        // Add main category page
+        routes.push({
+          url: `${baseUrl}/categories/${categoryId}`,
+          lastModified: currentDate,
+          changeFrequency: 'daily',
+          priority: 0.8,
+        })
+
+        // Add subcategory pages
+        if (category.subcategories) {
+          for (const [subcategoryId, subcategory] of Object.entries(category.subcategories)) {
+            routes.push({
+              url: `${baseUrl}/categories/${categoryId}/${subcategoryId}`,
+              lastModified: currentDate,
+              changeFrequency: 'daily',
+              priority: 0.7,
+            })
+          }
+        }
+      }
+    }
+
+    // Get all prompts using our API endpoint
+    const promptsResponse = await axios.get(`${baseUrl}/api/prompts`);
+    const prompts = promptsResponse.data as Record<string, Prompt>;
+
+    // Add prompt pages
+    if (prompts) {
+      for (const [promptId, prompt] of Object.entries(prompts)) {
+        if (prompt.visibility === 'public') {
           routes.push({
-            url: `${baseUrl}/categories/${categoryId}/${subcategoryId}`,
-            lastModified: currentDate,
-            changeFrequency: 'daily',
-            priority: 0.7,
+            url: `${baseUrl}/categories/${prompt.category}/${prompt.subcategory}/prompts/${promptId}`,
+            lastModified: prompt.updatedAt || prompt.createdAt || currentDate,
+            changeFrequency: 'weekly',
+            priority: 0.6,
           })
         }
       }
     }
-  }
-
-  // Add prompt pages
-  if (prompts) {
-    for (const [promptId, prompt] of Object.entries(prompts)) {
-      if (prompt.visibility === 'public') {
-        routes.push({
-          url: `${baseUrl}/categories/${prompt.category}/${prompt.subcategory}/prompts/${promptId}`,
-          lastModified: prompt.updatedAt || prompt.createdAt || currentDate,
-          changeFrequency: 'weekly',
-          priority: 0.6,
-        })
-      }
-    }
+  } catch (error) {
+    console.error('Error fetching data for sitemap:', error);
+    // Return static routes if API calls fail
+    return routes;
   }
 
   return routes
