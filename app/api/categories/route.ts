@@ -6,44 +6,16 @@ const FIREBASE_DB_URL = 'https://promptsforall-8068a-default-rtdb.firebaseio.com
 const ALLOWED_ORIGINS = ['https://promptsforeveryone.com', 'https://www.promptsforeveryone.com'];
 
 /**
- * Middleware to check request method and origin
- */
-function validateRequest(request: NextRequest) {
-  // Only allow GET requests
-  if (request.method !== 'GET') {
-    return NextResponse.json(
-      { error: 'Method not allowed' },
-      { status: 405 }
-    );
-  }
-
-  // Check origin in production
-  if (process.env.NODE_ENV === 'production') {
-    const origin = request.headers.get('origin');
-    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
-      // Allow same-origin requests (no origin header)
-      if (!origin && request.url.startsWith('https://promptsforeveryone.com')) {
-        return null;
-      }
-      return NextResponse.json(
-        { error: 'Unauthorized origin' },
-        { status: 403 }
-      );
-    }
-  }
-
-  return null;
-}
-
-/**
  * Route handler for categories data
  */
 export async function GET(request: NextRequest) {
   try {
-    // Validate request
-    const validationError = validateRequest(request);
-    if (validationError) {
-      return validationError;
+    // Only allow GET requests
+    if (request.method !== 'GET') {
+      return NextResponse.json(
+        { error: 'Method not allowed' },
+        { status: 405 }
+      );
     }
 
     // Fetch all categories first
@@ -61,48 +33,44 @@ export async function GET(request: NextRequest) {
     const categoryId = url.searchParams.get('id');
     const subcategoryId = url.searchParams.get('subId');
 
+    let responseData;
     if (!categoryId) {
-      return NextResponse.json(response.data, {
-        status: 200,
-        headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
-        },
-      });
-    }
-
-    // Get specific category
-    const category = response.data[categoryId];
-    if (!category) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 404 }
-      );
-    }
-
-    // If subcategory ID is provided, return only that subcategory
-    if (subcategoryId) {
-      const subcategory = category.subcategories?.[subcategoryId];
-      if (!subcategory) {
+      responseData = response.data;
+    } else {
+      // Get specific category
+      const category = response.data[categoryId];
+      if (!category) {
         return NextResponse.json(
-          { error: 'Subcategory not found' },
+          { error: 'Category not found' },
           { status: 404 }
         );
       }
-      return NextResponse.json({
-        ...category,
-        subcategories: { [subcategoryId]: subcategory }
-      }, {
-        status: 200,
-        headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
-        },
-      });
+
+      // If subcategory ID is provided, return only that subcategory
+      if (subcategoryId) {
+        const subcategory = category.subcategories?.[subcategoryId];
+        if (!subcategory) {
+          return NextResponse.json(
+            { error: 'Subcategory not found' },
+            { status: 404 }
+          );
+        }
+        responseData = {
+          ...category,
+          subcategories: { [subcategoryId]: subcategory }
+        };
+      } else {
+        responseData = category;
+      }
     }
 
-    // Return the category with all its subcategories
-    return NextResponse.json(category, {
+    // Return successful response with CORS headers
+    return new NextResponse(JSON.stringify(responseData), {
       status: 200,
       headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET',
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
       },
     });
@@ -116,6 +84,18 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Handle OPTIONS requests for CORS
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
 
 // Only allow GET requests
