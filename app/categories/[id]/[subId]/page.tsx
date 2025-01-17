@@ -208,13 +208,13 @@ export default function SubcategoryPage({ params }: Props) {
               </span>
             </div>
 
-            <Link 
+          <Link 
               href={`/categories/${encodeURIComponent(categoryId)}`}
-              className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 mb-8 group"
-            >
+            className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 mb-8 group"
+          >
               <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Back to {categoryName}
-            </Link>
+            Back to {categoryName}
+          </Link>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -242,7 +242,7 @@ export default function SubcategoryPage({ params }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {prompts.map((prompt, index) => (
               <motion.div
-                key={prompt.id}
+                key={prompt.id} 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ 
@@ -265,7 +265,7 @@ export default function SubcategoryPage({ params }: Props) {
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#00ffff]/10 transform rotate-45 translate-x-8 -translate-y-8 group-hover:bg-[#00ffff]/20 transition-all duration-300" />
                     </div>
 
-                    <div className="flex flex-col h-full">
+                  <div className="flex flex-col h-full">
                       <motion.div 
                         className="mb-4"
                         initial={{ opacity: 0 }}
@@ -273,40 +273,40 @@ export default function SubcategoryPage({ params }: Props) {
                         transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
                       >
                         <div className="flex justify-between items-start mb-3">
-                          <h3 className="text-xl font-semibold text-[#00ffff] group-hover:text-[#00ffff] transition-colors duration-300">
-                            {prompt.title}
-                          </h3>
+                        <h3 className="text-xl font-semibold text-[#00ffff] group-hover:text-[#00ffff] transition-colors duration-300">
+                          {prompt.title}
+                        </h3>
                           <motion.div
                             whileHover={{ scale: 1.1 }}
                             transition={{ type: "spring", stiffness: 400, damping: 10 }}
                           >
-                            <VoteButton 
-                              promptId={prompt.id} 
-                              initialVotes={prompt.likes || 0}
-                            />
+                        <VoteButton 
+                          promptId={prompt.id} 
+                          initialVotes={prompt.likes || 0}
+                        />
                           </motion.div>
-                        </div>
+                      </div>
                         <p className="text-white/70 text-sm group-hover:text-white/90 transition-colors duration-300 line-clamp-2">
-                          {prompt.description}
-                        </p>
+                        {prompt.description}
+                      </p>
                       </motion.div>
-                      
+                    
                       <div className="mt-auto space-y-4">
-                        {prompt.tags && prompt.tags.length > 0 && (
+                      {prompt.tags && prompt.tags.length > 0 && (
                           <motion.div 
                             className="flex flex-wrap gap-2"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.3, delay: index * 0.1 + 0.3 }}
                           >
-                            {prompt.tags.map((tag, index) => (
-                              <span 
-                                key={`${prompt.id}-tag-${index}`}
+                          {prompt.tags.map((tag, index) => (
+                            <span 
+                              key={`${prompt.id}-tag-${index}`}
                                 className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/20 group-hover:border-[#00ffff]/40 transition-all duration-300"
-                              >
-                                {tag}
-                              </span>
-                            ))}
+                            >
+                              {tag}
+                            </span>
+                          ))}
                           </motion.div>
                         )}
 
@@ -316,46 +316,46 @@ export default function SubcategoryPage({ params }: Props) {
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.3, delay: index * 0.1 + 0.4 }}
                         >
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2">
                             <span className="group-hover:text-white/90 transition-colors duration-300">{prompt.userName}</span>
-                            <span>•</span>
+                          <span>•</span>
                             <span className="group-hover:text-white/90 transition-colors duration-300">
-                              {new Date(prompt.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
+                            {new Date(prompt.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
                           <motion.button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              navigator.clipboard.writeText(prompt.content);
-                              setCopiedPromptId(prompt.id);
-                              setTimeout(() => setCopiedPromptId(null), 2000);
-                            }}
-                            className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors duration-300 relative"
-                            title="Copy prompt"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(prompt.content);
+                            setCopiedPromptId(prompt.id);
+                            setTimeout(() => setCopiedPromptId(null), 2000);
+                          }}
+                          className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors duration-300 relative"
+                          title="Copy prompt"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.95 }}
-                          >
-                            {copiedPromptId === prompt.id ? (
+                        >
+                          {copiedPromptId === prompt.id ? (
                               <motion.span 
                                 className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg"
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -5 }}
                               >
-                                Copied!
+                              Copied!
                               </motion.span>
-                            ) : null}
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                              <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
-                            </svg>
+                          ) : null}
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                            <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                          </svg>
                           </motion.button>
                         </motion.div>
-                      </div>
                     </div>
-                  </Card>
-                </Link>
+                  </div>
+                </Card>
+              </Link>
               </motion.div>
             ))}
             {prompts.length === 0 && (

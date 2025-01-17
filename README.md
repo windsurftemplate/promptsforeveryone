@@ -68,10 +68,10 @@ yarn dev
 ## 🏗️ Tech Stack
 
 - **Frontend**:
-  - Next.js 15 (App Router)
-  - React
-  - Tailwind CSS
-  - TypeScript
+  - Next.js 15.0.0 (App Router)
+  - React 18
+  - Tailwind CSS 3.4
+  - TypeScript 5.2
 
 - **Backend**:
   - Firebase Realtime Database
@@ -110,8 +110,32 @@ promptsforeveryone/
 - Firebase Authentication for user management
 - Role-based access control (RBAC)
 - Secure data validation rules
-- Protected API routes
+- Protected API routes with origin validation
 - Environment variable protection
+- Rate limiting and request validation
+
+## 🔌 API Endpoints
+
+### Categories API
+- **GET /api/categories**
+  - Fetches all categories or specific category data
+  - Query Parameters:
+    - `id`: (optional) Category ID
+    - `subId`: (optional) Subcategory ID
+  - Response: JSON object containing categories data
+  - Cache Control: 60 seconds with stale-while-revalidate
+
+### Prompts Count API
+- **GET /api/prompts/count**
+  - Returns total count of public prompts
+  - Response: `{ count: number }`
+  - Cache Control: 60 seconds with stale-while-revalidate
+
+### Security Features
+- Only GET requests allowed
+- Origin validation in production
+- Error handling with appropriate status codes
+- Edge runtime for optimal performance
 
 ## 🎨 Design System
 

@@ -154,7 +154,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
-            Welcome back! Sign in to your account
+            Welcome back!
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
