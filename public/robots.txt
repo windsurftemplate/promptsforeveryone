@@ -1,6 +1,7 @@
 # Allow all crawlers
 User-agent: *
 Allow: /
+Disallow: /explore
 
 # Sitemap
-Sitemap: https://promptsforeveryone.com/sitemap.xml 
+Sitemap: https://promptsforeveryone.com/sitemap.xml

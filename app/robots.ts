@@ -9,7 +9,9 @@ export default function robots(): MetadataRoute.Robots {
         '/api/',
         '/dashboard/',
         '/admin/',
-        '/private/',      ],
+        '/private/',
+        '/explore'
+      ],
     },
     sitemap: 'https://promptsforeveryone.com/sitemap.xml',
   }

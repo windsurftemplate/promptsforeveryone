@@ -64,12 +64,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/explore`,
-      lastModified: currentDate,
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
       url: `${baseUrl}/popular`,
       lastModified: currentDate,
       changeFrequency: 'daily',
@@ -79,12 +73,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/submit`,
       lastModified: currentDate,
       changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/dashboard`,
-      lastModified: currentDate,
-      changeFrequency: 'daily',
       priority: 0.7,
     },
     {
