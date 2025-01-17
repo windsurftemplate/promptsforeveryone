@@ -1,14 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ref, get, query, orderByChild } from 'firebase/database';
-import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
 import { Prompt } from '@/types';
 import { ChartBarIcon, FireIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 export default function PopularPromptsPage() {
   const { user } = useAuth();
@@ -17,43 +16,44 @@ export default function PopularPromptsPage() {
   const [error, setError] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<'all' | 'week' | 'month'>('all');
   const [trendingCategories, setTrendingCategories] = useState<{name: string, count: number}[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchPrompts = async () => {
       try {
         setLoading(true);
-        const promptsRef = ref(db, 'prompts');
-        const snapshot = await get(promptsRef);
+        const response = await fetch('/api/prompts');
+        if (!response.ok) {
+          throw new Error('Failed to fetch prompts');
+        }
         
-        if (snapshot.exists()) {
-          let promptsData = Object.entries(snapshot.val())
-            .map(([id, data]: [string, any]) => ({
-              id: `public-${id}`,
-              ...data,
-              isPrivate: false,
-              votes: data.votes ? Object.keys(data.votes).length : 0
-            } as Prompt & { votes: number }))
-            .filter(prompt => prompt.visibility === 'public');
+        const data = await response.json();
+        let promptsData = Object.entries(data)
+          .filter(([_, data]: [string, any]) => data.visibility === 'public')
+          .map(([id, data]: [string, any]) => ({
+            id,
+            ...data,
+            votes: data.likes || 0
+          } as Prompt & { votes: number }));
 
-          // Filter by time if needed
-          if (timeFilter !== 'all') {
-            const now = new Date();
-            const timeLimit = new Date();
-            if (timeFilter === 'week') {
-              timeLimit.setDate(now.getDate() - 7);
-            } else if (timeFilter === 'month') {
-              timeLimit.setMonth(now.getMonth() - 1);
-            }
-
-            promptsData = promptsData.filter(prompt => 
-              new Date(prompt.createdAt) >= timeLimit
-            );
+        // Filter by time if needed
+        if (timeFilter !== 'all') {
+          const now = new Date();
+          const timeLimit = new Date();
+          if (timeFilter === 'week') {
+            timeLimit.setDate(now.getDate() - 7);
+          } else if (timeFilter === 'month') {
+            timeLimit.setMonth(now.getMonth() - 1);
           }
 
-          // Sort by votes (descending)
-          promptsData.sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0));
-          setPrompts(promptsData);
+          promptsData = promptsData.filter(prompt => 
+            new Date(prompt.createdAt) >= timeLimit
+          );
         }
+
+        // Sort by votes (descending)
+        promptsData.sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0));
+        setPrompts(promptsData);
       } catch (error) {
         console.error('Error fetching prompts:', error);
         setError('Failed to load prompts');
@@ -81,6 +81,36 @@ export default function PopularPromptsPage() {
 
     setTrendingCategories(sortedCategories);
   }, [prompts]);
+
+  const handleVote = async (promptId: string) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/prompts/${promptId}/like`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update like');
+      }
+
+      const updatedPrompt = await response.json();
+      
+      // Update the prompts state with the new like count
+      setPrompts(currentPrompts => 
+        currentPrompts.map(prompt => 
+          prompt.id === `public-${promptId}` 
+            ? { ...prompt, votes: updatedPrompt.likes || 0 }
+            : prompt
+        )
+      );
+    } catch (error) {
+      console.error('Error updating like:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">

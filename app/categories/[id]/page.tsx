@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Script from 'next/script';
@@ -32,20 +30,24 @@ export default function CategoryPage({ params }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const categoryRef = ref(db, `categories/${categoryId}`);
-
-    const unsubscribe = onValue(categoryRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        setCategory({
-          id: categoryId,
-          ...data
-        });
+    const fetchCategory = async () => {
+      try {
+        const response = await fetch(`/api/categories?id=${categoryId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setCategory({
+            id: categoryId,
+            ...data
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching category:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchCategory();
   }, [categoryId]);
 
   if (loading) {

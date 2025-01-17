@@ -1,8 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-import { ref, get, set, update } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { Prompt } from '@/types/prompt';
 import { useRouter, useParams } from 'next/navigation';
@@ -28,62 +26,60 @@ export default function PromptPage() {
   const [categoryName, setCategoryName] = useState<string>('');
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     const fetchPrompt = async () => {
       try {
-        const publicSnapshot = await get(ref(db, `prompts/${promptId}`));
-        if (publicSnapshot.exists()) {
-          const promptData = publicSnapshot.val();
-          setPrompt({ ...promptData, id: promptId });
-          setLikeCount(promptData.likes || 0);
-          
-          // Fetch category and subcategory names
-          if (categoryId && subcategoryId) {
-            const categoryRef = ref(db, `categories/${categoryId}`);
-            const categorySnapshot = await get(categoryRef);
-            if (categorySnapshot.exists()) {
-              const categoryData = categorySnapshot.val();
-              setCategoryName(categoryData.name || '');
-              
-              if (categoryData.subcategories && categoryData.subcategories[subcategoryId]) {
-                setSubcategoryName(categoryData.subcategories[subcategoryId].name || '');
-              }
-            }
+        // Fetch prompt data
+        const promptResponse = await fetch(`/api/prompts/${promptId}`);
+        if (!promptResponse.ok) {
+          if (promptResponse.status === 404) {
+            setError('Prompt not found');
+          } else if (promptResponse.status === 403) {
+            setError('This prompt is private');
+          } else {
+            setError('Failed to load prompt');
           }
-          
-          // Check if user has liked this prompt
-          const userLikeRef = ref(db, `users/${user.uid}/likes/${promptId}`);
-          const userLikeSnapshot = await get(userLikeRef);
-          setIsLiked(userLikeSnapshot.exists() && userLikeSnapshot.val() === true);
-          
           setLoading(false);
           return;
         }
 
-        const privateSnapshot = await get(ref(db, `users/${user.uid}/prompts/${promptId}`));
-        if (privateSnapshot.exists()) {
-          const promptData = privateSnapshot.val();
-          setPrompt({ ...promptData, id: promptId });
-          setLikeCount(promptData.likes || 0);
-          
-          // Check if user has liked this prompt
-          const userLikeRef = ref(db, `users/${user.uid}/likes/${promptId}`);
-          const userLikeSnapshot = await get(userLikeRef);
-          setIsLiked(userLikeSnapshot.exists() && userLikeSnapshot.val() === true);
-          
-          setLoading(false);
-          return;
+        const promptData = await promptResponse.json();
+        setPrompt({ ...promptData, id: promptId });
+        setLikeCount(promptData.likes || 0);
+        
+        // Fetch category and subcategory names
+        if (categoryId && subcategoryId) {
+          const categoryResponse = await fetch(`/api/categories?id=${categoryId}`);
+          if (categoryResponse.ok) {
+            const categoryData = await categoryResponse.json();
+            if (categoryData.error) {
+              console.error('Category not found:', categoryData.error);
+              return;
+            }
+            setCategoryName(categoryData.name || '');
+            
+            if (categoryData.subcategories && categoryData.subcategories[subcategoryId]) {
+              setSubcategoryName(categoryData.subcategories[subcategoryId].name || '');
+            } else {
+              console.error('Subcategory not found');
+            }
+          } else {
+            console.error('Failed to fetch category:', categoryResponse.statusText);
+          }
         }
-
-        setError('Prompt not found');
+        
+        // Check if user has liked this prompt
+        if (user) {
+          const likeResponse = await fetch(`/api/prompts/${promptId}/like`);
+          if (likeResponse.ok) {
+            const { isLiked: userLiked } = await likeResponse.json();
+            setIsLiked(userLiked);
+          }
+        }
+        
+        setLoading(false);
       } catch (err) {
         console.error('Error fetching prompt:', err);
         setError('Failed to load prompt');
-      } finally {
         setLoading(false);
       }
     };
@@ -100,29 +96,25 @@ export default function PromptPage() {
   };
 
   const handleLike = async () => {
-    if (!user || !prompt) return;
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (!prompt) return;
 
     try {
-      const promptRef = ref(db, `prompts/${promptId}`);
-      const userLikeRef = ref(db, `users/${user.uid}/likes/${promptId}`);
-      
-      if (!isLiked) {
-        // Add like
-        await update(promptRef, {
-          likes: (likeCount || 0) + 1
-        });
-        await set(userLikeRef, true);
-        setLikeCount(prev => prev + 1);
-        setIsLiked(true);
-      } else {
-        // Remove like
-        await update(promptRef, {
-          likes: Math.max((likeCount || 0) - 1, 0)
-        });
-        await set(userLikeRef, null);
-        setLikeCount(prev => Math.max(prev - 1, 0));
-        setIsLiked(false);
+      const response = await fetch(`/api/prompts/${promptId}/like`, {
+        method: 'POST'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update like');
       }
+
+      const { likes, isLiked: newIsLiked } = await response.json();
+      setLikeCount(likes);
+      setIsLiked(newIsLiked);
     } catch (err) {
       console.error('Error updating like:', err);
     }

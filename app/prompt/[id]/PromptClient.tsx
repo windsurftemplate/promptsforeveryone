@@ -1,14 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ref, get } from 'firebase/database';
-import { db } from '@/lib/firebase';
-import { Prompt } from '@/types/prompt';
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import dynamic from 'next/dynamic';
 import EditorToolbar from '@/components/editor/EditorToolbar';
+import { Prompt } from '@/types/prompt';
 
 const MonacoEditorWrapper = dynamic(
   () => import('@/components/editor/MonacoEditorWrapper'),
@@ -27,8 +23,6 @@ interface Props {
 }
 
 export default function PromptClient({ id }: Props) {
-  const { user } = useAuth();
-  const router = useRouter();
   const [prompt, setPrompt] = useState<Prompt | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,11 +34,9 @@ export default function PromptClient({ id }: Props) {
   useEffect(() => {
     const fetchPrompt = async () => {
       try {
-        const promptRef = ref(db, `prompts/${id}`);
-        const snapshot = await get(promptRef);
-        
-        if (snapshot.exists()) {
-          const promptData = snapshot.val();
+        const response = await fetch(`/api/prompts/${id}`);
+        if (response.ok) {
+          const promptData = await response.json();
           setPrompt({ ...promptData, id });
           setEditorContent(promptData.content);
         } else {

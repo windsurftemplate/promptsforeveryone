@@ -47,20 +47,57 @@ export async function GET(request: NextRequest) {
     const categoryId = url.searchParams.get('id');
     const subcategoryId = url.searchParams.get('subId');
 
-    // Build Firebase path based on parameters
-    let path = 'categories';
-    if (categoryId) {
-      path += `/${categoryId}`;
-      if (subcategoryId) {
-        path += `/subcategories/${subcategoryId}`;
-      }
+    // Fetch all categories first
+    const response = await axios.get(`${FIREBASE_DB_URL}/categories.json`);
+
+    if (!response.data) {
+      return NextResponse.json(
+        { error: 'Categories not found' },
+        { status: 404 }
+      );
     }
 
-    // Fetch data from Firebase
-    const response = await axios.get(`${FIREBASE_DB_URL}/${path}.json`);
+    // If no category ID is provided, return all categories
+    if (!categoryId) {
+      return NextResponse.json(response.data, {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+        },
+      });
+    }
 
-    // Return successful response
-    return NextResponse.json(response.data, {
+    // Get specific category
+    const category = response.data[categoryId];
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Category not found' },
+        { status: 404 }
+      );
+    }
+
+    // If subcategory ID is provided, return only that subcategory
+    if (subcategoryId) {
+      const subcategory = category.subcategories?.[subcategoryId];
+      if (!subcategory) {
+        return NextResponse.json(
+          { error: 'Subcategory not found' },
+          { status: 404 }
+        );
+      }
+      return NextResponse.json({
+        ...category,
+        subcategories: { [subcategoryId]: subcategory }
+      }, {
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+        },
+      });
+    }
+
+    // Return the category with all its subcategories
+    return NextResponse.json(category, {
       status: 200,
       headers: {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',

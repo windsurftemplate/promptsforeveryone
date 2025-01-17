@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { db } from '@/lib/firebase';
-import { ref, onValue } from 'firebase/database';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Card from '@/components/ui/Card';
@@ -38,73 +36,73 @@ interface Subcategory {
 
 export default function SubcategoryPage({ params }: Props) {
   const { id: categoryId, subId: subcategoryId } = React.use(params);
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [categoryName, setCategoryName] = useState('');
   const [subcategoryName, setSubcategoryName] = useState('');
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('Fetching data for:', { categoryId, subcategoryId });
+    const fetchData = async () => {
+      try {
+        // Fetch category and subcategory data
+        const categoryResponse = await fetch(`/api/categories?id=${categoryId}`);
+        if (categoryResponse.ok) {
+          const categoryData = await categoryResponse.json();
+          setCategoryName(categoryData.name);
 
-    // Fetch category and subcategory names
-    const categoryRef = ref(db, `categories/${categoryId}`);
-    onValue(categoryRef, (snapshot) => {
-      console.log('Category data:', snapshot.val());
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        setCategoryName(data.name);
-        
-        // Find subcategory by name
-        if (data.subcategories) {
-          const decodedSubcategoryName = decodeURIComponent(subcategoryId).toLowerCase();
-          const subcategoryEntries = Object.entries(data.subcategories) as [string, Subcategory][];
-          const subcategoryEntry = subcategoryEntries.find(([_, sub]) => 
-            sub.name.toLowerCase().replace(/\s+/g, '-') === decodedSubcategoryName
-          );
-          
-          if (subcategoryEntry) {
-            const [actualSubcategoryId, subcategory] = subcategoryEntry;
-            setSubcategoryName(subcategory.name);
-            
-            // Fetch prompts for this subcategory using the actual ID
-            const promptsRef = ref(db, 'prompts');
-            onValue(promptsRef, (snapshot) => {
-              if (snapshot.exists()) {
-                const data = snapshot.val();
-                const filteredPrompts = Object.entries(data)
-                  .filter(([_, prompt]: [string, any]) => 
-                    prompt.categoryId === categoryId && 
-                    prompt.subcategoryId === actualSubcategoryId &&
-                    prompt.visibility === 'public'
-                  )
+          // Find subcategory by name
+          if (categoryData.subcategories) {
+            const decodedSubcategoryName = decodeURIComponent(subcategoryId).toLowerCase();
+            const subcategoryEntries = Object.entries(categoryData.subcategories) as [string, Subcategory][];
+            const subcategoryEntry = subcategoryEntries.find(([_, sub]) => 
+              sub.name.toLowerCase().replace(/\s+/g, '-') === decodedSubcategoryName
+            );
+
+            if (subcategoryEntry) {
+              const [actualSubcategoryId, subcategory] = subcategoryEntry;
+              setSubcategoryName(subcategory.name);
+
+              // Fetch prompts for this subcategory
+              const promptsResponse = await fetch(`/api/prompts?categoryId=${categoryId}&subcategoryId=${actualSubcategoryId}`);
+              if (promptsResponse.ok) {
+                const promptsData = await promptsResponse.json();
+                const filteredPrompts = Object.entries(promptsData)
+                  .filter(([_, prompt]: [string, any]) => prompt.visibility === 'public')
                   .map(([id, prompt]: [string, any]) => ({
                     id: `public-${id}`,
                     ...prompt
                   }));
-                
+
                 // Sort by creation date
                 filteredPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 setPrompts(filteredPrompts);
               }
-              setLoading(false);
-            });
-          } else {
-            setLoading(false);
+            }
           }
-        } else {
-          setLoading(false);
         }
-      } else {
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
         setLoading(false);
       }
-    });
+    };
+
+    fetchData();
   }, [categoryId, subcategoryId]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+      </div>
+    );
+  }
+
+  if (!subcategoryName) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Subcategory not found</div>
       </div>
     );
   }
