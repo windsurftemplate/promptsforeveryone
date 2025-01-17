@@ -9,6 +9,7 @@ import { SparklesIcon, LightBulbIcon, ChatBubbleBottomCenterTextIcon, ShieldChec
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import DashboardPreview from '@/components/DashboardPreview';
 
 // Lazy load non-critical components
 const ChatWindow = dynamic(() => import('@/components/ChatWindow'), { 
@@ -219,6 +220,9 @@ export default function HomePage() {
         </div>
         <FeatureCarousel />
       </section>
+
+      {/* Dashboard Preview Section */}
+      <DashboardPreview />
 
       {/* Why Use Section */}
       <section className="py-24 relative z-20 bg-gradient-to-b from-black/90 to-black/95">
