@@ -15,8 +15,8 @@ import { db } from '@/lib/firebase';
 import { Anton } from 'next/font/google';
 
 // Lazy load the menu components
-const DesktopMenu = lazy(() => import('./navbar/DesktopMenu'));
-const MobileMenu = lazy(() => import('./navbar/MobileMenu'));
+const DesktopMenu = lazy(() => import('@/components/navbar/DesktopMenu'));
+const MobileMenu = lazy(() => import('@/components/navbar/MobileMenu'));
 
 const anton = Anton({ 
   weight: '400',
