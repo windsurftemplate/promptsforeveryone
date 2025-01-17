@@ -1,27 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
-  ChevronDownIcon,
-  GlobeAltIcon,
-  FolderIcon,
-  FireIcon,
-  InformationCircleIcon,
-  Squares2X2Icon,
-  ArrowRightOnRectangleIcon,
-  ArrowLeftOnRectangleIcon,
-  UserPlusIcon,
   Bars3Icon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { Anton } from 'next/font/google';
+
+// Lazy load the menu components
+const DesktopMenu = lazy(() => import('./navbar/DesktopMenu'));
+const MobileMenu = lazy(() => import('./navbar/MobileMenu'));
 
 const anton = Anton({ 
   weight: '400',
@@ -33,11 +28,9 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isPaidUser, setIsPaidUser] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +39,11 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const checkUserStatus = async () => {
@@ -79,23 +77,6 @@ export default function Navbar() {
     }
   };
 
-  const handleDropdownClick = (dropdown: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setActiveDropdown(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   return (
     <nav 
       className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-7xl transition-all duration-300 rounded-2xl ${
@@ -114,102 +95,25 @@ export default function Navbar() {
                   alt="Logo" 
                   fill
                   className="object-contain"
+                  priority
                 />
               </div>
               <span className={`${anton.className} text-2xl font-bold text-[#00ffff] tracking-tight leading-none`}>
-                Prompts For Everyone
+                <span className="hidden md:inline">Prompts For Everyone</span>
+                <span className="md:hidden">PFE</span>
               </span>
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center space-x-8" ref={dropdownRef}>
-            {/* Product Dropdown */}
-            <div className="relative">
-              <button 
-                className={`flex items-center space-x-1 transition-colors duration-300 ${
-                  activeDropdown === 'product' 
-                    ? 'text-[#00ffff]' 
-                    : 'text-white/80 hover:text-[#00ffff]'
-                }`}
-                onClick={(e) => handleDropdownClick('product', e)}
-              >
-                <span>Product</span>
-                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
-                  activeDropdown === 'product' ? 'rotate-180' : ''
-                }`} />
-              </button>
-              {activeDropdown === 'product' && (
-                <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-black/90 backdrop-blur-xl border border-[#00ffff]/20 shadow-lg shadow-[#00ffff]/5">
-                  <div className="py-2">
-                    <Link href="/price" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Pricing</Link>
-                    <Link href="/categories" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Categories</Link>
-                    {isAdmin && (
-                      <Link href="/explore" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Explore</Link>
-                    )}
-                    <Link href="/popular" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Popular</Link>
-                    <Link href="/submit" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Submit Prompt</Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Resources Dropdown */}
-            <div className="relative">
-              <button 
-                className={`flex items-center space-x-1 transition-colors duration-300 ${
-                  activeDropdown === 'resources' 
-                    ? 'text-[#00ffff]' 
-                    : 'text-white/80 hover:text-[#00ffff]'
-                }`}
-                onClick={(e) => handleDropdownClick('resources', e)}
-              >
-                <span>Resources</span>
-                <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
-                  activeDropdown === 'resources' ? 'rotate-180' : ''
-                }`} />
-              </button>
-              {activeDropdown === 'resources' && (
-                <div className="absolute top-full left-0 mt-2 w-48 rounded-lg bg-black/90 backdrop-blur-xl border border-[#00ffff]/20 shadow-lg shadow-[#00ffff]/5">
-                  <div className="py-2">
-                    <Link href="/docs" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Documentation</Link>
-                    <Link href="/guides" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Guides</Link>
-                    <Link href="/blog" className="block px-4 py-2 text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-colors">Blog</Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Link href="/about" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-              About
-            </Link>
-
-            {user ? (
-              <>
-                <Link href="/dashboard" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-                  Dashboard
-                </Link>
-                <Button
-                  onClick={handleSignOut}
-                  variant="secondary"
-                  size="sm"
-                  className="ml-4"
-                >
-                  Sign Out
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-                  Sign In
-                </Link>
-                <Link href="/register">
-                  <Button variant="primary" size="sm">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+          {/* Desktop Menu */}
+          <Suspense fallback={<div className="hidden md:block w-[400px]" />}>
+            <DesktopMenu 
+              user={user}
+              isAdmin={isAdmin}
+              isPaidUser={isPaidUser}
+              onSignOut={handleSignOut}
+            />
+          </Suspense>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -228,48 +132,16 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-black/90 backdrop-blur-xl border-t border-[#00ffff]/10">
-          <div className="grid grid-cols-4 gap-2 p-4">
-            {isAdmin && (
-              <Link href="/explore" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-                <GlobeAltIcon className="h-5 w-5" />
-              </Link>
-            )}
-            <Link href="/categories" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-              <FolderIcon className="h-5 w-5" />
-            </Link>
-            <Link href="/popular" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-              <FireIcon className="h-5 w-5" />
-            </Link>
-            <Link href="/about" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-              <InformationCircleIcon className="h-5 w-5" />
-            </Link>
-            {user ? (
-              <>
-                <Link href="/dashboard" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-                  <Squares2X2Icon className="h-5 w-5" />
-                </Link>
-                <button
-                  onClick={handleSignOut}
-                  className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300"
-                >
-                  <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/login" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-                  <ArrowLeftOnRectangleIcon className="h-5 w-5" />
-                </Link>
-                <Link href="/register" className="flex justify-center items-center p-2 rounded-lg text-white/80 hover:text-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300">
-                  <UserPlusIcon className="h-5 w-5" />
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
+        <Suspense fallback={<div className="h-[200px] bg-black/90 backdrop-blur-xl" />}>
+          <MobileMenu 
+            user={user}
+            isAdmin={isAdmin}
+            isPaidUser={isPaidUser}
+            onSignOut={handleSignOut}
+          />
+        </Suspense>
       )}
     </nav>
   );
