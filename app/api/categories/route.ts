@@ -3,7 +3,6 @@ import axios from 'axios';
 
 // Firebase database URL
 const FIREBASE_DB_URL = 'https://promptsforall-8068a-default-rtdb.firebaseio.com';
-const ALLOWED_ORIGINS = ['https://promptsforeveryone.com', 'https://www.promptsforeveryone.com'];
 
 /**
  * Route handler for categories data
@@ -18,27 +17,48 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch all categories first
-    const response = await axios.get(`${FIREBASE_DB_URL}/categories.json`);
+    // Fetch all categories and prompts in parallel
+    const [categoriesResponse, promptsResponse] = await Promise.all([
+      axios.get(`${FIREBASE_DB_URL}/categories.json`),
+      axios.get(`${FIREBASE_DB_URL}/prompts.json`)
+    ]);
 
-    if (!response.data) {
+    if (!categoriesResponse.data) {
       return NextResponse.json(
         { error: 'Categories not found' },
         { status: 404 }
       );
     }
 
-    // If no category ID is provided, return all categories
+    // Get category ID from URL if present
     const url = new URL(request.url);
     const categoryId = url.searchParams.get('id');
     const subcategoryId = url.searchParams.get('subId');
 
+    // Calculate prompt counts for each category
+    const prompts = promptsResponse.data || {};
+    const promptCounts = Object.values(prompts)
+      .filter((prompt: any) => prompt.visibility === 'public')
+      .reduce((acc: Record<string, number>, prompt: any) => {
+        if (prompt.categoryId) {
+          acc[prompt.categoryId] = (acc[prompt.categoryId] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
     let responseData;
     if (!categoryId) {
-      responseData = response.data;
+      // Add prompt counts to each category
+      responseData = Object.entries(categoriesResponse.data).reduce((acc, [id, category]: [string, any]) => {
+        acc[id] = {
+          ...category,
+          promptCount: promptCounts[id] || 0
+        };
+        return acc;
+      }, {} as Record<string, any>);
     } else {
       // Get specific category
-      const category = response.data[categoryId];
+      const category = categoriesResponse.data[categoryId];
       if (!category) {
         return NextResponse.json(
           { error: 'Category not found' },
@@ -57,10 +77,14 @@ export async function GET(request: NextRequest) {
         }
         responseData = {
           ...category,
+          promptCount: promptCounts[categoryId] || 0,
           subcategories: { [subcategoryId]: subcategory }
         };
       } else {
-        responseData = category;
+        responseData = {
+          ...category,
+          promptCount: promptCounts[categoryId] || 0
+        };
       }
     }
 
