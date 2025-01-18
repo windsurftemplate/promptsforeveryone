@@ -45,7 +45,7 @@ export default function SubcategoryPage({ params }: Props) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch category and subcategory data
+        // Fetch category and subcategory data using the raw categoryId
         const categoryResponse = await fetch(`/api/categories?id=${categoryId}`);
         if (categoryResponse.ok) {
           const categoryData = await categoryResponse.json();
@@ -54,38 +54,95 @@ export default function SubcategoryPage({ params }: Props) {
           // Find subcategory by name
           if (categoryData.subcategories) {
             const decodedSubcategoryName = decodeURIComponent(subcategoryId).toLowerCase();
+            setCategoryName(categoryData.name);
+
+            console.log('Category data:', {
+              categoryId,
+              name: categoryData.name,
+              subcategories: categoryData.subcategories
+            });
+
+            console.log('Looking for subcategory:', {
+              decodedSubcategoryName,
+              categoryId,
+              availableSubcategories: Object.entries(categoryData.subcategories).map(([id, sub]: [string, any]) => ({
+                id,
+                name: sub.name,
+                normalized: sub.name.toLowerCase().replace(/\s+/g, '-')
+              }))
+            });
+
+            // Find subcategory by normalized name
             const subcategoryEntries = Object.entries(categoryData.subcategories) as [string, Subcategory][];
-            const subcategoryEntry = subcategoryEntries.find(([_, sub]) => 
-              sub.name.toLowerCase().replace(/\s+/g, '-') === decodedSubcategoryName
-            );
+            const subcategoryEntry = subcategoryEntries.find(([id, sub]) => {
+              const normalizedName = sub.name.toLowerCase().replace(/\s+/g, '-');
+              console.log('Comparing:', {
+                urlName: decodedSubcategoryName,
+                subName: sub.name,
+                normalizedName: normalizedName,
+                matches: normalizedName === decodedSubcategoryName
+              });
+              return normalizedName === decodedSubcategoryName;
+            });
 
             if (subcategoryEntry) {
               const [actualSubcategoryId, subcategory] = subcategoryEntry;
               setSubcategoryName(subcategory.name);
+              console.log('Found subcategory:', { 
+                id: actualSubcategoryId, 
+                name: subcategory.name,
+                urlName: decodedSubcategoryName
+              });
 
-              // Fetch prompts for this subcategory
-              const promptsResponse = await fetch(`/api/prompts?categoryId=${encodeURIComponent(categoryId)}&subcategoryId=${encodeURIComponent(actualSubcategoryId)}`, {
+              // Use the raw category ID for the API call
+              const promptsUrl = `/api/prompts?categoryId=${encodeURIComponent(categoryId)}&subcategoryId=${encodeURIComponent(actualSubcategoryId)}`;
+              console.log('Fetching prompts from:', promptsUrl);
+              const promptsResponse = await fetch(promptsUrl, {
                 headers: {
                   'Cache-Control': 'no-cache'
                 }
               });
+
+              const responseText = await promptsResponse.text();
+              console.log('Raw API response:', responseText);
+
               if (promptsResponse.ok) {
-                const promptsData = await promptsResponse.json();
-                console.log('Prompts data:', promptsData); // Debug log
+                const promptsData = JSON.parse(responseText);
+                console.log('Prompts data:', promptsData);
+                
+                if (Object.keys(promptsData).length === 0) {
+                  console.log('No prompts found for this subcategory');
+                }
+
                 const filteredPrompts = Object.entries(promptsData)
                   .map(([id, prompt]: [string, any]) => ({
                     id,
                     ...prompt
                   }));
 
-                console.log('Filtered prompts:', filteredPrompts); // Debug log
+                console.log('Filtered prompts:', filteredPrompts);
                 // Sort by creation date
                 filteredPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 setPrompts(filteredPrompts);
               } else {
-                console.error('Failed to fetch prompts:', await promptsResponse.text());
+                console.error('Failed to fetch prompts:', {
+                  status: promptsResponse.status,
+                  statusText: promptsResponse.statusText,
+                  response: responseText
+                });
               }
+            } else {
+              console.error('Subcategory not found:', {
+                looking_for: decodedSubcategoryName,
+                available: Object.entries(categoryData.subcategories).map(([id, sub]: [string, any]) => ({
+                  id,
+                  name: sub.name,
+                  normalized: sub.name.toLowerCase().replace(/\s+/g, '-')
+                }))
+              });
             }
+          } else {
+            console.error('No subcategories found in category data');
           }
         }
       } catch (error) {
