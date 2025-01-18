@@ -4,13 +4,26 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
-      allow: ['/'],
+      allow: [
+        '/',
+        '/blog',
+        '/about',
+        '/contact',
+        '/explore',
+        '/api/categories',
+        '/api/prompts',
+        '/api/prompts/count',
+        '/api/og'
+      ],
       disallow: [
-        '/api/',
-        '/dashboard/',
         '/admin/',
-        '/private/',
-        '/explore'
+        '/dashboard/',
+        '/api/auth/',
+        '/api/upload/',
+        '/api/webhook/',
+        '/api/stripe/',
+        '/api/chat/',
+        '/api/firebase-proxy/'
       ],
     },
     sitemap: 'https://promptsforeveryone.com/sitemap.xml',
