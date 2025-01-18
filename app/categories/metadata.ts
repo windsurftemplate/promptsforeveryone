@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { getDatabase, ref, get } from 'firebase/database';
 import { initializeApp } from 'firebase/app';
+import { getKeywords } from '../../utils/keywords';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -28,17 +29,13 @@ export async function generateCategoryMetadata(id: string): Promise<Metadata> {
     };
   }
 
+  // Get keywords for this category
+  const keywords = getKeywords(id.toLowerCase());
+
   return {
     title: `${category.name} Prompts & Templates`,
     description: category.description || `Explore our collection of ${category.name.toLowerCase()} prompts. Find and use the best AI prompts for ${category.name.toLowerCase()}.`,
-    keywords: [
-      category.name,
-      'AI prompts',
-      'prompt templates',
-      `${category.name.toLowerCase()} prompts`,
-      'prompt engineering',
-      'ChatGPT prompts'
-    ],
+    keywords,
     openGraph: {
       title: `${category.name} Prompts & Templates`,
       description: category.description || `Explore our collection of ${category.name.toLowerCase()} prompts. Find and use the best AI prompts for ${category.name.toLowerCase()}.`,
@@ -59,19 +56,14 @@ export async function generateSubcategoryMetadata(categoryId: string, subcategor
   }
 
   const subcategory = category.subcategories[subcategoryId];
+  
+  // Get keywords for this subcategory
+  const keywords = getKeywords(categoryId.toLowerCase(), subcategoryId.toLowerCase());
 
   return {
     title: `${subcategory.name} Prompts - ${category.name}`,
     description: subcategory.description || `Explore our collection of ${subcategory.name.toLowerCase()} prompts in the ${category.name} category. Find and use the best AI prompts for ${subcategory.name.toLowerCase()}.`,
-    keywords: [
-      subcategory.name,
-      category.name,
-      'AI prompts',
-      'prompt templates',
-      `${subcategory.name.toLowerCase()} prompts`,
-      'prompt engineering',
-      'ChatGPT prompts'
-    ],
+    keywords,
     openGraph: {
       title: `${subcategory.name} Prompts - ${category.name}`,
       description: subcategory.description || `Explore our collection of ${subcategory.name.toLowerCase()} prompts in the ${category.name} category.`,
