@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Firebase database URL
 const FIREBASE_DB_URL = 'https://promptsforall-8068a-default-rtdb.firebaseio.com';
-const ALLOWED_ORIGIN = 'https://promptsforeveryone.com';
+const ALLOWED_ORIGINS = ['https://promptsforeveryone.com', 'https://www.promptsforeveryone.com'];
 
 /**
  * Middleware to check request method and origin
@@ -20,7 +20,8 @@ function validateRequest(request: NextRequest) {
   // Check origin in production
   if (process.env.NODE_ENV === 'production') {
     const origin = request.headers.get('origin');
-    if (origin !== ALLOWED_ORIGIN) {
+    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+      console.log('Unauthorized origin:', origin);
       return NextResponse.json(
         { error: 'Unauthorized origin' },
         { status: 403 }
