@@ -64,19 +64,26 @@ export default function SubcategoryPage({ params }: Props) {
               setSubcategoryName(subcategory.name);
 
               // Fetch prompts for this subcategory
-              const promptsResponse = await fetch(`/api/prompts?categoryId=${categoryId}&subcategoryId=${actualSubcategoryId}`);
+              const promptsResponse = await fetch(`/api/prompts?categoryId=${encodeURIComponent(categoryId)}&subcategoryId=${encodeURIComponent(actualSubcategoryId)}`, {
+                headers: {
+                  'Cache-Control': 'no-cache'
+                }
+              });
               if (promptsResponse.ok) {
                 const promptsData = await promptsResponse.json();
+                console.log('Prompts data:', promptsData); // Debug log
                 const filteredPrompts = Object.entries(promptsData)
-                  .filter(([_, prompt]: [string, any]) => prompt.visibility === 'public')
                   .map(([id, prompt]: [string, any]) => ({
-                    id: `public-${id}`,
+                    id,
                     ...prompt
                   }));
 
+                console.log('Filtered prompts:', filteredPrompts); // Debug log
                 // Sort by creation date
                 filteredPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 setPrompts(filteredPrompts);
+              } else {
+                console.error('Failed to fetch prompts:', await promptsResponse.text());
               }
             }
           }
