@@ -1,197 +1,185 @@
 # Prompts For Everyone
 
-A modern web platform for sharing, discovering, and managing AI prompts. Built with Next.js, Firebase, and Tailwind CSS.
+A modern web platform for sharing and managing AI prompts with a focus on categories, user management, and a seamless user experience.
 
-## 🌟 Features
+## Features
 
-### For Users
-- **Browse Prompts**: Explore a vast collection of AI prompts organized by categories and subcategories
-- **Submit Prompts**: Share your own prompts with the community
-- **Personal Dashboard**: Manage your submitted prompts and track your contributions
-- **User Profiles**: Customize your profile and view other users' contributions
-- **Prompt Management**: Create, edit, and delete your prompts
-- **Categories**: Browse prompts by categories and subcategories
-- **Copy to Clipboard**: Easily copy prompts with a single click
-- **Responsive Design**: Seamless experience across all devices
+### User Management
+- Authentication with email/password
+- User roles (admin, paid user, free user)
+- Subscription management with Stripe
+- User dashboard for managing prompts and settings
 
-### For Administrators
-- **Admin Dashboard**: Comprehensive tools for site management
-- **User Management**: Monitor and manage user accounts
-- **Category Management**: Create, edit, and organize categories and subcategories
-- **Content Moderation**: Review and moderate submitted prompts
-- **Blog Management**: Create and manage blog posts
-- **Analytics**: Track site usage and user engagement
+### Prompt Management
+- Public and private prompts
+- Category and subcategory organization
+- Prompt voting system
+- Prompt sharing functionality
+- Copy to clipboard feature
 
-## 🚀 Getting Started
+### Admin Features
+- User management (change roles, plans)
+- Category/subcategory management
+- Prompt moderation
+- Ad management
+- Analytics dashboard
 
-### Prerequisites
-- Node.js (v14 or higher)
-- npm or yarn
-- Firebase account
+### Premium Features
+- Ad-free experience
+- Private prompts
+- Access to premium categories
+- AI Prompt Coach
+- Prompt Generator
 
-### Installation
+## API Endpoints
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/promptsforeveryone.git
-cd promptsforeveryone
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/user` - Get current user
+
+### Prompts
+- `GET /api/prompts` - List prompts (with filters)
+  - Query params:
+    - `categoryId`: Filter by category
+    - `subcategoryId`: Filter by subcategory
+    - `isAdmin`: Show all prompts for admin
+- `GET /api/prompts/[id]` - Get specific prompt
+- `POST /api/prompts` - Create new prompt
+- `PUT /api/prompts/[id]` - Update prompt
+- `DELETE /api/prompts/[id]` - Delete prompt
+- `POST /api/prompts/[id]/like` - Toggle prompt like
+
+### Categories
+- `GET /api/categories` - List all categories
+- `GET /api/categories/[id]` - Get category details
+- `POST /api/categories` - Create category (admin)
+- `PUT /api/categories/[id]` - Update category (admin)
+- `DELETE /api/categories/[id]` - Delete category (admin)
+
+### Subcategories
+- `POST /api/categories/[id]/subcategories` - Create subcategory
+- `PUT /api/categories/[id]/subcategories/[subId]` - Update subcategory
+- `DELETE /api/categories/[id]/subcategories/[subId]` - Delete subcategory
+
+### Users
+- `GET /api/users` - List users (admin)
+- `GET /api/users/[id]` - Get user details
+- `PUT /api/users/[id]` - Update user
+- `PUT /api/users/[id]/role` - Update user role (admin)
+- `PUT /api/users/[id]/plan` - Update user plan (admin)
+
+### Subscription
+- `POST /api/subscription/create` - Create subscription
+- `POST /api/subscription/cancel` - Cancel subscription
+- `GET /api/subscription/status` - Get subscription status
+
+## Important Implementation Details
+
+### Authentication Flow
+1. User signs up/logs in through Firebase Auth
+2. JWT token is generated and stored
+3. Token is validated on protected routes
+4. User data is fetched from Firebase Realtime Database
+
+### Permission Levels
+- **Admin**: Full access to all features
+- **Paid Users**: 
+  - Access to all public content
+  - Can create private prompts
+  - Ad-free experience
+  - Access to premium features
+- **Free Users**:
+  - Access to public content
+  - Basic prompt creation
+  - See advertisements
+
+### Database Structure (Firebase)
+```
+/users
+  /{userId}
+    - email
+    - role
+    - plan
+    - createdAt
+    - lastLogin
+    - prompts/
+      /{promptId}
+        - title
+        - content
+        - isPrivate
+        - categoryId
+        - subcategoryId
+
+/prompts
+  /{promptId}
+    - title
+    - content
+    - userId
+    - categoryId
+    - subcategoryId
+    - visibility
+    - createdAt
+    - votes/
+      /{userId}: true
+
+/categories
+  /{categoryId}
+    - name
+    - count
+    - subcategories/
+      /{subcategoryId}
+        - name
 ```
 
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
+### Ad Management
+- Ads are hidden for paid users and admins
+- Two types of ads: banner and inline
+- Ads can be managed through admin dashboard
+- Ad visibility is controlled by user's plan status
+
+### Security Measures
+1. Origin validation for API endpoints
+2. Rate limiting on authentication endpoints
+3. Data validation for all inputs
+4. Proper error handling and logging
+5. Secure Firebase rules implementation
+
+### Performance Optimizations
+1. Edge runtime for API routes
+2. Caching strategies:
+   - Public prompts: 60s cache with revalidation
+   - Categories: 5min cache
+   - User data: No cache
+3. Lazy loading for images and components
+4. Optimized database queries
+5. Efficient pagination implementation
+
+## Environment Variables
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+FIREBASE_DB_URL=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 ```
 
-3. Set up environment variables:
-Create a `.env.local` file in the root directory and add your Firebase configuration:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_FIREBASE_DATABASE_URL=your_database_url
-```
+## Development Setup
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Set up environment variables
+4. Run development server: `npm run dev`
+5. Build for production: `npm run build`
 
-4. Run the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## 🏗️ Tech Stack
-
-- **Frontend**:
-  - Next.js 15.0.0 (App Router)
-  - React 18
-  - Tailwind CSS 3.4
-  - TypeScript 5.2
-
-- **Backend**:
-  - Firebase Realtime Database
-  - Firebase Authentication
-  - Firebase Storage
-
-- **State Management**:
-  - React Context API
-  - Custom Hooks
-
-- **UI Components**:
-  - Headless UI
-  - Hero Icons
-  - Custom Components
-
-## 📁 Project Structure
-
-```
-promptsforeveryone/
-├── app/                    # Next.js 13 app directory
-│   ├── admin/             # Admin dashboard pages
-│   ├── dashboard/         # User dashboard pages
-│   ├── explore/          # Prompt exploration pages
-│   ├── submit/           # Prompt submission page
-│   └── ...
-├── components/            # Reusable React components
-├── contexts/             # React Context providers
-├── lib/                  # Utility functions and Firebase setup
-├── public/              # Static assets
-├── styles/              # Global styles
-└── types/               # TypeScript type definitions
-```
-
-## 🔒 Security
-
-- Firebase Authentication for user management
-- Role-based access control (RBAC)
-- Secure data validation rules
-- Protected API routes with origin validation
-- Environment variable protection
-- Rate limiting and request validation
-
-## 🔌 API Overview
-
-Our API is designed with security in mind and follows REST principles. We provide both public and private endpoints.
-
-### Public Endpoints
-These endpoints are publicly accessible and can be used without authentication:
-
-- **Categories**
-  - `GET /api/categories` - Browse all categories
-  - Response: JSON object with categories data
-  - Cache: 60 seconds with stale-while-revalidate
-
-- **Prompts**
-  - `GET /api/prompts` - Browse public prompts
-  - `GET /api/prompts/count` - Get total public prompts count
-  - Response: JSON with prompts or count data
-  - Cache: 60 seconds with stale-while-revalidate
-
-- **Open Graph**
-  - `GET /api/og` - Generate social media preview images
-  - Response: Dynamic OG image
-
-- **Contact**
-  - `POST /api/contact` - Submit contact form
-  - `POST /api/careers` - Submit career applications
-
-### Private Endpoints
-Protected endpoints require authentication and proper authorization. Documentation for these endpoints is available internally for developers and approved partners.
-
-### Security Features
-- Authentication required for private endpoints
-- Rate limiting and DDoS protection
-- Input validation and sanitization
-- CORS protection
-- Comprehensive error handling
-- Edge runtime optimization
-
-### Access
-For complete API documentation:
-- Internal developers: Refer to `docs/API.md`
-- Partners: Contact our developer relations team
-- Enterprise customers: Refer to your service agreement
-
-## 🎨 Design System
-
-- Consistent color scheme with cyan (#00ffff) accents
-- Dark mode optimized
-- Responsive grid layouts
-- Modern glassmorphism effects
-- Smooth transitions and animations
-
-## 📝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Team
-
-- Project Lead: [Your Name]
-- Frontend Developer: [Name]
-- Backend Developer: [Name]
-- UI/UX Designer: [Name]
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/)
-- [Firebase](https://firebase.google.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Headless UI](https://headlessui.dev/)
-- [Hero Icons](https://heroicons.com/)
-
-## 📞 Support
-
-For support, email support@promptsforeveryone.com or join our Discord community.
+## Deployment
+- Deployed on Vercel
+- Automatic deployments on main branch
+- Environment variables configured in Vercel dashboard
+- Domain configuration with SSL
+- Edge functions enabled

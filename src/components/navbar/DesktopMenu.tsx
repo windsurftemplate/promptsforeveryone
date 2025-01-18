@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
@@ -12,24 +12,43 @@ interface DesktopMenuProps {
 
 export default function DesktopMenu({ user, isAdmin, isPaidUser, onSignOut }: DesktopMenuProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const handleDropdownClick = (dropdown: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
+  const handleMouseEnter = (dropdown: string) => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    setActiveDropdown(dropdown);
   };
 
+  const handleMouseLeave = () => {
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setActiveDropdown(null);
+    }, 150); // Small delay to prevent menu from closing when moving between button and dropdown
+  };
+
+  useEffect(() => {
+    return () => {
+      if (dropdownTimeoutRef.current) {
+        clearTimeout(dropdownTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="hidden md:flex items-center space-x-8" ref={dropdownRef}>
+    <div className="hidden md:flex items-center space-x-8">
       {/* Product Dropdown */}
-      <div className="relative">
+      <div 
+        className="relative"
+        onMouseEnter={() => handleMouseEnter('product')}
+        onMouseLeave={handleMouseLeave}
+      >
         <button 
           className={`flex items-center space-x-1 transition-colors duration-300 ${
             activeDropdown === 'product' 
               ? 'text-[#00ffff]' 
               : 'text-white/80 hover:text-[#00ffff]'
           }`}
-          onClick={(e) => handleDropdownClick('product', e)}
         >
           <span>Product</span>
           <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
@@ -52,14 +71,17 @@ export default function DesktopMenu({ user, isAdmin, isPaidUser, onSignOut }: De
       </div>
 
       {/* Resources Dropdown */}
-      <div className="relative">
+      <div 
+        className="relative"
+        onMouseEnter={() => handleMouseEnter('resources')}
+        onMouseLeave={handleMouseLeave}
+      >
         <button 
           className={`flex items-center space-x-1 transition-colors duration-300 ${
             activeDropdown === 'resources' 
               ? 'text-[#00ffff]' 
               : 'text-white/80 hover:text-[#00ffff]'
           }`}
-          onClick={(e) => handleDropdownClick('resources', e)}
         >
           <span>Resources</span>
           <ChevronDownIcon className={`w-4 h-4 transition-transform duration-300 ${
@@ -98,9 +120,9 @@ export default function DesktopMenu({ user, isAdmin, isPaidUser, onSignOut }: De
       ) : (
         <>
           <Link href="/login" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
-            Sign In
+            Login
           </Link>
-          <Link href="/register">
+          <Link href="/signup">
             <Button variant="primary" size="sm">
               Sign Up
             </Button>

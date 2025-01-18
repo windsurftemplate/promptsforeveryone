@@ -5,27 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { CheckIcon } from '@heroicons/react/24/outline';
-
-const PRO_FEATURES = [
-  "Everything in Free",
-  "Advanced Prompt Creation",
-  "Private Collections",
-  "Priority Support",
-  "AI Assistant Access",
-  "Export Functionality",
-  "Team Collaboration Tools",
-  "Custom Branding",
-  "Advanced Analytics",
-  "API Access"
-];
-
-const FREE_FEATURES = [
-  "Access to Community Prompts",
-  "Basic Prompt Creation",
-  "Community Support",
-  "Public Collections",
-  "Basic Analytics"
-];
+import Link from 'next/link';
 
 export default function PricingPage() {
   const { user } = useAuth();
@@ -64,118 +44,129 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="container mx-auto px-4 py-16">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#00ffff] mb-4">
-            Pricing
-          </h1>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Start for free, upgrade if you need it
-          </p>
-        </div>
-
-        {/* Pricing Cards */}
-        <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8">
-          {/* Free Plan */}
-          <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Free</h3>
-              <div className="text-4xl font-bold text-[#00ffff] mb-4">$0</div>
-              <p className="text-gray-400">Perfect for getting started</p>
-            </div>
-            <ul className="space-y-4 mb-8">
-              {FREE_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-center text-gray-300">
-                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => router.push('/register')}
-              variant="outline"
-              className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
-            >
-              Get Started
-            </Button>
+      <div className="container mx-auto px-4 py-24 relative z-20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-5xl font-bold text-center text-[#00ffff] mb-12">
+              Simplified Pricing
+            </h1>
+            <p className="text-xl text-gray-400">Start for free upgrade to save private collections</p>
           </div>
-
-          {/* Pro Monthly Plan */}
-          <div className="bg-black/50 backdrop-blur-lg border-2 border-[#00ffff] rounded-xl p-8 hover:shadow-[0_0_30px_rgba(0,255,255,0.3)] transition-all duration-300 transform hover:scale-105 relative">
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <span className="bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-semibold">
-                Most Popular
-              </span>
-            </div>
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Pro Monthly</h3>
-              <div className="text-4xl font-bold text-[#00ffff] mb-4">$9</div>
-              <p className="text-gray-400">Everything you need</p>
-            </div>
-            <ul className="space-y-4 mb-8">
-              {PRO_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-center text-gray-300">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Free Plan */}
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Free</h3>
+                <div className="text-4xl font-bold text-[#00ffff] mb-4">$0</div>
+                <p className="text-gray-400">Perfect for sharing and always free!</p>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center text-gray-300">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                  <span>{feature}</span>
+                  <span>Access to Community Prompts</span>
                 </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleUpgrade('month')}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-semibold"
-            >
-              Join Us
-            </Button>
-          </div>
-
-          {/* Pro Yearly Plan */}
-          <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
-            <div className="text-center mb-8">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Pro Yearly</h3>
-              <div className="text-4xl font-bold text-[#00ffff] mb-4">$89</div>
-              <p className="text-gray-400">Save 17% yearly</p>
-            </div>
-            <ul className="space-y-4 mb-8">
-              {PRO_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-center text-gray-300">
+                <li className="flex items-center text-gray-300">
                   <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                  <span>{feature}</span>
+                  <span>Basic Prompt Creation</span>
                 </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleUpgrade('year')}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-semibold"
-            >
-              Join Us
-            </Button>
-          </div>
-        </div>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Discover and Share Ideas</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>AI Random Prompt Generator</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>AI Prompt Coach </span>
+                </li>
+              </ul>
+              <Link href="/register" className="block">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
+                >
+                  Get Started
+                </Button>
+              </Link>
+            </div>
 
-        {/* FAQ Section */}
-        <div className="max-w-3xl mx-auto mt-24">
-          <h2 className="text-3xl font-bold text-[#00ffff] mb-8 text-center">
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-6">
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-colors">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-2">What's included in the Pro plan?</h3>
-              <p className="text-gray-400">
-                The Pro plan includes all features listed above, including advanced prompt creation, private collections, priority support, and more. You'll have access to advanced features and unlimited usage.
-              </p>
+            {/* Pro Plan */}
+            <div className="bg-black/50 backdrop-blur-lg border-2 border-[#00ffff] rounded-xl p-8 hover:border-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300 transform hover:-translate-y-1 relative">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <span className="bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-semibold">
+                  Most Popular
+                </span>
+              </div>
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Pro</h3>
+                <div className="text-4xl font-bold text-[#00ffff] mb-4">$9</div>
+                <p className="text-gray-400">Everything you need</p>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Everything in Free</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Advanced Prompt Creation</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Save and Organize Unlimited Prompts</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Priority Access to New Features</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Ad-Free Experience</span>
+                </li>
+              </ul>
+              <Link href="/register?plan=pro" className="block">
+                <Button className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-semibold">
+                  Join Us
+                </Button>
+              </Link>
             </div>
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-colors">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-2">Can I cancel anytime?</h3>
-              <p className="text-gray-400">
-                Yes, you can cancel your subscription at any time. You'll continue to have access to Pro features until the end of your billing period.
-              </p>
-            </div>
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-colors">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-2">Is there a refund policy?</h3>
-              <p className="text-gray-400">
-                We offer a 30-day money-back guarantee. If you're not satisfied with your Pro subscription, contact us within 30 days for a full refund.
-              </p>
+
+            {/* Enterprise Plan */}
+            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Enterprise</h3>
+                <div className="text-4xl font-bold text-[#00ffff] mb-4">Custom</div>
+                <p className="text-gray-400">For large teams & organizations</p>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Everything in Pro</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Custom Integrations</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>Dedicated Support</span>
+                </li>
+                <li className="flex items-center text-gray-300">
+                  <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <span>SLA Guarantees</span>
+                </li>
+              </ul>
+              <Link href="/contact" className="block">
+                <Button 
+                  variant="outline" 
+                  className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
+                >
+                  Contact Sales
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
