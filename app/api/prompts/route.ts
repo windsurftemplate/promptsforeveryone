@@ -53,10 +53,14 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const categoryId = url.searchParams.get('categoryId');
     const subcategoryId = url.searchParams.get('subcategoryId');
+    const promptId = url.searchParams.get('promptId');
+    const isAdmin = url.searchParams.get('isAdmin') === 'true';
 
     console.log('Fetching prompts for:', { 
       categoryId, 
-      subcategoryId 
+      subcategoryId,
+      promptId,
+      isAdmin
     });
 
     // Fetch prompts from Firebase
@@ -66,6 +70,31 @@ export async function GET(request: NextRequest) {
     if (!response.data) {
       console.log('No prompts found in database');
       return NextResponse.json({}, { status: 200 });
+    }
+
+    // If a specific prompt ID is requested
+    if (promptId) {
+      const prompt = response.data[promptId];
+      if (!prompt) {
+        return NextResponse.json({ error: 'Prompt not found' }, { status: 404 });
+      }
+
+      // If the prompt is private and not an admin request, return an error
+      if (prompt.visibility !== 'public' && !isAdmin) {
+        return NextResponse.json(
+          { error: 'This prompt is private', visibility: prompt.visibility },
+          { status: 403 }
+        );
+      }
+
+      // Return the prompt
+      const voteCount = prompt.votes ? Object.keys(prompt.votes).length : 0;
+      return NextResponse.json({
+        [promptId]: {
+          ...prompt,
+          likes: voteCount
+        }
+      });
     }
 
     // Log the first few prompts from Firebase to see their structure
@@ -123,13 +152,14 @@ export async function GET(request: NextRequest) {
           subcategoryId: data.subcategoryId,
           matches: {
             isPublic: data.visibility === 'public',
+            isAdmin: isAdmin,
             categoryMatches: !categoryId || data.categoryId === categoryId,
             subcategoryMatches: !subcategoryId || data.subcategoryId === subcategoryId
           }
         });
         
-        // Only include public prompts
-        if (data.visibility === 'public') {
+        // For admin requests, include all prompts. For non-admin, only include public prompts.
+        if (isAdmin || data.visibility === 'public') {
           // Only filter by category and subcategory if they are provided
           if (categoryId && subcategoryId) {
             if (data.categoryId !== categoryId) {
@@ -155,7 +185,8 @@ export async function GET(request: NextRequest) {
             title: data.title,
             categoryId: data.categoryId,
             subcategoryId: data.subcategoryId,
-            reason: categoryId && subcategoryId ? 'matches category and subcategory' : 'public prompt'
+            visibility: data.visibility,
+            reason: categoryId && subcategoryId ? 'matches category and subcategory' : isAdmin ? 'admin request' : 'public prompt'
           });
 
           // Calculate vote count from votes object

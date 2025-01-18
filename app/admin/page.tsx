@@ -79,6 +79,8 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [selectedUser, setSelectedUser] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [ads, setAds] = useState<AdType[]>(staticAds);
   const [isAddingAd, setIsAddingAd] = useState(false);
   const [newAd, setNewAd] = useState<Partial<AdType>>({
@@ -403,6 +405,7 @@ export default function AdminDashboard() {
   const filteredPrompts = prompts.filter(prompt => {
     let passesUserFilter = true;
     let passesDateFilter = true;
+    let passesSearchFilter = true;
 
     // User filter
     if (selectedUser !== 'all') {
@@ -429,8 +432,31 @@ export default function AdminDashboard() {
       }
     }
 
-    return passesUserFilter && passesDateFilter;
+    // Search filter
+    if (searchTerm) {
+      const query = searchTerm.toLowerCase();
+      passesSearchFilter = 
+        prompt.title.toLowerCase().includes(query) ||
+        prompt.content.toLowerCase().includes(query);
+    }
+
+    return passesUserFilter && passesDateFilter && passesSearchFilter;
   });
+
+  const handleSearch = () => {
+    setSearchTerm(searchQuery);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setSearchTerm('');
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -800,50 +826,119 @@ export default function AdminDashboard() {
                 </p>
               </div>
             </div>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex gap-4 items-center">
-                  <div className="flex-1">
-                    <label className="block text-[#00ffff] text-sm mb-1">Filter by User</label>
-                    <select
-                      value={selectedUser}
-                      onChange={(e) => setSelectedUser(e.target.value)}
-                      className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
-                    >
-                      <option value="all" className="bg-black">All Users</option>
-                      {users.map((user) => (
-                        <option key={user.uid} value={user.uid} className="bg-black">
-                          {user.email}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-[#00ffff] text-sm mb-1">Filter by Date</label>
-                    <select
-                      value={dateFilter}
-                      onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
-                      className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-[#00ffff] hover:border-[#00ffff]/50 transition-colors"
-                    >
-                      <option value="all" className="bg-black">All Time</option>
-                      <option value="today" className="bg-black">Last 24 Hours</option>
-                      <option value="week" className="bg-black">Last 7 Days</option>
-                      <option value="month" className="bg-black">Last 30 Days</option>
-                    </select>
-                  </div>
-                </div>
-                <Link href="/prompt/new">
-                  <Button variant="default" className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black">
-                    Create New Prompt
-                  </Button>
-                </Link>
-              </div>
 
-              <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
-                <div className="overflow-x-auto">
-                  {promptsWithAds}
+            <div className="flex justify-between items-center">
+              <div className="flex gap-4">
+                <div className="relative flex gap-2">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
+                    placeholder="Search prompts..."
+                    className="w-64 bg-black/50 text-white border border-[#00ffff]/20 rounded-lg px-4 py-2 focus:border-[#00ffff]/40 focus:outline-none"
+                  />
+                  <button
+                    onClick={handleSearch}
+                    className="px-4 py-2 bg-[#00ffff] text-black rounded-lg hover:bg-[#00ffff]/80 transition-colors"
+                  >
+                    Search
+                  </button>
+                  {searchTerm && (
+                    <button
+                      onClick={clearSearch}
+                      className="absolute right-24 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
+                <select
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                  className="bg-black/50 text-white border border-[#00ffff]/20 rounded-lg px-4 py-2"
+                >
+                  <option value="all">All Users</option>
+                  {users.map((user) => (
+                    <option key={user.uid} value={user.uid}>{user.email}</option>
+                  ))}
+                </select>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
+                  className="bg-black/50 text-white border border-[#00ffff]/20 rounded-lg px-4 py-2"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
               </div>
+              <Link href="/prompt/new">
+                <Button variant="default" className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black">
+                  Create New Prompt
+                </Button>
+              </Link>
+            </div>
+
+            <div className="grid gap-4">
+              {filteredPrompts.map((prompt) => (
+                <div
+                  key={prompt.id}
+                  className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 space-y-4"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-semibold text-white mb-2">{prompt.title}</h3>
+                      <div className="flex items-center gap-4 text-sm text-white/60">
+                        <span>By {prompt.userName}</span>
+                        <span>•</span>
+                        <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                        <span>•</span>
+                        <span className={`px-2 py-1 rounded ${prompt.isPrivate ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>
+                          {prompt.isPrivate ? 'Private' : 'Public'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleCopy(prompt.content)}
+                        className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+                        title="Copy prompt"
+                      >
+                        <ClipboardDocumentIcon className="h-5 w-5 text-[#00ffff]" />
+                      </button>
+                      <Link
+                        href={`/prompt/edit/${prompt.id}`}
+                        className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+                        title="Edit prompt"
+                      >
+                        <PencilIcon className="h-5 w-5 text-[#00ffff]" />
+                      </Link>
+                      <button
+                        onClick={() => handleDeletePrompt(prompt)}
+                        className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                        title="Delete prompt"
+                      >
+                        <TrashIcon className="h-5 w-5 text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-white/80">{prompt.content}</p>
+                  <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
+                      {prompt.category}
+                    </span>
+                    {prompt.subcategory && (
+                      <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
+                        {prompt.subcategory}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         ) : activeTab === 'blog' ? (
