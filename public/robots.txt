@@ -1,7 +1,26 @@
 # Allow all crawlers
 User-agent: *
+
+# Allow public pages and endpoints
 Allow: /
-Disallow: /explore
+Allow: /blog
+Allow: /about
+Allow: /contact
+Allow: /explore
+Allow: /api/categories
+Allow: /api/prompts
+Allow: /api/prompts/count
+Allow: /api/og
+
+# Prevent access to private routes and endpoints
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /api/auth/
+Disallow: /api/upload/
+Disallow: /api/webhook/
+Disallow: /api/stripe/
+Disallow: /api/chat/
+Disallow: /api/firebase-proxy/
 
 # Sitemap
 Sitemap: https://promptsforeveryone.com/sitemap.xml

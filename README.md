@@ -114,28 +114,48 @@ promptsforeveryone/
 - Environment variable protection
 - Rate limiting and request validation
 
-## 🔌 API Endpoints
+## 🔌 API Overview
 
-### Categories API
-- **GET /api/categories**
-  - Fetches all categories or specific category data
-  - Query Parameters:
-    - `id`: (optional) Category ID
-    - `subId`: (optional) Subcategory ID
-  - Response: JSON object containing categories data
-  - Cache Control: 60 seconds with stale-while-revalidate
+Our API is designed with security in mind and follows REST principles. We provide both public and private endpoints.
 
-### Prompts Count API
-- **GET /api/prompts/count**
-  - Returns total count of public prompts
-  - Response: `{ count: number }`
-  - Cache Control: 60 seconds with stale-while-revalidate
+### Public Endpoints
+These endpoints are publicly accessible and can be used without authentication:
+
+- **Categories**
+  - `GET /api/categories` - Browse all categories
+  - Response: JSON object with categories data
+  - Cache: 60 seconds with stale-while-revalidate
+
+- **Prompts**
+  - `GET /api/prompts` - Browse public prompts
+  - `GET /api/prompts/count` - Get total public prompts count
+  - Response: JSON with prompts or count data
+  - Cache: 60 seconds with stale-while-revalidate
+
+- **Open Graph**
+  - `GET /api/og` - Generate social media preview images
+  - Response: Dynamic OG image
+
+- **Contact**
+  - `POST /api/contact` - Submit contact form
+  - `POST /api/careers` - Submit career applications
+
+### Private Endpoints
+Protected endpoints require authentication and proper authorization. Documentation for these endpoints is available internally for developers and approved partners.
 
 ### Security Features
-- Only GET requests allowed
-- Origin validation in production
-- Error handling with appropriate status codes
-- Edge runtime for optimal performance
+- Authentication required for private endpoints
+- Rate limiting and DDoS protection
+- Input validation and sanitization
+- CORS protection
+- Comprehensive error handling
+- Edge runtime optimization
+
+### Access
+For complete API documentation:
+- Internal developers: Refer to `docs/API.md`
+- Partners: Contact our developer relations team
+- Enterprise customers: Refer to your service agreement
 
 ## 🎨 Design System
 

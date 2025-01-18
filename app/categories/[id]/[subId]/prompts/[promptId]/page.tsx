@@ -8,6 +8,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeftIcon, ClipboardIcon, ShareIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 
+interface Subcategory {
+  name: string;
+  description?: string;
+}
+
 export default function PromptPage() {
   const params = useParams();
   const categoryId = params.id as string;
@@ -48,7 +53,9 @@ export default function PromptPage() {
         
         // Fetch category and subcategory names
         if (categoryId && subcategoryId) {
-          const categoryResponse = await fetch(`/api/categories?id=${categoryId}`);
+          // First try with the raw subcategory ID
+          let categoryResponse = await fetch(`/api/categories?id=${categoryId}`);
+          
           if (!categoryResponse.ok) {
             console.error('Failed to fetch category:', categoryResponse.statusText);
             setError('Failed to load category information');
@@ -57,22 +64,25 @@ export default function PromptPage() {
           }
 
           const categoryData = await categoryResponse.json();
-          if (categoryData.error) {
-            console.error('Category error:', categoryData.error);
-            setError('Category not found');
-            setLoading(false);
-            return;
-          }
+          setCategoryName(categoryData.name);
 
-          setCategoryName(categoryData.name || '');
-          
-          if (categoryData.subcategories?.[subcategoryId]) {
-            setSubcategoryName(categoryData.subcategories[subcategoryId].name || '');
-          } else {
-            console.error('Subcategory not found');
-            setError('Subcategory not found');
-            setLoading(false);
-            return;
+          // Find subcategory by normalized name
+          if (categoryData.subcategories) {
+            const decodedSubcategoryName = decodeURIComponent(subcategoryId).toLowerCase();
+            const subcategoryEntries = Object.entries(categoryData.subcategories as Record<string, Subcategory>);
+            const subcategoryEntry = subcategoryEntries.find(([_, sub]) => 
+              sub.name.toLowerCase().replace(/\s+/g, '-') === decodedSubcategoryName
+            );
+
+            if (subcategoryEntry) {
+              const [_, subcategory] = subcategoryEntry;
+              setSubcategoryName(subcategory.name);
+            } else {
+              console.error('Subcategory not found:', subcategoryId);
+              setError('Failed to load category information');
+              setLoading(false);
+              return;
+            }
           }
         }
         
@@ -209,36 +219,40 @@ export default function PromptPage() {
             className="mb-8 space-y-4"
           >
             {/* Breadcrumb Navigation */}
-            <div className="flex items-center gap-2 text-sm text-white/60">
+            <div className="flex items-center gap-2 text-sm">
               <Link 
                 href="/categories"
-                className="hover:text-[#00ffff] transition-colors"
+                className="text-white/60 hover:text-[#00ffff] transition-colors"
               >
                 Categories
               </Link>
-              <span>/</span>
+              <span className="text-white/60">/</span>
               <Link 
                 href={`/categories/${categoryId}`}
-                className="hover:text-[#00ffff] transition-colors"
+                className="text-white/60 hover:text-[#00ffff] transition-colors"
               >
-                {categoryName || 'Category'}
+                {categoryName || 'Loading...'}
               </Link>
-              <span>/</span>
-              <Link 
-                href={`/categories/${categoryId}/${subcategoryId}`}
-                className="text-[#00ffff]"
-              >
-                {subcategoryName || 'Subcategory'}
-              </Link>
+              <span className="text-white/60">/</span>
+              {subcategoryName ? (
+                <Link 
+                  href={`/categories/${categoryId}/${subcategoryName.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+                >
+                  {subcategoryName}
+                </Link>
+              ) : (
+                <span className="text-[#00ffff]/60">Loading...</span>
+              )}
             </div>
 
             {/* Back Button */}
             <Link 
-              href={`/categories/${categoryId}/${subcategoryId}`}
+              href={`/categories/${categoryId}/${subcategoryName ? subcategoryName.toLowerCase().replace(/\s+/g, '-') : subcategoryId}`}
               className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 group"
             >
               <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              {subcategoryName ? `Back to ${subcategoryName}` : 'Back to Subcategory'}
+              {subcategoryName ? `Back to ${subcategoryName}` : 'Back'}
             </Link>
           </motion.div>
 

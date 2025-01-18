@@ -111,6 +111,22 @@ export default function CategoryPage({ params }: Props) {
         {JSON.stringify(structuredData)}
       </Script>
       <div className="min-h-screen bg-black">
+        {/* Breadcrumb Navigation */}
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-2 text-sm text-white/60">
+            <Link 
+              href="/categories"
+              className="hover:text-[#00ffff] transition-colors"
+            >
+              Categories
+            </Link>
+            <span>/</span>
+            <span className="text-[#00ffff]">
+              {category.name}
+            </span>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <div className="relative overflow-hidden">
           {/* Animated background grid */}
@@ -133,28 +149,6 @@ export default function CategoryPage({ params }: Props) {
 
           {/* Hero content */}
           <div className="relative container mx-auto px-4 pt-32 pb-24">
-            {/* Breadcrumb Navigation */}
-            <div className="flex items-center gap-2 text-sm text-white/60 mb-4">
-              <Link 
-                href="/categories"
-                className="hover:text-[#00ffff] transition-colors"
-              >
-                Categories
-              </Link>
-              <span>/</span>
-              <span className="text-[#00ffff]">
-                {category.name}
-              </span>
-            </div>
-
-            <Link 
-              href="/categories"
-              className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 mb-8 group"
-            >
-              <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-              Back to Categories
-            </Link>
-
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
