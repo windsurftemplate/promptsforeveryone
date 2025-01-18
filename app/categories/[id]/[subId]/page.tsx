@@ -108,7 +108,16 @@ export default function SubcategoryPage({ params }: Props) {
 
               if (promptsResponse.ok) {
                 const promptsData = JSON.parse(responseText);
-                console.log('Prompts data:', promptsData);
+                console.log('Prompts data:', {
+                  total: Object.keys(promptsData).length,
+                  prompts: Object.entries(promptsData).map(([id, data]: [string, any]) => ({
+                    id,
+                    title: data.title,
+                    categoryId: data.categoryId,
+                    subcategoryId: data.subcategoryId,
+                    visibility: data.visibility
+                  }))
+                });
                 
                 if (Object.keys(promptsData).length === 0) {
                   console.log('No prompts found for this subcategory');
@@ -120,7 +129,16 @@ export default function SubcategoryPage({ params }: Props) {
                     ...prompt
                   }));
 
-                console.log('Filtered prompts:', filteredPrompts);
+                console.log('Filtered prompts:', {
+                  total: filteredPrompts.length,
+                  prompts: filteredPrompts.map(prompt => ({
+                    id: prompt.id,
+                    title: prompt.title,
+                    categoryId: prompt.categoryId,
+                    subcategoryId: prompt.subcategoryId,
+                    visibility: prompt.visibility
+                  }))
+                });
                 // Sort by creation date
                 filteredPrompts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 setPrompts(filteredPrompts);

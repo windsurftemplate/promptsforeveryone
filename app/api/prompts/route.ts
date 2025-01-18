@@ -124,43 +124,38 @@ export async function GET(request: NextRequest) {
           matches: {
             isPublic: data.visibility === 'public',
             categoryMatches: !categoryId || data.categoryId === categoryId,
-            subcategoryMatches: !subcategoryId || data.subcategoryId === subcategoryId,
-            categoryComparison: {
-              expected: categoryId,
-              got: data.categoryId
-            },
-            subcategoryComparison: {
-              expected: subcategoryId,
-              got: data.subcategoryId
-            }
+            subcategoryMatches: !subcategoryId || data.subcategoryId === subcategoryId
           }
         });
         
         // Only include public prompts
         if (data.visibility === 'public') {
-          // Filter by category and subcategory if provided
-          if (categoryId && data.categoryId !== categoryId) {
-            console.log('Skipping - category mismatch:', { expected: categoryId, got: data.categoryId });
-            return acc;
-          }
-          if (subcategoryId && data.subcategoryId !== subcategoryId) {
-            console.log('Skipping - subcategory mismatch:', { 
-              expected: subcategoryId, 
-              got: data.subcategoryId,
-              prompt: {
-                id,
-                title: data.title,
-                categoryId: data.categoryId
-              }
-            });
-            return acc;
+          // Only filter by category and subcategory if they are provided
+          if (categoryId && subcategoryId) {
+            if (data.categoryId !== categoryId) {
+              console.log('Skipping - category mismatch:', { expected: categoryId, got: data.categoryId });
+              return acc;
+            }
+            if (data.subcategoryId !== subcategoryId) {
+              console.log('Skipping - subcategory mismatch:', { 
+                expected: subcategoryId, 
+                got: data.subcategoryId,
+                prompt: {
+                  id,
+                  title: data.title,
+                  categoryId: data.categoryId
+                }
+              });
+              return acc;
+            }
           }
 
           console.log('Including prompt:', {
             id,
             title: data.title,
             categoryId: data.categoryId,
-            subcategoryId: data.subcategoryId
+            subcategoryId: data.subcategoryId,
+            reason: categoryId && subcategoryId ? 'matches category and subcategory' : 'public prompt'
           });
 
           // Calculate vote count from votes object
