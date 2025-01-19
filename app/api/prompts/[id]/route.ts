@@ -60,7 +60,8 @@ export async function GET(
       );
     }
 
-    if (response.data.visibility !== 'public') {
+    // Allow access if visibility is public or undefined (legacy prompts)
+    if (response.data.visibility && response.data.visibility !== 'public') {
       return NextResponse.json(
         { error: 'Unauthorized access' },
         { status: 403 }

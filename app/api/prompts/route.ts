@@ -79,8 +79,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Prompt not found' }, { status: 404 });
       }
 
-      // If the prompt is private and not an admin request, return an error
-      if (prompt.visibility !== 'public' && !isAdmin) {
+      // If the prompt has visibility set and is not public, and not an admin request, return an error
+      if (prompt.visibility && prompt.visibility !== 'public' && !isAdmin) {
         return NextResponse.json(
           { error: 'This prompt is private', visibility: prompt.visibility },
           { status: 403 }
@@ -92,7 +92,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         [promptId]: {
           ...prompt,
-          likes: voteCount
+          likes: voteCount,
+          visibility: prompt.visibility || 'public' // Ensure visibility is set
         }
       });
     }
@@ -122,7 +123,7 @@ export async function GET(request: NextRequest) {
       .filter(([_, data]: [string, any]) => 
         data.categoryId === categoryId && 
         data.subcategoryId === subcategoryId &&
-        data.visibility === 'public'
+        (!data.visibility || data.visibility === 'public')
       );
 
     console.log('Looking for prompts with:', {
@@ -159,7 +160,7 @@ export async function GET(request: NextRequest) {
         });
         
         // For admin requests, include all prompts. For non-admin, only include public prompts.
-        if (isAdmin || data.visibility === 'public') {
+        if (isAdmin || !data.visibility || data.visibility === 'public') {
           // Only filter by category and subcategory if they are provided
           if (categoryId && subcategoryId) {
             if (data.categoryId !== categoryId) {
