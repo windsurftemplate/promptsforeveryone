@@ -45,9 +45,9 @@ export default function PromptList({ visibility = 'all' }: PromptListProps) {
       // Filter prompts based on visibility
       const filteredPrompts = promptsData.filter(prompt => {
         if (visibility === 'public') {
-          return !prompt.isPrivate;
+          return !prompt.visibility || prompt.visibility === 'public';
         } else if (visibility === 'private') {
-          return prompt.isPrivate;
+          return prompt.visibility === 'private';
         }
         return true;
       });
@@ -146,7 +146,7 @@ export default function PromptList({ visibility = 'all' }: PromptListProps) {
 
   const filteredPrompts = prompts.filter((prompt) => {
     if (visibility === 'public') {
-      return prompt.visibility === 'public';
+      return !prompt.visibility || prompt.visibility === 'public';
     } else if (visibility === 'private') {
       return prompt.visibility === 'private';
     }
