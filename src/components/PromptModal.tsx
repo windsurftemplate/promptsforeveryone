@@ -5,7 +5,7 @@ import { TrashIcon, ClipboardDocumentIcon, XMarkIcon, PencilIcon } from '@heroic
 import { Button } from './ui/Button';
 import { ref, update, onValue, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import { Prompt } from '@/types';
+import { Prompt, PromptCategory } from '@/types/prompt';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface PromptModalProps {
@@ -22,95 +22,35 @@ interface Category {
 
 export default function PromptModal({ prompt, onCloseAction, onEditAction, onDeleteAction }: PromptModalProps) {
   const { user } = useAuth();
-  const [editedPrompt, setEditedPrompt] = useState(prompt);
-  const [isSaving, setIsSaving] = useState(false);
+  const [editedPrompt, setEditedPrompt] = useState<Prompt>(prompt);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoryName, setCategoryName] = useState('');
-
-  // Check if current user is the creator
-  const isCreator = user && user.uid === prompt.userId;
+  const [copied, setCopied] = useState(false);
+  const isCreator = user?.uid === prompt.userId;
 
   useEffect(() => {
-    // Fetch categories from Firebase
-    const categoriesRef = ref(db, 'categories');
-    const unsubscribe = onValue(categoriesRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
-          id,
-          name: category.name,
-        }));
-        setCategories(categoriesArray);
-      }
-    });
+    setEditedPrompt(prompt);
+  }, [prompt]);
 
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const fetchCategoryNames = async () => {
-      // Get category name
-      const categoryRef = ref(db, `categories/${prompt.category}`);
-      const categorySnapshot = await get(categoryRef);
-      if (categorySnapshot.exists()) {
-        const categoryData = categorySnapshot.val();
-        setCategoryName(categoryData.name);
-      }
-
-      // Get subcategory name
-      if (prompt.subcategory) {
-        const subcategoryRef = ref(db, `categories/${prompt.category}/subcategories/${prompt.subcategory}`);
-        const subcategorySnapshot = await get(subcategoryRef);
-        if (subcategorySnapshot.exists()) {
-          const subcategoryData = subcategorySnapshot.val();
-          setCategoryName(subcategoryData.name);
-        }
-      }
-    };
-
-    fetchCategoryNames();
-  }, [prompt.category, prompt.subcategory]);
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSave = async () => {
-    if (!user) return;
-    
-    try {
-      const promptRef = ref(db, `prompts/${prompt.id}`);
-      await update(promptRef, {
-        title: editedPrompt.title || prompt.title || '',
-        description: editedPrompt.description || prompt.description || '',
-        content: editedPrompt.content || prompt.content || '',
-        category: editedPrompt.category || prompt.category || '',
-        subcategory: editedPrompt.subcategory || prompt.subcategory || '',
-        visibility: editedPrompt.visibility || prompt.visibility || 'public',
-        userId: user.uid,
-        createdAt: prompt.createdAt,
-        updatedAt: new Date().toISOString(),
-      });
-      onCloseAction();
-    } catch (error) {
-      console.error('Error updating prompt:', error);
-    }
+    if (!isCreator) return;
+    onEditAction(editedPrompt);
   };
 
-  const handleCopy = async (content: string) => {
-    try {
-      await navigator.clipboard.writeText(content);
-    } catch (error) {
-      console.error('Failed to copy text:', error);
-    }
-  };
-
-  const handleCategoryChange = (category: string) => {
-    setEditedPrompt({
-      ...editedPrompt,
-      category
-    });
+  const handleCategoryChange = (category: PromptCategory) => {
+    setEditedPrompt(prev => ({ ...prev, category }));
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onClick={onCloseAction}>
+    <div 
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      onClick={onCloseAction}
+    >
       <div 
         className="bg-black/90 border border-[#00ffff]/20 rounded-lg p-8 max-w-4xl w-full mx-4 shadow-[0_0_50px_rgba(0,255,255,0.1)] max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
@@ -126,7 +66,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
           />
           <div className="flex gap-3">
             <button
-              onClick={() => handleCopy(prompt.content || '')}
+              onClick={() => handleCopy(prompt.content)}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
               title="Copy prompt"
             >
@@ -153,22 +93,11 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-[#00ffff] font-medium mb-2">Description</h3>
-            <textarea
-              value={editedPrompt.description}
-              onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, description: e.target.value })}
-              className="w-full h-32 bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2"
-              placeholder="Brief description of what this prompt does"
-              readOnly={!isCreator}
-            />
-          </div>
-
-          <div>
             <h3 className="text-[#00ffff] font-medium mb-2">Prompt Content</h3>
             <textarea
               value={editedPrompt.content}
               onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, content: e.target.value })}
-              className="w-full h-64 bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2 font-mono"
+              className="w-full h-[500px] bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2 font-mono"
               placeholder="Enter your prompt content here"
               readOnly={!isCreator}
             />
@@ -181,13 +110,13 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                 <div className="flex flex-col gap-2">
                   <select
                     value={editedPrompt.category}
-                    onChange={(e) => handleCategoryChange(e.target.value)}
+                    onChange={(e) => handleCategoryChange(e.target.value as PromptCategory)}
                     className="w-full p-2 rounded bg-black/50 border border-[#00ffff]/20"
                   >
                     <option value="">Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {categories.find(c => c.id === editedPrompt.category)?.name || 'No category'}
+                    {['General', 'Development', 'Design', 'Writing', 'Business', 'Education', 'Other'].map((category) => (
+                      <option key={category} value={category}>
+                        {category}
                       </option>
                     ))}
                   </select>
@@ -201,7 +130,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
-                    {categories.find(c => c.id === editedPrompt.category)?.name || 'No category'}
+                    {editedPrompt.category}
                   </span>
                   {isCreator && (
                     <button
@@ -214,27 +143,15 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                 </div>
               )}
             </div>
-            <div>
-              <span className="text-[#00ffff]">Created:</span> 
-              {new Date(editedPrompt.createdAt || Date.now()).toLocaleDateString()}
-            </div>
           </div>
 
           {isCreator && (
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                onClick={onCloseAction}
-                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded"
-                disabled={isSaving}
-              >
-                Cancel
-              </Button>
+            <div className="flex justify-end">
               <Button
                 onClick={handleSave}
-                className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold px-4 py-2 rounded"
-                disabled={isSaving}
+                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                Save Changes
               </Button>
             </div>
           )}

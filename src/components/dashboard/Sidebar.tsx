@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, remove, update, get } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon, DocumentIcon, DocumentTextIcon, UserIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon, DocumentIcon, DocumentTextIcon, UserIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import Link from 'next/link';
 interface Category {
   id: string;
   name: string;
-  subcategories?: { [key: string]: { name: string } };
+  subcategories?: { [key: string]: { id: string; name: string } };
   isPrivate?: boolean;
 }
 
@@ -20,7 +20,7 @@ export default function Sidebar() {
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const { setSelectedCategory, setSelectedSubcategory, selectedCategory, selectedSubcategory, isSidebarCollapsed, setIsSidebarCollapsed } = useDashboard();
+  const { setSelectedCategory, setSelectedSubcategory, selectedCategory, selectedSubcategory, isSidebarCollapsed, setIsSidebarCollapsed, viewMode, setViewMode } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
@@ -93,21 +93,24 @@ export default function Sidebar() {
   }, [user]);
 
   const handleCategoryClick = (categoryId: string, isPrivate: boolean = false) => {
-    // If trying to access private category without being paid user
-    if (isPrivate && !isPaidUser) {
-      return;
+    const category = { id: categoryId, isPrivate };
+    
+    if (selectedCategory?.id === categoryId) {
+      setSelectedCategory(null);
+      setSelectedSubcategory(null);
+    } else {
+      setSelectedCategory(category);
+      setSelectedSubcategory(null);
     }
-    setSelectedCategory({ id: categoryId, isPrivate });
-    setSelectedSubcategory(null);
   };
 
-  const handleSubcategoryClick = (categoryId: string, subcategoryId: string, isPrivate: boolean = false) => {
-    // If trying to access private subcategory without being paid user
+  const handleSubcategoryClick = (categoryId: string, subcategoryId: string, subcategoryName: string, isPrivate: boolean = false) => {
     if (isPrivate && !isPaidUser) {
       return;
     }
+    
     setSelectedCategory({ id: categoryId, isPrivate });
-    setSelectedSubcategory({ id: subcategoryId });
+    setSelectedSubcategory({ id: subcategoryId, name: subcategoryName });
   };
 
   const handleAddCategory = async () => {
@@ -183,8 +186,8 @@ export default function Sidebar() {
     e.stopPropagation();
     setExpandedCategories(prev => 
       prev.includes(categoryId)
-        ? []  // Close all dropdowns
-        : [categoryId]  // Only open the clicked category
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
     );
   };
 
@@ -371,7 +374,7 @@ export default function Sidebar() {
                           {category.subcategories && Object.entries(category.subcategories).map(([subcategoryId, subcategory]) => (
                             <div key={subcategoryId} className="flex items-center justify-between group">
                               <button
-                                onClick={() => handleSubcategoryClick(category.id, subcategoryId, true)}
+                                onClick={() => handleSubcategoryClick(category.id, subcategoryId, subcategory.name, true)}
                                 className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-all duration-200 ${
                                   selectedCategory?.id === category.id && selectedSubcategory?.id === subcategoryId
                                     ? 'bg-[#00ffff]/30 text-white'
@@ -488,41 +491,37 @@ export default function Sidebar() {
                 {categories.map((category) => (
                   <div key={category.id} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex-1 flex items-center">
-                        <button
-                          onClick={(e) => {
-                            toggleCategory(category.id, e);
-                            handleCategoryClick(category.id, false);
-                          }}
-                          className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
-                            selectedCategory?.id === category.id && !selectedCategory?.isPrivate
-                              ? 'bg-[#00ffff]/30 text-white'
-                              : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <ChevronDownIcon
-                              className={`h-4 w-4 text-[#00ffff] transition-transform ${
-                                expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
-                              }`}
-                            />
-                            {category.name}
-                          </div>
-                        </button>
-                      </div>
+                      <button
+                        onClick={(e) => {
+                          toggleCategory(category.id, e);
+                          handleCategoryClick(category.id, category.isPrivate);
+                        }}
+                        className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
+                          selectedCategory?.id === category.id
+                            ? 'bg-[#00ffff]/30 text-white'
+                            : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <ChevronDownIcon
+                            className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                              expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
+                            }`}
+                          />
+                          {category.name}
+                        </div>
+                      </button>
                     </div>
 
-                    {/* Public Subcategories */}
+                    {/* Subcategories */}
                     {expandedCategories.includes(category.id) && (
                       <div className="pl-4 space-y-1">
                         {category.subcategories && Object.entries(category.subcategories).map(([subcategoryId, subcategory]) => (
                           <div key={subcategoryId} className="flex items-center justify-between">
                             <button
-                              onClick={() => handleSubcategoryClick(category.id, subcategoryId, false)}
+                              onClick={() => handleSubcategoryClick(category.id, subcategoryId, subcategory.name, category.isPrivate)}
                               className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                                selectedCategory?.id === category.id && 
-                                selectedSubcategory?.id === subcategoryId && 
-                                !selectedCategory?.isPrivate
+                                selectedCategory?.id === category.id && selectedSubcategory?.id === subcategoryId
                                   ? 'bg-[#00ffff]/30 text-white'
                                   : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
                               }`}

@@ -1,27 +1,22 @@
 export type PromptVisibility = 'public' | 'private';
 
-export type PromptCategory = 
-  | 'General'
-  | 'Development'
-  | 'Design'
-  | 'Writing'
-  | 'Business'
-  | 'Education'
-  | 'Other';
+export type PromptCategory = string;
 
 export interface Prompt {
-  id?: string;
+  id: string;
   title: string;
-  content: string;
   description: string;
+  content: string;
   category: PromptCategory;
+  subcategoryId?: string;
+  subcategoryName?: string;
   userId: string;
-  userName: string;
+  userName?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   likes: number;
   visibility: PromptVisibility;
   isPublished: boolean;
-  downloads?: number;
-  tags?: string[];
+  downloads: number;
+  tags: string[];
 }

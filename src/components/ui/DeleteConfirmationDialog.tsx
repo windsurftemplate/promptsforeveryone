@@ -4,51 +4,49 @@ import { Button } from './Button';
 
 interface DeleteConfirmationDialogProps {
   isOpen: boolean;
-  onClose: () => void;
+  isDeleting: boolean;
   onConfirm: () => void;
-  title: string;
-  loading?: boolean;
+  onCancel: () => void;
 }
 
 export default function DeleteConfirmationDialog({
   isOpen,
-  onClose,
+  isDeleting,
   onConfirm,
-  title,
-  loading = false,
+  onCancel
 }: DeleteConfirmationDialogProps) {
   return (
-    <Dialog.Root open={isOpen} onOpenChange={onClose}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg w-full max-w-md">
-          <Dialog.Title className="text-lg font-semibold text-gray-900 mb-4">
-            Confirm Deletion
-          </Dialog.Title>
-          <Dialog.Description className="text-sm text-gray-600 mb-6">
-            Are you sure you want to delete &quot;{title}&quot;? This action cannot be undone.
-          </Dialog.Description>
-          
-          <div className="flex justify-end space-x-3">
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              disabled={loading}
-              className="text-gray-600 hover:text-gray-900"
+    <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onCancel} />
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
+        <div className="bg-black/90 border border-[#00ffff]/20 rounded-lg p-6 shadow-xl">
+          <h3 className="text-lg font-semibold text-white mb-4">Delete Prompt</h3>
+          <p className="text-white/70 mb-6">Are you sure you want to delete this prompt? This action cannot be undone.</p>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={onCancel}
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm text-white/70 hover:text-white transition-colors"
             >
               Cancel
-            </Button>
-            <Button
-              variant="primary"
+            </button>
+            <button
               onClick={onConfirm}
-              disabled={loading}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={isDeleting}
+              className="px-4 py-2 text-sm bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded transition-colors flex items-center gap-2"
             >
-              {loading ? 'Deleting...' : 'Delete'}
-            </Button>
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-500 border-t-transparent" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </button>
           </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+        </div>
+      </div>
+    </div>
   );
 }

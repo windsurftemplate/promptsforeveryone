@@ -7,7 +7,7 @@ import { ref, query, orderByChild, equalTo, onValue, remove, get } from 'firebas
 import { db } from '@/lib/firebase';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIcon, FolderIcon, HomeIcon, FolderOpenIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIcon, FolderIcon, HomeIcon, FolderOpenIcon, DocumentTextIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 import PromptCard from '@/components/PromptCard';
@@ -16,8 +16,8 @@ import { default as PromptGenerator } from '@/components/prompt-generator/Prompt
 import { default as PromptCoach } from '@/components/prompt-coach/PromptCoach';
 import AdDisplay from '@/components/AdDisplay';
 import { ads as staticAds } from '@/config/ads';
-
-import { Prompt } from '@/types';
+import PromptList from '@/components/PromptList';
+import { Prompt, PromptCategory, PromptVisibility } from '@/types/prompt';
 
 interface Category {
   id: string;
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
-  const { selectedCategory, selectedSubcategory, setSelectedCategory, setSelectedSubcategory, isSidebarCollapsed } = useDashboard();
+  const { selectedCategory, selectedSubcategory, isSidebarCollapsed, setSelectedCategory, viewMode, setViewMode } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [activeTab, setActiveTab] = useState<'prompts' | 'generator' | 'coach' | 'profile'>('prompts');
@@ -62,18 +62,12 @@ export default function DashboardPage() {
   const [visibleCount, setVisibleCount] = useState(20);
   const [ads] = useState(staticAds.filter(ad => ad.status === 'active'));
 
-  // Get current category and subcategory
+  // Get current category
   const currentCategory = useMemo(() => {
     if (!selectedCategory) return null;
     const categoryList = selectedCategory.isPrivate ? privateCategories : categories;
     return categoryList.find(c => c.id === selectedCategory.id) || null;
   }, [selectedCategory, categories, privateCategories]);
-
-  const currentSubcategory = useMemo(() => {
-    if (!selectedSubcategory || !currentCategory?.subcategories) return null;
-    const subcategory = currentCategory.subcategories[selectedSubcategory.id];
-    return subcategory || null;
-  }, [selectedSubcategory, currentCategory]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -91,10 +85,10 @@ export default function DashboardPage() {
     setVisiblePrompts(prompts.slice(0, visibleCount));
   }, [prompts, visibleCount]);
 
-  // Reset visible count when category/subcategory changes
+  // Reset visible count when category changes
   useEffect(() => {
     setVisibleCount(20);
-  }, [selectedCategory, selectedSubcategory]);
+  }, [selectedCategory]);
 
   useEffect(() => {
     if (!user) {
@@ -120,43 +114,39 @@ export default function DashboardPage() {
         const privateCategoriesRef = ref(db, `users/${user.uid}/categories`);
 
         const unsubscribePublic = onValue(publicCategoriesRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            console.log('Public categories raw data:', data);
             const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
-              id,
+              id,  // This is the category ID that should match with prompts
               name: category.name,
               subcategories: category.subcategories ? Object.entries(category.subcategories).reduce((acc, [subId, sub]: [string, any]) => ({
                 ...acc,
                 [subId]: { id: subId, name: sub.name }
               }), {}) : {},
-              items: [],
+              isPrivate: false,
             }));
-            // Add the "All Prompts" category if it doesn't exist
-            const allPromptsCategory = {
-              id: 'all-prompts',
-              name: 'All Prompts',
-              subcategories: {},
-              items: []
-            };
-            setCategories([allPromptsCategory, ...categoriesArray]);
+            console.log('Processed public categories:', categoriesArray);
+            setCategories(categoriesArray);
           }
         });
 
         // Only fetch private categories if user has access
         if (hasAccess) {
           const unsubscribePrivate = onValue(privateCategoriesRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
+            if (snapshot.exists()) {
+              const data = snapshot.val();
+              console.log('Private categories raw data:', data);
               const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
-                id,
+                id,  // This is the category ID that should match with prompts
                 name: category.name,
                 subcategories: category.subcategories ? Object.entries(category.subcategories).reduce((acc, [subId, sub]: [string, any]) => ({
                   ...acc,
                   [subId]: { id: subId, name: sub.name }
                 }), {}) : {},
-                items: [],
                 isPrivate: true,
               }));
+              console.log('Processed private categories:', categoriesArray);
               setPrivateCategories(categoriesArray);
             }
           });
@@ -193,175 +183,105 @@ export default function DashboardPage() {
 
     fetchStats();
 
-    const fetchPrompts = async () => {
-      try {
-        let promptsToShow = [];
-        const seenPromptIds = new Set();
+    // Fetch prompts based on category and subcategory
+    const promptsRef = selectedCategory?.isPrivate 
+      ? ref(db, `users/${user.uid}/prompts`)
+      : ref(db, 'prompts');
 
-        // Check if user has access to private prompts
-        const userRef = ref(db, `users/${user.uid}`);
-        const userSnapshot = await get(userRef);
-        const userData = userSnapshot.val();
-        const hasAccess = userData?.role === 'admin' || userData?.plan === 'paid' || userData?.stripeSubscriptionStatus === 'active';
-        
-        console.log('User access status:', { hasAccess, userData });
+    console.log('Fetching prompts with:', {
+      selectedCategory,
+      selectedSubcategory,
+      promptsRef: promptsRef.toString()
+    });
 
-        if (selectedCategory?.id === 'all-prompts' || !selectedCategory) {
-          console.log('Fetching all prompts');
-          // Fetch private prompts only for users with access
-          if (hasAccess) {
-            const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
-            try {
-              const privateSnapshot = await get(privatePromptsRef);
-              console.log('Private prompts:', privateSnapshot.val());
-              if (privateSnapshot.exists()) {
-                const privatePrompts = Object.entries(privateSnapshot.val())
-                  .filter(([id]) => !seenPromptIds.has(id))
-                  .map(([id, data]: [string, any]) => {
-                    seenPromptIds.add(id);
-                    return {
-                      id: `private-${id}`,
-                      ...data,
-                      isPrivate: true
-                    };
-                  });
-                promptsToShow.push(...privatePrompts);
-              }
-            } catch (error) {
-              console.error('Error fetching private prompts:', error);
-            }
-          }
+    const unsubscribePrompts = onValue(promptsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const rawData = snapshot.val();
+        console.log('Raw prompts data:', rawData);
 
-          // Always fetch public prompts for all users
-          const publicPromptsRef = ref(db, 'prompts');
-          try {
-            const publicSnapshot = await get(publicPromptsRef);
-            console.log('Public prompts:', publicSnapshot.val());
-            if (publicSnapshot.exists()) {
-              const publicPrompts = Object.entries(publicSnapshot.val())
-                .filter(([id]) => !seenPromptIds.has(id))
-                .map(([id, data]: [string, any]) => {
-                  seenPromptIds.add(id);
-                  return {
-                    id: `public-${id}`,
-                    ...data,
-                    isPrivate: false
-                  };
-                });
-              promptsToShow.push(...publicPrompts);
-            }
-          } catch (error) {
-            console.error('Error fetching public prompts:', error);
-          }
-        } else if (selectedCategory.id === 'my-prompts') {
-          // Fetch user's private prompts if they have access
-          if (hasAccess) {
-            const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
-            try {
-              const privateSnapshot = await get(privatePromptsRef);
-              if (privateSnapshot.exists()) {
-                const privatePrompts = Object.entries(privateSnapshot.val())
-                  .filter(([id]) => !seenPromptIds.has(id))
-                  .map(([id, data]: [string, any]) => {
-                    seenPromptIds.add(id);
-                    return {
-                      id: `private-${id}`,
-                      ...data,
-                      isPrivate: true
-                    };
-                  });
-                promptsToShow.push(...privatePrompts);
-              }
-            } catch (error) {
-              console.error('Error fetching private prompts:', error);
-            }
+        const promptsData = Object.entries(rawData)
+          .map(([id, data]: [string, any]) => {
+            const prompt = {
+              id,
+              ...data,
+              // Keep original category and subcategory IDs
+              categoryId: data.categoryId || data.category || '',
+              subcategoryId: data.subcategoryId || '',
+              visibility: selectedCategory?.isPrivate ? 'private' : 'public' as PromptVisibility,
+            };
+            return prompt;
+          });
+
+        console.log('All prompts before filtering:', promptsData);
+        console.log('Filtering with:', {
+          selectedCategory: selectedCategory ? {
+            id: selectedCategory.id,
+            isPrivate: selectedCategory.isPrivate
+          } : null,
+          selectedSubcategory: selectedSubcategory ? {
+            id: selectedSubcategory.id,
+            name: selectedSubcategory.name
+          } : null
+        });
+
+        // Filter by category and subcategory
+        const filteredPrompts = promptsData.filter(prompt => {
+          // Show all prompts if no category is selected or if "all-prompts" is selected
+          if (!selectedCategory || selectedCategory.id === 'all-prompts') {
+            return true;
           }
 
-          // Fetch user's public prompts
-          const publicPromptsRef = ref(db, 'prompts');
-          try {
-            const publicSnapshot = await get(publicPromptsRef);
-            if (publicSnapshot.exists()) {
-              const publicPrompts = Object.entries(publicSnapshot.val())
-                .filter(([_, data]: [string, any]) => data.userId === user.uid)
-                .map(([id, data]: [string, any]) => ({
-                  id: `public-${id}`,
-                  ...data,
-                  isPrivate: false
-                }));
-              promptsToShow.push(...publicPrompts);
-            }
-          } catch (error) {
-            console.error('Error fetching public prompts:', error);
+          // Show user's prompts for "my-prompts"
+          if (selectedCategory.id === 'my-prompts') {
+            return prompt.userId === user.uid;
           }
-        } else if (selectedCategory) {
-          // Fetch prompts based on selected category
-          if (selectedCategory.isPrivate) {
-            // Only fetch private prompts if user has access
-            if (hasAccess) {
-              const privatePromptsRef = ref(db, `users/${user.uid}/prompts`);
-              try {
-                const privateSnapshot = await get(privatePromptsRef);
-                if (privateSnapshot.exists()) {
-                  const privatePrompts = Object.entries(privateSnapshot.val())
-                    .filter(([_, data]: [string, any]) => {
-                      const categoryMatch = data.categoryId === selectedCategory.id;
-                      if (!selectedSubcategory) return categoryMatch;
-                      return categoryMatch && data.subcategoryId === selectedSubcategory.id;
-                    })
-                    .map(([id, data]: [string, any]) => ({
-                      id: `private-${id}`,
-                      ...data,
-                      isPrivate: true
-                    }));
-                  promptsToShow.push(...privatePrompts);
-                }
-              } catch (error) {
-                console.error('Error fetching private prompts:', error);
-              }
-            }
-          } else {
-            // Fetch public prompts for the selected category (available to all users)
-            const publicPromptsRef = ref(db, 'prompts');
-            try {
-              const publicSnapshot = await get(publicPromptsRef);
-              if (publicSnapshot.exists()) {
-                const publicPrompts = Object.entries(publicSnapshot.val())
-                  .filter(([_, data]: [string, any]) => {
-                    const categoryMatch = data.categoryId === selectedCategory.id;
-                    if (!selectedSubcategory) return categoryMatch;
-                    return categoryMatch && data.subcategoryId === selectedSubcategory.id;
-                  })
-                  .map(([id, data]: [string, any]) => ({
-                    id: `public-${id}`,
-                    ...data,
-                    isPrivate: false
-                  }));
-                promptsToShow.push(...publicPrompts);
-              }
-            } catch (error) {
-              console.error('Error fetching public prompts:', error);
-            }
+
+          // For specific category filtering
+          const categoryMatch = selectedCategory.id === prompt.categoryId;
+          console.log('Category match check:', {
+            promptId: prompt.id,
+            promptCategoryId: prompt.categoryId,
+            selectedCategoryId: selectedCategory.id,
+            match: categoryMatch
+          });
+
+          if (!categoryMatch) {
+            return false;
           }
-        }
-        
-        console.log('Final prompts to show:', promptsToShow);
-        
-        // Sort all prompts by creation date
-        promptsToShow.sort((a, b) => 
+
+          // For subcategory filtering
+          if (selectedSubcategory) {
+            const subcategoryMatch = selectedSubcategory.id === prompt.subcategoryId;
+            console.log('Subcategory match check:', {
+              promptId: prompt.id,
+              promptSubcategoryId: prompt.subcategoryId,
+              selectedSubcategoryId: selectedSubcategory.id,
+              match: subcategoryMatch
+            });
+            return subcategoryMatch;
+          }
+
+          return true;
+        });
+
+        console.log('Filtered prompts:', filteredPrompts);
+
+        // Sort prompts by creation date
+        const sortedPrompts = filteredPrompts.sort((a, b) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        
-        setPrompts(promptsToShow);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching prompts:', error);
-        setError('Failed to load prompts');
-        setLoading(false);
-      }
-    };
 
-    fetchPrompts();
+        setPrompts(sortedPrompts);
+      } else {
+        console.log('No prompts found in Firebase');
+        setPrompts([]);
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribePrompts();
+    };
   }, [user, selectedCategory, selectedSubcategory]);
 
   const createSlug = (title: string) => {
@@ -479,8 +399,7 @@ export default function DashboardPage() {
           content={prompt.content || ''}
           tags={prompt.tags || []}
           userId={prompt.userId}
-          category={prompt.category || ''}
-          subcategory={prompt.subcategory || ''}
+          category={prompt.category}
           onDelete={(id) => handleDelete(id)}
           onCopy={(content) => handleCopy(content)}
           onClick={() => handleEdit(prompt)}
@@ -552,15 +471,14 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {activeTab === 'prompts' ? (
+        {activeTab === 'prompts' && (
           <>
             {/* File Path Bar */}
-            <div className="bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4 mx-4 mb-8 flex items-center gap-2 group hover:border-[#00ffff]/20 transition-all duration-300">
+            <div className="bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4 mx-4 mb-4 flex items-center gap-2 group hover:border-[#00ffff]/20 transition-all duration-300">
               <div className="flex items-center gap-2 text-sm">
                 <button 
                   onClick={() => {
                     setSelectedCategory(null);
-                    setSelectedSubcategory(null);
                   }}
                   className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors duration-200 flex items-center gap-1.5"
                 >
@@ -573,7 +491,6 @@ export default function DashboardPage() {
                     <button 
                       onClick={() => {
                         setSelectedCategory(selectedCategory);
-                        setSelectedSubcategory(null);
                       }}
                       className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors duration-200 flex items-center gap-1.5"
                     >
@@ -589,27 +506,45 @@ export default function DashboardPage() {
                         </span>
                       </>
                     )}
-                    {currentSubcategory && (
-                      <>
-                        <span className="text-[#00ffff]/40">/</span>
-                        <span className="text-[#00ffff] flex items-center gap-1.5">
-                          <DocumentTextIcon className="h-4 w-4" />
-                          {currentSubcategory.name}
-                        </span>
-                      </>
-                    )}
                   </>
                 )}
               </div>
-              <div className="ml-auto flex items-center gap-2 px-3 py-1 rounded-full bg-[#00ffff]/5 border border-[#00ffff]/10">
-                <DocumentIcon className="h-4 w-4 text-[#00ffff]/60" />
+              <div className="ml-auto px-3 py-1 rounded-full bg-[#00ffff]/5 border border-[#00ffff]/10">
                 <span className="text-[#00ffff]/60 text-sm">
                   {prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
                 </span>
               </div>
             </div>
 
-            {/* Prompts Grid */}
+            {/* View Toggle */}
+            <div className="flex justify-end mx-4 mb-4">
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setViewMode('card')}
+                  className={`flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    viewMode === 'card'
+                      ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Squares2X2Icon className="h-4 w-4" />
+                  Card
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <ListBulletIcon className="h-4 w-4" />
+                  List
+                </button>
+              </div>
+            </div>
+
+            {/* Prompts Content */}
             {loading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
@@ -618,14 +553,14 @@ export default function DashboardPage() {
               <div className="text-center py-12">
                 <p className="text-white/60 mb-4">
                   {selectedCategory 
-                    ? `No prompts found in this ${selectedSubcategory ? 'subcategory' : 'category'}.`
+                    ? `No prompts found in this category.`
                     : "You haven't created any prompts yet."}
                 </p>
               </div>
             ) : (
               <>
-                <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 ${isSidebarCollapsed ? '2xl:grid-cols-5' : ''} gap-6`}>
-                  {promptsWithAds}
+                <div className="mx-4">
+                  <PromptList prompts={prompts} visibility={selectedCategory?.id === 'my-prompts' ? 'all' : selectedCategory?.isPrivate ? 'private' : 'public'} />
                 </div>
                 {visibleCount < prompts.length && (
                   <div className="text-center py-8 mt-8">
@@ -639,26 +574,34 @@ export default function DashboardPage() {
                 )}
               </>
             )}
-
-            {selectedPrompt && selectedPrompt.id && (
-              <PromptModal
-                prompt={selectedPrompt}
-                onCloseAction={handleCloseModal}
-                onEditAction={handleEditInModal}
-                onDeleteAction={handleDelete}
-              />
-            )}
           </>
-        ) : activeTab === 'generator' ? (
+        )}
+
+        {activeTab === 'generator' && (
           <div className="mx-4">
             <PromptGenerator />
           </div>
-        ) : activeTab === 'coach' ? (
+        )}
+
+        {activeTab === 'coach' && (
           <div className="mx-4">
             <PromptCoach />
           </div>
-        ) : (
-          <ProfileSettings />
+        )}
+
+        {activeTab === 'profile' && (
+          <div className="mx-4">
+            <ProfileSettings />
+          </div>
+        )}
+
+        {selectedPrompt && selectedPrompt.id && (
+          <PromptModal
+            prompt={selectedPrompt}
+            onCloseAction={handleCloseModal}
+            onEditAction={handleEditInModal}
+            onDeleteAction={handleDelete}
+          />
         )}
       </div>
     </div>
