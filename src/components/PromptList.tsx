@@ -25,12 +25,18 @@ export default function PromptList({ visibility = 'all' }: PromptListProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-
     const promptsRef = ref(db, 'prompts');
-    const userPromptsQuery = query(promptsRef, orderByChild('userId'), equalTo(user.uid));
+    let promptsQuery;
 
-    const unsubscribe = onValue(userPromptsQuery, (snapshot) => {
+    if (user) {
+      // If user is logged in, get their prompts
+      promptsQuery = query(promptsRef, orderByChild('userId'), equalTo(user.uid));
+    } else {
+      // If no user, get all public prompts
+      promptsQuery = promptsRef;
+    }
+
+    const unsubscribe = onValue(promptsQuery, (snapshot) => {
       if (!snapshot.val()) {
         setPrompts([]);
         setLoading(false);
@@ -44,6 +50,11 @@ export default function PromptList({ visibility = 'all' }: PromptListProps) {
 
       // Filter prompts based on visibility
       const filteredPrompts = promptsData.filter(prompt => {
+        if (!user) {
+          // For unauthenticated users, only show public prompts
+          return !prompt.visibility || prompt.visibility === 'public';
+        }
+        
         if (visibility === 'public') {
           return !prompt.visibility || prompt.visibility === 'public';
         } else if (visibility === 'private') {
@@ -57,7 +68,7 @@ export default function PromptList({ visibility = 'all' }: PromptListProps) {
     });
 
     return () => {
-      off(userPromptsQuery);
+      off(promptsQuery);
     };
   }, [user, visibility]);
 
