@@ -48,10 +48,11 @@ export async function middleware(request: NextRequest) {
   // Add Content Security Policy
   response.headers.set('Content-Security-Policy', 
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://*.google-analytics.com; " +
     "style-src 'self' 'unsafe-inline'; " +
     "img-src 'self' data: https:; " +
-    "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com; " +
+    "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com https://*.google-analytics.com; " +
+    "frame-src 'self' https://*.firebaseio.com https://*.firebaseapp.com https://*.stripe.com; " +
     "frame-ancestors 'none';"
   );
 
