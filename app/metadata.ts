@@ -2,6 +2,11 @@ import { Metadata } from 'next';
 
 const defaultKeywords = [
   'AI prompts',
+  'image prompts',
+  'text prompts',
+  'video prompts',
+  'audio prompts',
+  'prompt optimization',
   'prompt engineering',
   'ChatGPT prompts',
   'AI writing',
@@ -21,7 +26,7 @@ export const defaultMetadata: Metadata = {
     default: 'Prompts For Everyone - AI Prompt Library & Engineering Platform',
     template: '%s | Prompts For Everyone'
   },
-  description: 'Discover and share AI prompts across various categories. Access a curated collection of prompts for ChatGPT, writing, coding, and more. Join our community of prompt engineers.',
+  description: 'Discover, organize, & share AI-powered prompts in a library built for creativity',
   keywords: defaultKeywords,
   authors: [{ name: 'Prompts For Everyone Team' }],
   creator: 'Prompts For Everyone',

@@ -194,7 +194,8 @@ export async function GET(request: NextRequest) {
           
           acc[id] = {
             ...data,
-            likes: voteCount // Update likes field with actual vote count
+            likes: voteCount, // Update likes field with actual vote count
+            visibility: data.visibility || 'public' // Ensure visibility is preserved and default to public
           };
         }
         return acc;
