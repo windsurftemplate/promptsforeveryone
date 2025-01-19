@@ -20,7 +20,7 @@ function validateRequest(request: NextRequest) {
   // Check origin in production
   if (process.env.NODE_ENV === 'production') {
     const origin = request.headers.get('origin');
-    if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
+    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
       console.log('Unauthorized origin:', origin);
       return NextResponse.json(
         { error: 'Unauthorized origin' },
