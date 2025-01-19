@@ -4,10 +4,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import { useAuth } from '@/contexts/AuthContext';
-import { Prompt } from '@/types';
+import { Prompt } from '@/types/prompt';
 import { ChartBarIcon, FireIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import PromptModal from '@/components/PromptModal';
 
 export default function PopularPromptsPage() {
   const { user } = useAuth();
@@ -16,6 +17,7 @@ export default function PopularPromptsPage() {
   const [error, setError] = useState<string | null>(null);
   const [timeFilter, setTimeFilter] = useState<'all' | 'week' | 'month'>('all');
   const [visibleCount, setVisibleCount] = useState(20);
+  const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -33,8 +35,8 @@ export default function PopularPromptsPage() {
           .map(([id, data]: [string, any]) => ({
             id,
             ...data,
-            votes: data.likes || 0
-          } as Prompt & { votes: number }));
+            likes: data.likes || 0
+          } as Prompt & { likes: number }));
 
         // Filter by time if needed
         if (timeFilter !== 'all') {
@@ -51,8 +53,8 @@ export default function PopularPromptsPage() {
           );
         }
 
-        // Sort by votes (descending)
-        promptsData.sort((a, b) => (b.votes ?? 0) - (a.votes ?? 0));
+        // Sort by likes (descending)
+        promptsData.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
         // Limit to top 100 prompts
         setPrompts(promptsData.slice(0, 100));
       } catch (error) {
@@ -105,12 +107,41 @@ export default function PopularPromptsPage() {
       setPrompts(currentPrompts => 
         currentPrompts.map(prompt => 
           prompt.id === `public-${promptId}` 
-            ? { ...prompt, votes: updatedPrompt.likes || 0 }
+            ? { ...prompt, likes: updatedPrompt.likes || 0 }
             : prompt
         )
       );
     } catch (error) {
       console.error('Error updating like:', error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPrompt(null);
+  };
+
+  const handleEditInModal = (prompt: Prompt) => {
+    // Update the prompt in the list
+    setPrompts(currentPrompts =>
+      currentPrompts.map(p => p.id === prompt.id ? prompt : p)
+    );
+  };
+
+  const handleDeletePrompt = async (id: string) => {
+    try {
+      const response = await fetch(`/api/prompts/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove the prompt from the list
+        setPrompts(currentPrompts => 
+          currentPrompts.filter(p => p.id !== id)
+        );
+        setSelectedPrompt(null);
+      }
+    } catch (error) {
+      console.error('Error deleting prompt:', error);
     }
   };
 
@@ -175,7 +206,7 @@ export default function PopularPromptsPage() {
             <div>
               <p className="text-white/60">Most Voted</p>
               <p className="text-2xl font-bold text-white">
-                {(prompts[0]?.votes ?? 0).toString()} votes
+                {(prompts[0]?.likes ?? 0).toString()} likes
               </p>
               <p className="text-sm text-white/60">
                 {prompts[0]?.title || 'No prompts yet'}
@@ -213,10 +244,10 @@ export default function PopularPromptsPage() {
               </svg>
             </div>
             <div>
-              <p className="text-white/60">Average Votes</p>
+              <p className="text-white/60">Average Likes</p>
               <p className="text-2xl font-bold text-white">
                 {prompts.length > 0 
-                  ? (prompts.reduce((acc, p) => acc + (p.votes ? Object.keys(p.votes).length : 0), 0) / prompts.length).toFixed(1)
+                  ? (prompts.reduce((acc, p) => acc + (p.likes || 0), 0) / prompts.length).toFixed(1)
                   : '0'}
               </p>
               <p className="text-sm text-white/60">Per prompt</p>
@@ -242,70 +273,41 @@ export default function PopularPromptsPage() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4, delay: prompts.indexOf(prompt) * 0.1 }}
                 >
-                  <Link 
-                    href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
+                  <div 
+                    onClick={() => setSelectedPrompt(prompt)}
+                    className="cursor-pointer"
                   >
-                    <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
-                      <div className="flex flex-col h-full">
-                        <div className="mb-4">
+                    <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-[180px] bg-black/30">
+                      <div className="flex flex-col justify-between h-full">
+                        <div>
                           <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
+                            <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors truncate pr-4">
                               {prompt.title}
                             </h3>
-                            <span className="flex items-center text-[#00ffff] bg-[#00ffff]/10 px-2 py-1 rounded">
-                              <FireIcon className="h-4 w-4 mr-1" />
-                              {(prompt.votes ?? 0).toString()}
-                            </span>
+                            <div className="flex items-center text-[#00ffff] shrink-0">
+                              <span>{prompt.likes ?? 0}</span>
+                            </div>
                           </div>
-                          <p className="text-white/70 text-sm line-clamp-2 mb-2">
-                            {prompt.description}
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-white/50">
-                            <span className="bg-[#00ffff]/5 px-2 py-1 rounded">
-                              {new Date(prompt.createdAt).toLocaleDateString()}
-                            </span>
-                            {prompt.category && (
-                              <>
-                                <span>•</span>
-                                <span className="bg-[#00ffff]/5 px-2 py-1 rounded">
-                                  {prompt.category}
-                                </span>
-                              </>
-                            )}
+
+                          <div className="flex items-center gap-2 text-sm text-white/50">
+                            <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
-                        
-                        <div className="mt-auto">
-                          {prompt.tags && prompt.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mb-4">
-                              {prompt.tags.map((tag, index) => (
-                                <span 
-                                  key={`${prompt.id}-tag-${index}`}
-                                  className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          
-                          <div className="flex justify-between items-center text-sm">
-                            <div className="flex items-center gap-2 text-white/50">
-                              <span className="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                {prompt.userName}
-                              </span>
-                            </div>
-                            <span className="text-[#00ffff]/60 text-xs">
-                              {timeFilter === 'all' ? 'Rank #' + (prompts.indexOf(prompt) + 1) : ''}
-                            </span>
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center text-white/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span className="truncate max-w-[120px]">{prompt.userName}</span>
                           </div>
+                          <span className="text-[#00ffff]/60 shrink-0">
+                            Rank #{prompts.indexOf(prompt) + 1}
+                          </span>
                         </div>
                       </div>
                     </Card>
-                  </Link>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -318,6 +320,15 @@ export default function PopularPromptsPage() {
                 </div>
                 <p className="text-white/60 mt-2">Scroll down to load more prompts</p>
               </div>
+            )}
+            {selectedPrompt && (
+              <PromptModal
+                prompt={selectedPrompt}
+                onCloseAction={handleCloseModal}
+                onEditAction={() => {}}
+                onDeleteAction={() => {}}
+                isReadOnly={true}
+              />
             )}
           </>
         )}

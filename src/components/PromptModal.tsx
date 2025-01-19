@@ -13,6 +13,7 @@ interface PromptModalProps {
   onCloseAction: () => void;
   onEditAction: (prompt: Prompt) => void;
   onDeleteAction: (id: string) => void;
+  isReadOnly?: boolean;
 }
 
 interface Category {
@@ -20,12 +21,12 @@ interface Category {
   name: string;
 }
 
-export default function PromptModal({ prompt, onCloseAction, onEditAction, onDeleteAction }: PromptModalProps) {
+export default function PromptModal({ prompt, onCloseAction, onEditAction, onDeleteAction, isReadOnly = false }: PromptModalProps) {
   const { user } = useAuth();
   const [editedPrompt, setEditedPrompt] = useState<Prompt>(prompt);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [copied, setCopied] = useState(false);
-  const isCreator = user?.uid === prompt.userId;
+  const isCreator = user?.uid === prompt.userId && !isReadOnly;
 
   useEffect(() => {
     setEditedPrompt(prompt);
@@ -103,47 +104,49 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
             />
           </div>
 
-          <div className="flex justify-between items-center text-white/60">
-            <div className="flex items-center gap-2">
-              <span className="text-[#00ffff]">Category:</span>
-              {isCreator && isEditingCategory ? (
-                <div className="flex flex-col gap-2">
-                  <select
-                    value={editedPrompt.category}
-                    onChange={(e) => handleCategoryChange(e.target.value as PromptCategory)}
-                    className="w-full p-2 rounded bg-black/50 border border-[#00ffff]/20"
-                  >
-                    <option value="">Select a category</option>
-                    {['General', 'Development', 'Design', 'Writing', 'Business', 'Education', 'Other'].map((category) => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    onClick={() => setIsEditingCategory(false)}
-                    className="bg-[#00ffff]/20 hover:bg-[#00ffff]/30 text-[#00ffff] px-3 py-1 rounded text-sm"
-                  >
-                    Done
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
-                    {editedPrompt.category}
-                  </span>
-                  {isCreator && (
-                    <button
-                      onClick={() => setIsEditingCategory(true)}
-                      className="text-white/60 hover:text-[#00ffff] transition-colors"
+          {!isReadOnly && (
+            <div className="flex justify-between items-center text-white/60">
+              <div className="flex items-center gap-2">
+                <span className="text-[#00ffff]">Category:</span>
+                {isCreator && isEditingCategory ? (
+                  <div className="flex flex-col gap-2">
+                    <select
+                      value={editedPrompt.category}
+                      onChange={(e) => handleCategoryChange(e.target.value as PromptCategory)}
+                      className="w-full p-2 rounded bg-black/50 border border-[#00ffff]/20"
                     >
-                      <PencilIcon className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )}
+                      <option value="">Select a category</option>
+                      {['General', 'Development', 'Design', 'Writing', 'Business', 'Education', 'Other'].map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      onClick={() => setIsEditingCategory(false)}
+                      className="bg-[#00ffff]/20 hover:bg-[#00ffff]/30 text-[#00ffff] px-3 py-1 rounded text-sm"
+                    >
+                      Done
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
+                      {editedPrompt.category}
+                    </span>
+                    {isCreator && (
+                      <button
+                        onClick={() => setIsEditingCategory(true)}
+                        className="text-white/60 hover:text-[#00ffff] transition-colors"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {isCreator && (
             <div className="flex justify-end">
