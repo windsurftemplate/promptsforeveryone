@@ -7,6 +7,8 @@ import { useRouter, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeftIcon, ClipboardIcon, ShareIcon, HeartIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import AdDisplay from '@/components/AdDisplay';
+import { ads } from '@/config/ads';
 
 interface Subcategory {
   name: string;
@@ -29,6 +31,7 @@ export default function PromptPage() {
   const [isLiked, setIsLiked] = useState(false);
   const [subcategoryName, setSubcategoryName] = useState<string>('');
   const [categoryName, setCategoryName] = useState<string>('');
+  const [localAds] = useState(ads);
 
   useEffect(() => {
     const fetchPrompt = async () => {
@@ -210,6 +213,18 @@ export default function PromptPage() {
       
       {/* Content */}
       <div className="relative z-10">
+        {/* Banner ad for non-pro users */}
+        {!user?.isPro && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="container mx-auto px-4 pt-8"
+          >
+            <AdDisplay ad={localAds.find(ad => ad.type === 'banner') ?? localAds[0]} />
+          </motion.div>
+        )}
+
         <div className="container mx-auto px-4 py-12">
           {/* Navigation */}
           <motion.div

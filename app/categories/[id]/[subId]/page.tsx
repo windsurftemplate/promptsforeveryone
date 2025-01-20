@@ -7,6 +7,9 @@ import Card from '@/components/ui/Card';
 import Script from 'next/script';
 import VoteButton from '@/components/ui/VoteButton';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import AdDisplay from '@/components/AdDisplay';
+import { ads } from '@/config/ads';
 
 interface Prompt {
   id: string;
@@ -35,12 +38,14 @@ interface Subcategory {
 }
 
 export default function SubcategoryPage({ params }: Props) {
+  const { user } = useAuth();
   const { id: categoryId, subId: subcategoryId } = React.use(params);
   const [categoryName, setCategoryName] = useState('');
   const [subcategoryName, setSubcategoryName] = useState('');
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
+  const [localAds] = useState(ads);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -245,8 +250,20 @@ export default function SubcategoryPage({ params }: Props) {
         {JSON.stringify(structuredData)}
       </Script>
       <div className="min-h-screen bg-black">
+        {/* Banner ad for non-pro users */}
+        {!user?.isPro && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="container mx-auto px-4 pt-8"
+          >
+            <AdDisplay ad={localAds.find(ad => ad.type === 'banner') ?? localAds[0]} />
+          </motion.div>
+        )}
+
         {/* Breadcrumb Navigation */}
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 pt-8">
           <div className="flex items-center gap-2 text-sm text-white/60">
             <Link 
               href="/categories"

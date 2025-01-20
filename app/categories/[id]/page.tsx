@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Script from 'next/script';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import AdDisplay from '@/components/AdDisplay';
+import { ads } from '@/config/ads';
 
 interface Category {
   id: string;
@@ -25,9 +28,11 @@ interface Props {
 }
 
 export default function CategoryPage({ params }: Props) {
+  const { user } = useAuth();
   const { id: categoryId } = React.use(params);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  const [localAds] = useState(ads);
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -111,8 +116,20 @@ export default function CategoryPage({ params }: Props) {
         {JSON.stringify(structuredData)}
       </Script>
       <div className="min-h-screen bg-black">
+        {/* Banner ad for non-pro users */}
+        {!user?.isPro && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="container mx-auto px-4 pt-8"
+          >
+            <AdDisplay ad={localAds.find(ad => ad.type === 'banner') ?? localAds[0]} />
+          </motion.div>
+        )}
+
         {/* Breadcrumb Navigation */}
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 pt-8">
           <div className="flex items-center gap-2 text-sm text-white/60">
             <Link 
               href="/categories"

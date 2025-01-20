@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { db } from '@/lib/firebase';
 import { Prompt } from '@/types/prompt';
 import { ref, onValue, query, orderByChild, equalTo, off, remove, get, update } from 'firebase/database';
@@ -12,13 +13,18 @@ import DeleteConfirmationDialog from './ui/DeleteConfirmationDialog';
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptCard from './PromptCard';
 import PromptModal from './PromptModal';
+import { motion } from 'framer-motion';
+import { Ad } from '@/config/ads';
+import AdDisplay from './AdDisplay';
 
 interface PromptListProps {
   visibility?: 'all' | 'public' | 'private';
   prompts?: Prompt[];
+  ads?: Ad[];
+  adFrequency?: number;
 }
 
-export default function PromptList({ visibility = 'all', prompts: propPrompts }: PromptListProps) {
+export default function PromptList({ visibility = 'all', prompts: propPrompts, ads = [], adFrequency = 5 }: PromptListProps) {
   const [localPrompts, setPrompts] = useState<Prompt[]>([]);
   const [visiblePrompts, setVisiblePrompts] = useState<Prompt[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
@@ -209,150 +215,153 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts }:
     }
   };
 
-  const filteredPrompts = localPrompts.filter((prompt) => {
-    if (visibility === 'public') {
-      return !prompt.visibility || prompt.visibility === 'public';
-    } else if (visibility === 'private') {
-      return prompt.visibility === 'private';
-    }
-    return true;
-  });
-
-  const renderCardView = () => (
-    <>
-      <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${
-        isSidebarCollapsed 
-          ? 'xl:grid-cols-5' 
-          : 'xl:grid-cols-4'
-      }`}>
-        {visiblePrompts.map((prompt) => (
-          <PromptCard
-            key={prompt.id}
-            id={prompt.id || ''}
-            title={prompt.title || ''}
-            description={prompt.description || ''}
-            content={prompt.content || ''}
-            tags={prompt.tags || []}
-            userId={prompt.userId}
-            category={prompt.category}
-            onDelete={() => handleDeleteClick(prompt)}
-            onCopy={(content) => navigator.clipboard.writeText(content)}
-            onClick={() => handleEdit(prompt)}
-          />
-        ))}
-      </div>
-      {visibleCount < localPrompts.length && (
-        <div className="text-center py-8">
-          <div className="animate-bounce">
-            <svg className="w-6 h-6 text-[#00ffff] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
-          <p className="text-white/60 mt-2">Scroll down to load more prompts</p>
-        </div>
-      )}
-    </>
-  );
-
   const renderListView = () => (
-    <>
-      <div className="space-y-4">
-        {visiblePrompts.slice(0, Math.min(visibleCount / 4, localPrompts.length)).map((prompt) => (
-          <div
-            key={prompt.id}
-            className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/50 transition-all duration-300"
-            onClick={() => handleEdit(prompt)}
+    <div className="space-y-4">
+      {visiblePrompts.map((prompt, index) => (
+        <React.Fragment key={prompt.id}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">{prompt.title}</h3>
-                <div className="flex items-center gap-4 text-sm text-white/60">
-                  <span>Created {new Date(prompt.createdAt).toLocaleDateString()}</span>
-                  <span>•</span>
-                  <span className={`px-2 py-1 rounded ${
-                    prompt.visibility === 'private' 
-                      ? 'bg-gray-100/10 text-gray-100'
-                      : 'bg-green-100/10 text-green-400'
-                  }`}>
-                    {prompt.visibility}
-                  </span>
+            <div 
+              onClick={() => handleEdit(prompt)}
+              className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/50 transition-all duration-300"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-semibold text-white mb-2">{prompt.title}</h3>
+                  <div className="flex items-center gap-4 text-sm text-white/60">
+                    <span>Created {new Date(prompt.createdAt).toLocaleDateString()}</span>
+                    <span>•</span>
+                    <span className={`px-2 py-1 rounded ${
+                      prompt.visibility === 'private' 
+                        ? 'bg-gray-100/10 text-gray-100'
+                        : 'bg-green-100/10 text-green-400'
+                    }`}>
+                      {prompt.visibility}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopy(prompt.content, prompt.id);
+                    }}
+                    className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                  >
+                    {copyFeedback === prompt.id ? 'Copied!' : 'Copy'}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShare(prompt);
+                    }}
+                    className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                  >
+                    {copyFeedback === `share-${prompt.id}` ? 'URL Copied!' : 'Share'}
+                  </Button>
+                  {user && prompt.userId === user.uid && (
+                    <>
+                      <Button
+                        variant="primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(prompt);
+                        }}
+                        className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(prompt);
+                        }}
+                        className="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-md"
+                      >
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
-              <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                <Button
-                  variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCopy(prompt.content, prompt.id);
-                  }}
-                  className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
-                >
-                  {copyFeedback === prompt.id ? 'Copied!' : 'Copy'}
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleShare(prompt);
-                  }}
-                  className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
-                >
-                  {copyFeedback === `share-${prompt.id}` ? 'URL Copied!' : 'Share'}
-                </Button>
-                {user && prompt.userId === user.uid && (
-                  <>
-                    <Button
-                      variant="primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(prompt);
-                      }}
-                      className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="primary"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteClick(prompt);
-                      }}
-                      className="text-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 px-4 py-2 rounded-md"
-                    >
-                      Delete
-                    </Button>
-                  </>
-                )}
+              <p className="text-white/80 mt-4">{prompt.content}</p>
+              <div className="flex gap-2 mt-4">
+                <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
+                  {prompt.category}
+                </span>
+              </div>
+              <div className="flex items-center text-sm text-white/60 mt-4">
+                <span className="mr-4">
+                  <span className="font-medium">{prompt.likes || 0}</span> likes
+                </span>
+                <span>
+                  <span className="font-medium">{prompt.downloads || 0}</span> downloads
+                </span>
               </div>
             </div>
-            <p className="text-white/80 mt-4">{prompt.content}</p>
-            <div className="flex gap-2 mt-4">
-              <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
-                {prompt.category}
-              </span>
-            </div>
-            <div className="flex items-center text-sm text-white/60 mt-4">
-              <span className="mr-4">
-                <span className="font-medium">{prompt.likes || 0}</span> likes
-              </span>
-              <span>
-                <span className="font-medium">{prompt.downloads || 0}</span> downloads
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-      {visibleCount / 4 < localPrompts.length && (
-        <div className="text-center py-8">
-          <div className="animate-bounce">
-            <svg className="w-6 h-6 text-[#00ffff] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
-          </div>
-          <p className="text-white/60 mt-2">Scroll down to load more prompts</p>
-        </div>
-      )}
-    </>
+          </motion.div>
+          {/* Insert inline ad after every nth prompt */}
+          {ads.length > 0 && (index + 1) % adFrequency === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="h-[180px] bg-black/30 border border-[#00ffff]/20 rounded-lg p-4"
+            >
+              <AdDisplay ad={ads[Math.floor(Math.random() * ads.length)]} />
+            </motion.div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+
+  const renderPrompts = () => (
+    <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${
+      isSidebarCollapsed 
+        ? 'xl:grid-cols-5' 
+        : 'xl:grid-cols-4'
+    }`}>
+      {visiblePrompts.map((prompt, index) => (
+        <React.Fragment key={prompt.id}>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+          >
+            <PromptCard
+              id={prompt.id || ''}
+              title={prompt.title || ''}
+              description={prompt.description || ''}
+              content={prompt.content || ''}
+              tags={prompt.tags || []}
+              userId={prompt.userId}
+              category={prompt.category}
+              onDelete={() => handleDeleteClick(prompt)}
+              onCopy={(content) => handleCopy(content, prompt.id || '')}
+              onClick={() => handleEdit(prompt)}
+            />
+          </motion.div>
+          {/* Insert inline ad after every nth prompt */}
+          {ads.length > 0 && (index + 1) % adFrequency === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="h-[180px] bg-black/30 border border-[#00ffff]/20 rounded-lg p-4"
+            >
+              <AdDisplay ad={ads[Math.floor(Math.random() * ads.length)]} />
+            </motion.div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
   );
 
   if (loading) {
@@ -390,7 +399,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts }:
           <p className="text-white/60 mt-1">Total prompts: {localPrompts.length}</p>
         </div>
 
-        {viewMode === 'card' ? renderCardView() : renderListView()}
+        {viewMode === 'card' ? renderPrompts() : renderListView()}
       </div>
 
       {selectedPrompt && selectedPrompt.id && (

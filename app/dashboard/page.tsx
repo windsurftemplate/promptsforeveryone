@@ -15,9 +15,10 @@ import ProfileSettings from '@/components/dashboard/ProfileSettings';
 import { default as PromptGenerator } from '@/components/prompt-generator/PromptGenerator';
 import { default as PromptCoach } from '@/components/prompt-coach/PromptCoach';
 import AdDisplay from '@/components/AdDisplay';
-import { ads as staticAds } from '@/config/ads';
+import { ads } from '@/config/ads';
 import PromptList from '@/components/PromptList';
 import { Prompt, PromptCategory, PromptVisibility } from '@/types/prompt';
+import { motion } from 'framer-motion';
 
 interface Category {
   id: string;
@@ -60,7 +61,7 @@ export default function DashboardPage() {
   const [visiblePrompts, setVisiblePrompts] = useState<Prompt[]>([]);
   const [hasScrolledToThreshold, setHasScrolledToThreshold] = useState(false);
   const [visibleCount, setVisibleCount] = useState(20);
-  const [ads] = useState(staticAds.filter(ad => ad.status === 'active'));
+  const [localAds] = useState(ads);
 
   // Get current category
   const currentCategory = useMemo(() => {
@@ -379,8 +380,8 @@ export default function DashboardPage() {
   // Function to insert ads between prompts
   const promptsWithAds = useMemo(() => {
     const result = [];
-    const activeInlineAds = ads.filter(ad => ad.type === 'inline' && ad.status === 'active');
-    const activeBannerAds = ads.filter(ad => ad.type === 'banner' && ad.status === 'active');
+    const activeInlineAds = localAds.filter(ad => ad.type === 'inline' && ad.status === 'active');
+    const activeBannerAds = localAds.filter(ad => ad.type === 'banner' && ad.status === 'active');
     
     // Add banner ad at the top if available
     if (activeBannerAds.length > 0) {
@@ -416,7 +417,7 @@ export default function DashboardPage() {
     });
 
     return result;
-  }, [visiblePrompts, ads, handleDelete, handleCopy, handleEdit]);
+  }, [visiblePrompts, localAds, handleDelete, handleCopy, handleEdit]);
 
   return (
     <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">
@@ -427,6 +428,18 @@ export default function DashboardPage() {
       
       {/* Content */}
       <div className="relative py-8">
+        {/* Banner ad for non-pro users */}
+        {!user?.isPro && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="mb-8 mx-4"
+          >
+            <AdDisplay ad={localAds.find(ad => ad.type === 'banner') ?? localAds[0]} />
+          </motion.div>
+        )}
+
         {/* Tabs */}
         <div className="flex border-b border-[#00ffff]/20 mb-8 mx-4">
           <button
@@ -560,7 +573,12 @@ export default function DashboardPage() {
             ) : (
               <>
                 <div className="mx-4">
-                  <PromptList prompts={prompts} visibility={selectedCategory?.id === 'my-prompts' ? 'all' : selectedCategory?.isPrivate ? 'private' : 'public'} />
+                  <PromptList 
+                    prompts={prompts} 
+                    visibility={selectedCategory?.id === 'my-prompts' ? 'all' : selectedCategory?.isPrivate ? 'private' : 'public'} 
+                    ads={!user?.isPro ? localAds.filter(ad => ad.type === 'inline' && ad.status === 'active') : []}
+                    adFrequency={5}
+                  />
                 </div>
                 {visibleCount < prompts.length && (
                   <div className="text-center py-8 mt-8">

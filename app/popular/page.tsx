@@ -9,6 +9,9 @@ import { ChartBarIcon, FireIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import PromptModal from '@/components/PromptModal';
+import AdDisplay from '@/components/AdDisplay';
+import { ads as defaultAds } from '@/config/ads';
+import type { Ad } from '@/config/ads';
 
 export default function PopularPromptsPage() {
   const { user } = useAuth();
@@ -19,6 +22,7 @@ export default function PopularPromptsPage() {
   const [visibleCount, setVisibleCount] = useState(20);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
   const router = useRouter();
+  const [ads] = useState<Ad[]>(defaultAds);
 
   useEffect(() => {
     const fetchPrompts = async () => {
@@ -192,6 +196,16 @@ export default function PopularPromptsPage() {
           </div>
         </div>
 
+        {/* Banner Ad */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="mb-8"
+        >
+          <AdDisplay ad={ads.find(ad => ad.type === 'banner') ?? ads[0]} />
+        </motion.div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <motion.div
@@ -266,71 +280,86 @@ export default function PopularPromptsPage() {
         ) : (
           <>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {visiblePrompts.map((prompt) => (
-                <motion.div
-                  key={prompt.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.4, delay: prompts.indexOf(prompt) * 0.1 }}
-                >
-                  <div 
-                    onClick={() => setSelectedPrompt(prompt)}
-                    className="cursor-pointer"
+              {visiblePrompts.map((prompt, index) => (
+                <React.Fragment key={prompt.id}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: prompts.indexOf(prompt) * 0.1 }}
                   >
-                    <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-[180px] bg-black/30">
-                      <div className="flex flex-col justify-between h-full">
-                        <div>
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors truncate pr-4">
-                              {prompt.title}
-                            </h3>
-                            <div className="flex items-center text-[#00ffff] shrink-0">
-                              <span>{prompt.likes ?? 0}</span>
+                    <div 
+                      onClick={() => setSelectedPrompt(prompt)}
+                      className="cursor-pointer"
+                    >
+                      <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-[180px] bg-black/30">
+                        <div className="flex flex-col justify-between h-full">
+                          <div>
+                            <div className="flex justify-between items-start mb-2">
+                              <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors truncate pr-4">
+                                {prompt.title}
+                              </h3>
+                              <div className="flex items-center text-[#00ffff] shrink-0">
+                                <span>{prompt.likes ?? 0}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-white/50">
+                              <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 text-sm text-white/50">
-                            <span>{new Date(prompt.createdAt).toLocaleDateString()}</span>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center text-white/50">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              <span className="truncate max-w-[120px]">{prompt.userName}</span>
+                            </div>
+                            <span className="text-[#00ffff]/60 shrink-0">
+                              Rank #{prompts.indexOf(prompt) + 1}
+                            </span>
                           </div>
                         </div>
-
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center text-white/50">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span className="truncate max-w-[120px]">{prompt.userName}</span>
-                          </div>
-                          <span className="text-[#00ffff]/60 shrink-0">
-                            Rank #{prompts.indexOf(prompt) + 1}
-                          </span>
-                        </div>
+                      </Card>
+                    </div>
+                  </motion.div>
+                  {/* Insert inline ad after every 5th prompt */}
+                  {(index + 1) % 5 === 0 && ads.find(ad => ad.type === 'inline') && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <div className="h-[180px]">
+                        <AdDisplay ad={ads.find(ad => ad.type === 'inline')!} />
                       </div>
-                    </Card>
-                  </div>
-                </motion.div>
+                    </motion.div>
+                  )}
+                </React.Fragment>
               ))}
             </div>
+
             {visibleCount < prompts.length && (
               <div className="text-center py-8">
-                <div className="animate-bounce">
-                  <svg className="w-6 h-6 text-[#00ffff] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-                <p className="text-white/60 mt-2">Scroll down to load more prompts</p>
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 20)}
+                  className="px-6 py-2 bg-[#00ffff]/10 text-[#00ffff] rounded-lg hover:bg-[#00ffff]/20 transition-colors"
+                >
+                  Load More
+                </button>
               </div>
             )}
-            {selectedPrompt && (
-              <PromptModal
-                prompt={selectedPrompt}
-                onCloseAction={handleCloseModal}
-                onEditAction={() => {}}
-                onDeleteAction={() => {}}
-                isReadOnly={true}
-              />
-            )}
           </>
+        )}
+
+        {selectedPrompt && (
+          <PromptModal
+            prompt={selectedPrompt}
+            onCloseAction={handleCloseModal}
+            onEditAction={handleEditInModal}
+            onDeleteAction={handleDeletePrompt}
+            isReadOnly={true}
+          />
         )}
       </div>
     </div>
