@@ -10,29 +10,32 @@ import { Toaster } from 'sonner';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'PromptsForEveryone.com',
-  description: 'Organize, Discover, and Share Ideas',
+  title: 'Prompts For Everyone - AI Prompt Library Community',
+  description: 'Discover, create, and share AI prompts with the largest prompt engineering community',
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   ),
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/logo.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.png', type: 'image/png' }
+    ],
+    shortcut: '/favicon.png',
+    apple: '/apple-touch-icon.png',
     other: {
       rel: 'apple-touch-icon-precomposed',
-      url: '/logo.svg',
+      url: '/apple-touch-icon.png',
     },
   },
   openGraph: {
-    title: 'Prompts For Everyone',
-    description: 'Discover, create, and share AI prompts',
+    title: 'Prompts For Everyone - AI Prompt Library Community',
+    description: 'Discover, create, and share AI prompts with the largest prompt engineering community',
     images: ['/og-image.jpg'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Prompts For Everyone',
-    description: 'Discover, create, and share AI prompts',
+    title: 'Prompts For Everyone - AI Prompt Library Community',
+    description: 'Discover, create, and share AI prompts with the largest prompt engineering community',
     images: ['/og-image.jpg'],
   },
 };

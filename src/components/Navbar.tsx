@@ -91,7 +91,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="relative w-8 h-8 transition-transform duration-300 group-hover:scale-110">
                 <Image 
-                  src="/logo.svg" 
+                  src="/logo.png" 
                   alt="Logo" 
                   fill
                   className="object-contain"
