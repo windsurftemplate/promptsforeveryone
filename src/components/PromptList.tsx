@@ -322,41 +322,38 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
     </div>
   );
 
-  const renderPrompts = () => (
-    <div className={`grid gap-6 md:grid-cols-2 lg:grid-cols-3 ${
-      isSidebarCollapsed 
-        ? 'xl:grid-cols-5' 
-        : 'xl:grid-cols-4'
-    }`}>
+  const renderGridView = () => (
+    <div className={`grid grid-cols-1 ${isSidebarCollapsed ? 'md:grid-cols-3 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
       {visiblePrompts.map((prompt, index) => (
         <React.Fragment key={prompt.id}>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
+            className="h-[180px]"
           >
             <PromptCard
-              id={prompt.id || ''}
-              title={prompt.title || ''}
+              id={prompt.id}
+              title={prompt.title}
               description={prompt.description || ''}
-              content={prompt.content || ''}
+              content={prompt.content}
               tags={prompt.tags || []}
               userId={prompt.userId}
               category={prompt.category}
               onDelete={() => handleDeleteClick(prompt)}
-              onCopy={(content) => handleCopy(content, prompt.id || '')}
+              onCopy={(content) => handleCopy(content, prompt.id)}
               onClick={() => handleEdit(prompt)}
             />
           </motion.div>
-          {/* Insert inline ad after every nth prompt */}
-          {ads.length > 0 && (index + 1) % adFrequency === 0 && (
+          {/* Insert ad after every nth prompt for non-pro users */}
+          {!user?.isPro && ads.length > 0 && (index + 1) % adFrequency === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="h-[180px] bg-black/30 border border-[#00ffff]/20 rounded-lg p-4"
+              className="h-[180px]"
             >
-              <AdDisplay ad={ads[Math.floor(Math.random() * ads.length)]} />
+              <AdDisplay ad={ads.find(ad => ad.type === 'inline') ?? ads[0]} />
             </motion.div>
           )}
         </React.Fragment>
@@ -399,7 +396,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
           <p className="text-white/60 mt-1">Total prompts: {localPrompts.length}</p>
         </div>
 
-        {viewMode === 'card' ? renderPrompts() : renderListView()}
+        {viewMode === 'card' ? renderGridView() : renderListView()}
       </div>
 
       {selectedPrompt && selectedPrompt.id && (

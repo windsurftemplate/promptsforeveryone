@@ -31,6 +31,56 @@ A modern web platform for sharing and managing AI prompts with a focus on catego
 - AI Prompt Coach
 - Prompt Generator
 
+## UI Components
+
+### PromptCard
+The PromptCard component is a key UI element used throughout the application for displaying prompts. It features:
+- Fixed height of 180px for consistent layout
+- Responsive design with hover effects
+- Title truncation for long titles
+- Description with 2-line clamp
+- Tag display with custom styling
+- Social sharing buttons (Twitter, Facebook, LinkedIn, WhatsApp)
+- Copy to clipboard functionality
+- Delete option for prompt creators
+- Consistent styling:
+  ```css
+  - Background: black/30 opacity
+  - Border: cyan with 20% opacity
+  - Hover: cyan border with 50% opacity
+  - Rounded corners
+  - Padding: 1.5rem (p-6)
+  ```
+
+### Navigation
+- Desktop and mobile-responsive navigation
+- Dropdown menus for Product and Resources
+- Dynamic menu items based on user role
+- Smooth hover transitions
+- Authentication state management
+
+### Ad Display
+- Banner ads at the top of pages
+- Inline ads every 5 prompts
+- Ad-free experience for paid users
+- Responsive ad sizing matching content
+- Microsoft Clarity integration for analytics
+
+### Dashboard Layout
+- Grid layout for prompts
+- Consistent card sizing
+- Infinite scroll loading
+- Category filtering
+- Toggle between list and grid views
+
+### Theme
+- Dark theme with cyan accents
+- Consistent color scheme:
+  - Primary: #00ffff (cyan)
+  - Text: white with varying opacity
+  - Backgrounds: black with transparency
+  - Hover states: cyan with different opacities
+
 ## API Endpoints
 
 ### Authentication
