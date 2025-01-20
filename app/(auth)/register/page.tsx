@@ -136,7 +136,7 @@ export default function RegisterPage() {
             Create Account
           </h2>
           <p className="mt-2 text-white/60">
-            Join our community of prompt engineers
+            Join our community
           </p>
         </div>
 

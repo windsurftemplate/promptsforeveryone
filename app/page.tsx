@@ -481,7 +481,7 @@ export default function HomePage() {
             </div>
             <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#00ffff]/10">
               <div className="text-white/60 text-sm mb-4 md:mb-0">
-                © 2024 Prompts For Everyone. All rights reserved.
+                © 2025 Prompts For Everyone. All rights reserved.
               </div>
               <div className="flex gap-6">
                 <Link href="https://twitter.com" className="text-white/60 hover:text-[#00ffff] transition-colors">

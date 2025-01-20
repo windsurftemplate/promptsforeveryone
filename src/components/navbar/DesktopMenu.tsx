@@ -122,7 +122,7 @@ export default function DesktopMenu({ user, isAdmin, isPaidUser, onSignOut }: De
           <Link href="/login" className="text-white/80 hover:text-[#00ffff] transition-colors duration-300">
             Login
           </Link>
-          <Link href="/signup">
+          <Link href="/register">
             <Button variant="primary" size="sm">
               Sign Up
             </Button>
