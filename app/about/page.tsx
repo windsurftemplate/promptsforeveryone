@@ -14,7 +14,11 @@ export default function AboutPage() {
           <div className="card p-6">
             <h2 className="text-2xl font-semibold mb-4 text-white">Our Mission</h2>
             <p className="text-white/80">
-              Prompts For Everyone is dedicated to democratizing access to high-quality AI prompts. We believe in the power of well-crafted prompts to unlock the full potential of AI technology, making it accessible and useful for everyone.
+            AI is no longer the future—it’s the present. But too often, it feels out of reach for everyday users. 
+            We’re here to change that. Prompts For Everyone is about democratizing access to high-quality prompts, 
+            turning AI into a tool anyone can use to create, innovate, and achieve more. Whether you’re a business owner, 
+            content creator, developer, or just someone looking to explore, we make AI accessible, practical, and powerful.
+
             </p>
           </div>
 
@@ -22,20 +26,27 @@ export default function AboutPage() {
             <h2 className="text-2xl font-semibold mb-4 text-white">What We Offer</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-[#00ffff]">Curated Prompts</h3>
-                <p className="text-white/80">Carefully selected and tested prompts for various use cases, from content creation to coding assistance.</p>
+                <h3 className="text-xl font-semibold text-[#00ffff]">Never Stops Growing</h3>
+                <p className="text-white/80">At Prompts For Everyone, we’re constantly adding new prompts 
+                across categories like content creation, coding, brainstorming, and productivity. 
+                The best part? These aren’t handpicked by us—they’re shaped by the community. 
+                With every vote, share, and contribution, the library evolves to reflect what’s working right now.</p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-[#00ffff]">Community Driven</h3>
-                <p className="text-white/80">A platform where prompt engineers can share, collaborate, and learn from each other.</p>
+                <h3 className="text-xl font-semibold text-[#00ffff]">Crowd-Powered Innovation</h3>
+                <p className="text-white/80">Our voting system ensures the best prompts rise to the top, so you’re 
+                always accessing ideas that are tested and loved by real users. This isn’t a static collection—it’s a living, 
+                breathing hub of creativity.</p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-[#00ffff]">Learning Resources</h3>
-                <p className="text-white/80">Comprehensive guides and tutorials to help you master the art of prompt engineering.</p>
+                <h3 className="text-xl font-semibold text-[#00ffff]">Designed for Every Level</h3>
+                <p className="text-white/80">Whether you’re exploring AI for the first time or you’re a seasoned expert, we’ve got something for you. 
+                From beginner-friendly guides to advanced workflows, our platform scales with your needs.</p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-[#00ffff]">Regular Updates</h3>
-                <p className="text-white/80">Stay up-to-date with the latest developments in AI and prompt engineering.</p>
+                <h3 className="text-xl font-semibold text-[#00ffff]">Always Evolving</h3>
+                <p className="text-white/80">AI is changing fast—and so are we. With regular updates, you’ll always have access 
+                to the newest, most effective prompts and workflows, keeping you one step ahead of the curve.</p>
               </div>
             </div>
           </div>
@@ -52,19 +63,13 @@ export default function AboutPage() {
               >
                 Get Started
               </Link>
-              <Link 
-                href="/discord" 
-                className="inline-flex justify-center items-center px-6 py-3 border border-[#00ffff]/20 text-base font-medium rounded-md text-white bg-black/50 hover:bg-[#00ffff]/10 transition-colors duration-200"
-              >
-                Join Discord
-              </Link>
             </div>
           </div>
 
           <div className="card p-6">
             <h2 className="text-2xl font-semibold mb-4 text-white">Contact Us</h2>
             <p className="text-white/80 mb-4">
-              Have questions or suggestions? We'd love to hear from you. Reach out to our team or join our Discord community for real-time discussions.
+              Have questions or suggestions? We'd love to hear from you. Reach out to our team for real-time discussions.
             </p>
             <a 
               href="mailto:contact@promptsforeveryone.com" 
