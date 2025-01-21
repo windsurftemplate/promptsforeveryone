@@ -42,6 +42,10 @@ module.exports = {
         slideIn: {
           '0%': { opacity: 0, transform: 'translateX(-10px)' },
           '100%': { opacity: 1, transform: 'translateX(0)' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-20px)' },
         }
       },
       animation: {
@@ -49,7 +53,10 @@ module.exports = {
         "gradient": "gradient 8s linear infinite",
         blink: 'blink 1s step-end infinite',
         fadeIn: 'fadeIn 0.5s ease-out forwards',
-        slideIn: 'slideIn 0.3s ease-out forwards'
+        slideIn: 'slideIn 0.3s ease-out forwards',
+        'spin-slow': 'spin 8s linear infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'pulse': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },

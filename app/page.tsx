@@ -25,6 +25,15 @@ const anton = Anton({
   subsets: ['latin'],
 });
 
+// First, let's add a reusable geometric animation component
+const GeometricAnimations = () => (
+  <div className="absolute inset-0 opacity-20 pointer-events-none">
+    <div className="absolute top-20 right-20 w-24 h-24 border border-[#00ffff] rotate-45 animate-spin-slow"></div>
+    <div className="absolute bottom-10 left-1/4 w-40 h-40 border-2 border-[#00ffff] rounded-full animate-pulse delay-300"></div>
+    <div className="absolute bottom-20 right-1/4 w-20 h-20 border border-[#00ffff] rotate-12 animate-spin-slow delay-500"></div>
+  </div>
+);
+
 export default function HomePage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -38,9 +47,9 @@ export default function HomePage() {
   const { ref: pricingRef, isVisible: pricingVisible } = useScrollAnimation();
 
   const titles = [
-    'Organize, Discover, and Share Ideas',
-    'Unlimited Inspiration and Ideas',
-    'Explore Our Library of Prompts'
+    'Unleash AI\'s Power With Questions',
+    'Ask Better, Generate More Magic',
+    'Explore Our Library of Prompts',
   ];
 
   useEffect(() => {
@@ -106,10 +115,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative min-h-[calc(100vh-100px)]">
         <div className="absolute inset-0 z-0">
-          {/* Dark background */}
           <div className="absolute inset-0 bg-[#000000]"></div>
-        
-          {/* Subtle gradient effect */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#001a1a] to-[#000000] opacity-80"></div>
         </div>
         
@@ -132,7 +138,7 @@ export default function HomePage() {
                 </h1>
                 
                 <p className="text-xl md:text-2xl text-gray-400 max-w-xl leading-relaxed">
-                  Join our community of prompt enthusiasts. Create, share, and discover prompts that spark creativity and innovation.
+                  Join our community of prompt enthusiasts because creativity isn't an accident — it's a question waiting for the perfect answer.
                 </p>
 
                 <div className="flex flex-wrap gap-4 pt-4">
@@ -163,8 +169,41 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* New Vision Section */}
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black via-black/95 to-black/90 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
+        <GeometricAnimations />
+        <div className="container mx-auto px-4">
+          <div 
+            ref={whyUseRef} 
+            className={`max-w-3xl mx-auto transition-all duration-1000 transform ${
+              whyUseVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <div className="bg-black/70 backdrop-blur-xl border border-[#00ffff]/20 rounded-xl p-8 hover:border-[#00ffff]/40 transition-all duration-300 shadow-[0_0_50px_rgba(0,255,255,0.1)] hover:shadow-[0_0_50px_rgba(0,255,255,0.2)]">
+              <p className="text-xl text-gray-300 leading-relaxed mb-8">
+                I used to think mastering the latest tech trends was the key to unlocking AI's full potential. 
+                But here's the reality: it's never been about the algorithm—it's about the AI prompts you feed it. 
+                Without the right questions, you'll never see the possibilities sitting just beyond your reach. 
+                In other words, <span className="text-[#00ffff] font-semibold">better prompts mean bigger breakthroughs</span>.
+              </p>
+
+              <p className="text-xl text-gray-300 leading-relaxed">
+                Now, think about why most online content feels so bland and predictable. 
+                It's not that content creators lack talent—they're just stuck recycling the same prompts over and over. 
+                That's exactly why <span className="text-[#00ffff] font-semibold">PromptsForEveryone.com</span> was built: to shatter the cycle of half-baked ideas and ignite unstoppable momentum. 
+                This prompt library transforms ordinary brainstorming into a springboard for innovation, productivity, and creativity. 
+                It's time to break free from the same old scripts and discover what you're truly capable of when you ask the right questions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
-      <section className="relative z-20 py-24 bg-gradient-to-b from-black to-black/95">
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
+        <GeometricAnimations />
         <div className="container mx-auto px-4">
           <div 
             ref={howItWorksRef}
@@ -182,7 +221,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Sign Up</h3>
                 <p className="text-gray-400">
-                  Create your free account and get instant access to our platform
+                Set up your free account and dive straight into our platform
                 </p>
               </div>
 
@@ -192,7 +231,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Create & Organize</h3>
                 <p className="text-gray-400">
-                  Start creating and organizing your prompts
+                Craft your prompts and keep them neatly organized in one place
                 </p>
               </div>
 
@@ -202,7 +241,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Share & Collaborate</h3>
                 <p className="text-gray-400">
-                Share your prompts with the community and put them to use today!
+                Put your prompts to work share them with the community and watch ideas grow!
                 </p>
               </div>
             </div>
@@ -211,26 +250,34 @@ export default function HomePage() {
       </section>
 
       {/* Category Showcase Section */}
-      <section className="py-24 relative z-20 bg-gradient-to-b from-black/95 to-black/90">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
-        <div className="container mx-auto px-4 text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-4">
-            Explore Our Categories
-          </h2>
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
+        <GeometricAnimations />
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-4">
+              Explore Our Categories
+            </h2>
+          </div>
+          <FeatureCarousel />
         </div>
-        <FeatureCarousel />
       </section>
 
       {/* Dashboard Preview Section */}
-      <DashboardPreview />
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
+        <GeometricAnimations />
+        <DashboardPreview />
+      </section>
 
       {/* Why Use Section */}
-      <section className="py-24 relative z-20 bg-gradient-to-b from-black/90 to-black/95">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
+        <GeometricAnimations />
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-4xl font-bold text-center text-[#00ffff] mb-12">
-              Why Use Prompts For Everyone?
+              Benefits of PromptsForEveryone.com
             </h2>
           </div>
 
@@ -287,8 +334,9 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 relative z-20 bg-gradient-to-b from-black/95 to-black/90">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
+        <GeometricAnimations />
         <div className="container mx-auto px-4">
           <div 
             ref={pricingRef}
@@ -423,15 +471,14 @@ export default function HomePage() {
       </section>
 
       {/* Ready to Get Started Section */}
-      <section className="relative z-20 py-24 bg-gradient-to-b from-black/95 to-black">
+      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/95 to-black overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
+        <GeometricAnimations />
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent mb-6 animate-gradient">
-              Ready to Get Started?
+            Ready to see what happens when AI meets true human insight?
             </h2>
-            <p className="text-xl text-white/70 mb-8">
-            Join Thousands Already Boosting Their AI Workflows with PromptsForEveryone.com
-            </p>
             <div className="flex gap-6 justify-center">
               <Link href="/register">
                 <Button className="px-8 py-4 text-lg">

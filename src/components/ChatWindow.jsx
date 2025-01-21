@@ -62,7 +62,7 @@ const ChatWindow = () => {
               AI
             </div>
             <div className="bg-[#444654] p-4 rounded-2xl text-gray-100 leading-relaxed shadow-lg border border-[#00ffff]/10">
-              Welcome to PFE! PromptsForEveryone.com is a versatile platform that helps users discover, create, and save personalized prompts across diverse categories like education, creativity, business, and more.
+              Welcome to PFE! PromptsForEveryone.com is a platform that helps users discover, create, and save personalized prompts across diverse categories like education, creativity, business, and more.
             </div>
           </div>
         </div>
