@@ -121,6 +121,22 @@ export default function HomePage() {
         
         {/* Content wrapper */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+          {/* Product Hunt Badge */}
+          <div className="absolute top-8 w-full flex justify-center">
+            <a 
+              href="https://www.producthunt.com/posts/promptsforeveryone-com?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-promptsforeveryone&#0045;com" 
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img 
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=808885&theme=light&t=1737575147097" 
+                alt="PromptsForEveryone&#0046;com - Discover&#0044;&#0032;organize&#0044;&#0032;&#0038;&#0032;share&#0032;AI&#0045;powered&#0032;prompts | Product Hunt" 
+                width="250"
+                height="54"
+              />
+            </a>
+          </div>
+
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-16">
               {/* Left side content */}

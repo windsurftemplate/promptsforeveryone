@@ -30,12 +30,12 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${TOGETHER_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
         prompt: `You are a creative prompt generator. Generate a high-quality prompt for the following category: ${category}. Follow this instruction: ${instruction}. The prompt should be engaging, specific, and actionable. Format your response as a JSON object with "title" and "prompt" fields.`,
         temperature: 0.8,
         top_p: 0.9,
         top_k: 50,
-        max_tokens: 200,
+        max_tokens: 400,
         repetition_penalty: 1.1
       })
     })

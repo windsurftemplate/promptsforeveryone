@@ -4,7 +4,7 @@ import { auth, db } from '@/lib/firebase-admin';
 export const runtime = 'nodejs';
 
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
-const MODEL = 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo-128K';
+const MODEL = 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free';
 
 export async function POST(req: Request) {
   try {

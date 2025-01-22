@@ -28,7 +28,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
         messages: [
           {
             role: 'system',
