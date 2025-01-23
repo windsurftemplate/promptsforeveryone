@@ -420,12 +420,7 @@ export default function DashboardPage() {
   }, [visiblePrompts, localAds, handleDelete, handleCopy, handleEdit]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">
-      {/* Fixed background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
-      {/* Fixed cyan overlay */}
-      <div className="fixed inset-0 bg-[#00ffff]/5 pointer-events-none" />
-      
+    <div className="min-h-screen bg-black">
       {/* Content */}
       <div className="relative py-8">
         {/* Banner ad for non-pro users */}
@@ -441,7 +436,7 @@ export default function DashboardPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-[#00ffff]/20 mb-8 mx-4">
+        <div className="flex border-b border-[#00ffff] mb-8 mx-4">
           <button
             onClick={() => setActiveTab('prompts')}
             className={`px-6 py-3 font-medium text-sm transition-colors ${

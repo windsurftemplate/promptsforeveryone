@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { ref, onValue, push, remove, update, get } from 'firebase/database';
 import { useAuth } from '@/contexts/AuthContext';
-import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon, DocumentIcon, DocumentTextIcon, UserIcon, Squares2X2Icon, ListBulletIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, XMarkIcon, PencilIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, TrashIcon, ChevronDownIcon, DocumentIcon, DocumentTextIcon, UserIcon, Squares2X2Icon, ListBulletIcon, ArrowLeftOnRectangleIcon } from '@heroicons/react/24/outline';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -17,7 +17,7 @@ interface Category {
 }
 
 export default function Sidebar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const { setSelectedCategory, setSelectedSubcategory, selectedCategory, selectedSubcategory, isSidebarCollapsed, setIsSidebarCollapsed, viewMode, setViewMode } = useDashboard();
@@ -207,6 +207,15 @@ export default function Sidebar() {
     await remove(subcategoryRef);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <div className={`relative h-full transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-80'}`}>
       {/* Collapse button - positioned outside the scrollable area */}
@@ -224,6 +233,19 @@ export default function Sidebar() {
       <div className="h-full bg-black/90 backdrop-blur-xl text-white p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
         {!isSidebarCollapsed && (
           <div className="space-y-8 pb-44">
+            {/* User Navigation */}
+            <div className="space-y-1">
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors text-white/60 hover:text-red-500 hover:bg-red-500/5"
+              >
+                <ArrowLeftOnRectangleIcon className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
+
+            <div className="border-t border-[#00ffff]/10" />
+
             <Link href="/submit">
               <button className="w-full px-4 py-3 rounded-lg text-left transition-all duration-200 flex items-center gap-3 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 group hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
                 <PlusIcon className="h-5 w-5 text-[#00ffff] group-hover:scale-110 transition-transform duration-200" />

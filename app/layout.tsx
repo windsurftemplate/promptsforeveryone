@@ -1,11 +1,11 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/contexts/AuthContext';
-import Navbar from '@/components/Navbar';
 import { Metadata } from 'next';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import ScrollToTop from './components/ScrollToTop';
 import { Toaster } from 'sonner';
+import NavbarWrapper from './components/NavbarWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -65,10 +65,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <ScrollToTop />
-          <Navbar />
-          <main className="min-h-screen pt-24">
+          <NavbarWrapper>
             {children}
-          </main>
+          </NavbarWrapper>
         </AuthProvider>
         <Toaster />
       </body>

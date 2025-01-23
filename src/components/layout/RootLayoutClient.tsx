@@ -12,13 +12,13 @@ export default function RootLayoutClient({
 }) {
   return (
     <body className="bg-black min-h-screen">
-      <AuthProvider>
+    <AuthProvider>
         <FirebaseInitializer />
         <Navbar />
         <main className="pt-24">
-          {children}
-        </main>
-      </AuthProvider>
+        {children}
+      </main>
+    </AuthProvider>
     </body>
   );
 } 

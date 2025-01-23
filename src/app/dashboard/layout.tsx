@@ -9,8 +9,8 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="min-h-screen bg-black">
-      <header className="border-b border-[#00ffff]/20">
-        <div className="flex h-16 items-center justify-between px-4">
+      <main>
+        <div className="hidden h-16 items-center justify-between px-4">
           <h2 className="text-lg font-semibold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
             Dashboard
           </h2>
@@ -18,8 +18,6 @@ export default function DashboardLayout({
             <UserNav />
           </div>
         </div>
-      </header>
-      <main>
         {children}
       </main>
     </div>

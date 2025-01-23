@@ -323,7 +323,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
   );
 
   const renderGridView = () => (
-    <div className={`grid grid-cols-1 ${isSidebarCollapsed ? 'md:grid-cols-3 lg:grid-cols-4' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
+    <div className={`grid grid-cols-1 md:grid-cols-2 ${isSidebarCollapsed ? 'lg:grid-cols-5' : 'lg:grid-cols-4'} gap-6`}>
       {visiblePrompts.map((prompt, index) => (
         <React.Fragment key={prompt.id}>
           <motion.div
