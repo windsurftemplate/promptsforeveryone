@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
         prompt: `You are a creative prompt enhancement expert. Your task is to take a basic prompt and enhance it by:
 1. Adding more specific details and context
 2. Making it more engaging and creative
@@ -44,7 +44,7 @@ Enhance this prompt: "${prompt}"`,
         top_p: 0.7,
         top_k: 50,
         repetition_penalty: 1.1,
-        max_tokens: 300,
+        max_tokens: 400,
       }),
     })
 
@@ -63,7 +63,7 @@ Enhance this prompt: "${prompt}"`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
         prompt: `You are a title enhancement expert. Your task is to take a basic title and enhance it to be more engaging and descriptive.
 
 Original Title: "${title}"
@@ -80,7 +80,7 @@ Generate only the enhanced title without any additional text or punctuation:`,
         top_p: 0.7,
         top_k: 50,
         repetition_penalty: 1.1,
-        max_tokens: 50,
+        max_tokens: 400,
       }),
     })
 
