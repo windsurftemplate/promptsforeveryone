@@ -129,9 +129,28 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
     setSelectedPrompt(null);
   };
 
-  const handleEditInModal = (prompt: Prompt) => {
-    router.push(`/submit?edit=${prompt.id}`);
-    setSelectedPrompt(null);
+  const handleEditInModal = async (prompt: Prompt) => {
+    try {
+      // Determine if the prompt is private or public
+      const isPrivate = prompt.visibility === 'private';
+      const promptRef = isPrivate 
+        ? ref(db, `users/${user?.uid}/prompts/${prompt.id}`)
+        : ref(db, `prompts/${prompt.id}`);
+
+      // Update the prompt in Firebase
+      await update(promptRef, {
+        ...prompt,
+        updatedAt: new Date().toISOString()
+      });
+
+      // Update the local state
+      setPrompts(currentPrompts =>
+        currentPrompts.map(p => p.id === prompt.id ? prompt : p)
+      );
+      setSelectedPrompt(null);
+    } catch (error) {
+      console.error('Error updating prompt:', error);
+    }
   };
 
   const handleDeleteClick = (prompt: Prompt) => {

@@ -35,13 +35,35 @@ export async function POST(req: Request) {
           return Response.json({ error: 'No user ID found' }, { status: 400 });
         }
 
-        // Update user's subscription status in Firebase
+        const timestamp = new Date().toISOString();
         const userRef = ref(db, `users/${userId}`);
+        const versionRef = ref(db, `users/${userId}/versionHistory/${timestamp}`);
+
+        // Get current user data for version tracking
+        const userSnapshot = await get(userRef);
+        const currentData = userSnapshot.val() || {};
+
+        // Create version entry
+        await set(versionRef, {
+          previousState: {
+            plan: currentData.plan || 'free',
+            stripeSubscriptionStatus: currentData.stripeSubscriptionStatus || 'inactive'
+          },
+          newState: {
+            plan: 'paid',
+            stripeSubscriptionStatus: 'active'
+          },
+          source: 'stripe_webhook',
+          event: 'checkout.session.completed',
+          timestamp
+        });
+
+        // Update user's subscription status
         await update(userRef, {
           stripeCustomerId: customerId,
           plan: 'paid',
           stripeSubscriptionStatus: 'active',
-          updatedAt: new Date().toISOString()
+          updatedAt: timestamp
         });
 
         break;
@@ -51,7 +73,7 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Stripe.Subscription;
         const customerId = subscription.customer as string;
 
-        // Find user with this stripeCustomerId and update their status
+        // Find user with this stripeCustomerId
         const usersRef = ref(db, 'users');
         const userQuery = query(usersRef, orderByChild('stripeCustomerId'));
         const snapshot = await get(userQuery);
@@ -64,11 +86,34 @@ export async function POST(req: Request) {
         });
 
         if (userId) {
+          const timestamp = new Date().toISOString();
           const userRef = ref(db, `users/${userId}`);
+          const versionRef = ref(db, `users/${userId}/versionHistory/${timestamp}`);
+
+          // Get current user data for version tracking
+          const userSnapshot = await get(userRef);
+          const currentData = userSnapshot.val();
+
+          // Create version entry
+          await set(versionRef, {
+            previousState: {
+              plan: currentData.plan,
+              stripeSubscriptionStatus: currentData.stripeSubscriptionStatus
+            },
+            newState: {
+              plan: 'free',
+              stripeSubscriptionStatus: 'canceled'
+            },
+            source: 'stripe_webhook',
+            event: 'customer.subscription.deleted',
+            timestamp
+          });
+
+          // Update user status
           await update(userRef, {
             plan: 'free',
             stripeSubscriptionStatus: 'canceled',
-            updatedAt: new Date().toISOString()
+            updatedAt: timestamp
           });
         }
 

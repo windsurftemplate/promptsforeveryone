@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { ref, get, update } from 'firebase/database';
+import { ref, get, update, set } from 'firebase/database';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -44,11 +44,31 @@ export async function POST(request: Request) {
       cancel_at_period_end: true
     });
 
+    const timestamp = new Date().toISOString();
+    const versionRef = ref(db, `users/${userId}/versionHistory/${timestamp}`);
+
+    // Create version entry
+    await set(versionRef, {
+      previousState: {
+        plan: userData.plan,
+        stripeSubscriptionStatus: userData.stripeSubscriptionStatus,
+        stripeCancelAtPeriodEnd: userData.stripeCancelAtPeriodEnd || false
+      },
+      newState: {
+        plan: userData.plan, // Plan remains the same until period ends
+        stripeSubscriptionStatus: subscription.status,
+        stripeCancelAtPeriodEnd: true
+      },
+      source: 'user_cancellation',
+      event: 'subscription.cancel_scheduled',
+      timestamp
+    });
+
     // Update Firebase
     await update(userRef, {
       stripeCancelAtPeriodEnd: true,
       stripeSubscriptionStatus: subscription.status,
-      updatedAt: new Date().toISOString()
+      updatedAt: timestamp
     });
 
     return NextResponse.json({

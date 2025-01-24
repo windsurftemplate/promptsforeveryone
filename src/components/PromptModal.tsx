@@ -26,6 +26,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
   const [editedPrompt, setEditedPrompt] = useState<Prompt>(prompt);
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const isCreator = user?.uid === prompt.userId && !isReadOnly;
 
   useEffect(() => {
@@ -38,9 +39,23 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!isCreator) return;
-    onEditAction(editedPrompt);
+    
+    try {
+      const updatedPrompt = {
+        ...editedPrompt,
+        updatedAt: new Date().toISOString()
+      };
+      
+      await onEditAction(updatedPrompt);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error saving prompt:', error);
+    }
   };
 
   const handleCategoryChange = (category: PromptCategory) => {
@@ -60,16 +75,17 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
           <input
             type="text"
             value={editedPrompt.title}
-            onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, title: e.target.value })}
+            onChange={(e) => isCreator && isEditing && setEditedPrompt({ ...editedPrompt, title: e.target.value })}
             className="text-2xl font-bold bg-black/50 text-[#00ffff] border border-[#00ffff]/20 rounded px-2 py-1 w-full mr-4"
             placeholder="Prompt Title"
-            readOnly={!isCreator}
+            readOnly={!isCreator || !isEditing}
           />
           <div className="flex gap-3">
             <button
               onClick={() => handleCopy(prompt.content)}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
               title="Copy prompt"
+              type="button"
             >
               <ClipboardDocumentIcon className="w-6 h-6" />
             </button>
@@ -78,6 +94,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                 onClick={() => onDeleteAction(prompt.id || '')}
                 className="text-white/60 hover:text-[#00ffff] transition-colors"
                 title="Delete prompt"
+                type="button"
               >
                 <TrashIcon className="w-6 h-6" />
               </button>
@@ -86,6 +103,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
               onClick={onCloseAction}
               className="text-white/60 hover:text-[#00ffff] transition-colors"
               title="Close"
+              type="button"
             >
               <XMarkIcon className="w-6 h-6" />
             </button>
@@ -97,10 +115,10 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
             <h3 className="text-[#00ffff] font-medium mb-2">Prompt Content</h3>
             <textarea
               value={editedPrompt.content}
-              onChange={(e) => isCreator && setEditedPrompt({ ...editedPrompt, content: e.target.value })}
+              onChange={(e) => isCreator && isEditing && setEditedPrompt({ ...editedPrompt, content: e.target.value })}
               className="w-full h-[500px] bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2 font-mono"
               placeholder="Enter your prompt content here"
-              readOnly={!isCreator}
+              readOnly={!isCreator || !isEditing}
             />
           </div>
 
@@ -108,7 +126,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
             <div className="flex justify-between items-center text-white/60">
               <div className="flex items-center gap-2">
                 <span className="text-[#00ffff]">Category:</span>
-                {isCreator && isEditingCategory ? (
+                {isCreator && isEditingCategory && isEditing ? (
                   <div className="flex flex-col gap-2">
                     <select
                       value={editedPrompt.category}
@@ -125,6 +143,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                     <Button
                       onClick={() => setIsEditingCategory(false)}
                       className="bg-[#00ffff]/20 hover:bg-[#00ffff]/30 text-[#00ffff] px-3 py-1 rounded text-sm"
+                      type="button"
                     >
                       Done
                     </Button>
@@ -134,10 +153,11 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                     <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
                       {editedPrompt.category}
                     </span>
-                    {isCreator && (
+                    {isCreator && isEditing && (
                       <button
                         onClick={() => setIsEditingCategory(true)}
                         className="text-white/60 hover:text-[#00ffff] transition-colors"
+                        type="button"
                       >
                         <PencilIcon className="w-4 h-4" />
                       </button>
@@ -149,13 +169,36 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
           )}
 
           {isCreator && (
-            <div className="flex justify-end">
-              <Button
-                onClick={handleSave}
-                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
-              >
-                Save Changes
-              </Button>
+            <div className="flex justify-end gap-4">
+              {isEditing ? (
+                <>
+                  <Button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditedPrompt(prompt);
+                    }}
+                    className="bg-black/50 text-white/60 hover:text-white border border-[#00ffff]/20 hover:bg-[#00ffff]/10 px-4 py-2 rounded-md"
+                    type="button"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                    type="button"
+                  >
+                    Save
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                  type="button"
+                >
+                  Edit Prompt
+                </Button>
+              )}
             </div>
           )}
         </div>

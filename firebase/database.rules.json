@@ -41,6 +41,40 @@
       "$uid": {
         ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
         ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+        "versionHistory": {
+          ".read": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin'",
+          ".write": false,
+          "$timestamp": {
+            ".validate": "newData.hasChildren(['previousState', 'newState', 'source', 'event', 'timestamp'])",
+            "previousState": {
+              ".validate": "newData.hasChildren(['plan', 'stripeSubscriptionStatus'])",
+              "plan": {
+                ".validate": "newData.isString() && (newData.val() === 'free' || newData.val() === 'paid')"
+              },
+              "stripeSubscriptionStatus": {
+                ".validate": "newData.isString()"
+              }
+            },
+            "newState": {
+              ".validate": "newData.hasChildren(['plan', 'stripeSubscriptionStatus'])",
+              "plan": {
+                ".validate": "newData.isString() && (newData.val() === 'free' || newData.val() === 'paid')"
+              },
+              "stripeSubscriptionStatus": {
+                ".validate": "newData.isString()"
+              }
+            },
+            "source": {
+              ".validate": "newData.isString() && (newData.val() === 'stripe_webhook' || newData.val() === 'user_cancellation')"
+            },
+            "event": {
+              ".validate": "newData.isString()"
+            },
+            "timestamp": {
+              ".validate": "newData.isString() && newData.val().matches(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/)"
+            }
+          }
+        },
         "prompts": {
           "$promptId": {
             ".validate": "newData.hasChildren(['title', 'content', 'categoryId', 'userId', 'createdAt'])",
