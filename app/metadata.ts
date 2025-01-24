@@ -36,6 +36,21 @@ export const defaultMetadata: Metadata = {
     address: false,
     telephone: false,
   },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+  },
+  themeColor: '#00ffff',
+  colorScheme: 'dark',
+  applicationName: 'Prompts For Everyone',
+  referrer: 'origin-when-cross-origin',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: 'Prompts For Everyone',
+    statusBarStyle: 'black-translucent',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -86,4 +101,52 @@ export const defaultMetadata: Metadata = {
     },
   },
   category: 'technology',
-}; 
+};
+
+// Helper function to generate dynamic metadata
+export function generateDynamicMetadata({
+  title,
+  description,
+  path = '',
+  type = 'website',
+  image = '/og-image.png',
+  keywords = [],
+}: {
+  title: string;
+  description: string;
+  path?: string;
+  type?: string;
+  image?: string;
+  keywords?: string[];
+}) {
+  const url = `https://promptsforeveryone.com${path}`;
+  
+  return {
+    title,
+    description,
+    keywords: [...defaultKeywords, ...keywords],
+    openGraph: {
+      title,
+      description,
+      url,
+      type,
+      images: [
+        {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: title
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [image],
+    },
+    alternates: {
+      canonical: url,
+    }
+  } as Metadata;
+} 
