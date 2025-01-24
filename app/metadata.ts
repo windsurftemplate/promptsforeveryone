@@ -23,7 +23,7 @@ const defaultKeywords = [
 export const defaultMetadata: Metadata = {
   metadataBase: new URL('https://promptsforeveryone.com'),
   title: {
-    default: 'Prompts For Everyone - AI Prompt Library',
+    default: 'Explore the ultimate AI prompt library featuring image, text, video, and audio prompts. Optimize creativity with prompt engineering, templates, and ChatGPT prompts designed for AI writing, assistant tasks, and conversation starters. Discover categories like AI conversation, writing tools, and examples for every purpose.',
     template: '%s | Prompts For Everyone'
   },
   description: 'Discover, organize, & share AI prompts in a library built for creativity',
