@@ -23,10 +23,10 @@ const defaultKeywords = [
 export const defaultMetadata: Metadata = {
   metadataBase: new URL('https://promptsforeveryone.com'),
   title: {
-    default: 'Prompts For Everyone - AI Prompt Library & Engineering Platform',
+    default: 'Prompts For Everyone - AI Prompt Library',
     template: '%s | Prompts For Everyone'
   },
-  description: 'Discover, organize, & share AI-powered prompts in a library built for creativity',
+  description: 'Discover, organize, & share AI prompts in a library built for creativity',
   keywords: defaultKeywords,
   authors: [{ name: 'Prompts For Everyone Team' }],
   creator: 'Prompts For Everyone',
@@ -41,8 +41,8 @@ export const defaultMetadata: Metadata = {
     locale: 'en_US',
     url: 'https://promptsforeveryone.com',
     siteName: 'Prompts For Everyone',
-    title: 'Prompts For Everyone - AI Prompt Library & Engineering Platform',
-    description: 'Discover and share AI prompts across various categories. Access a curated collection of prompts for ChatGPT, writing, coding, and more.',
+    title: 'Prompts For Everyone - AI Prompt Library',
+    description: 'Discover and share AI prompts across various categories. Access collections of prompts for ChatGPT, writing, coding, and more.',
     images: [
       {
         url: '/og-image.png',
@@ -54,8 +54,8 @@ export const defaultMetadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Prompts For Everyone - AI Prompt Library & Engineering Platform',
-    description: 'Discover and share AI prompts across various categories. Access a curated collection of prompts for ChatGPT, writing, coding, and more.',
+    title: 'Prompts For Everyone - AI Prompt Library',
+    description: 'Discover and share AI prompts across various categories. Access a collection of prompts for ChatGPT, writing, coding, and more.',
     images: ['/twitter-image.png'],
     creator: '@promptsforall',
     site: '@promptsforall'

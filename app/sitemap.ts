@@ -12,19 +12,11 @@ interface Category {
   };
 }
 
-interface Prompt {
-  visibility: string;
-  updatedAt?: string;
-  createdAt: string;
-  category: string;
-  subcategory: string;
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://promptsforeveryone.com'
-  const currentDate = new Date().toISOString()
+  const baseUrl = 'https://www.promptsforeveryone.com';
+  const currentDate = new Date().toISOString();
 
-  // Start with static routes
+  // 1. Define all your static pages
   const routes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -86,60 +78,58 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
-  ]
+  ];
 
   try {
-    // Get all categories using our API endpoint
+    // 2. Fetch the list of categories from your API
     const categoriesResponse = await axios.get(`${baseUrl}/api/categories`);
     const categories = categoriesResponse.data as Record<string, Category>;
 
-    // Add category pages
-    if (categories) {
-      for (const [categoryId, category] of Object.entries(categories)) {
-        // Add main category page
-        routes.push({
-          url: `${baseUrl}/categories/${categoryId}`,
-          lastModified: currentDate,
-          changeFrequency: 'daily',
-          priority: 0.8,
-        })
+    // 3. Use a Set to avoid adding duplicate URLs
+    const uniqueUrls = new Set<string>();
 
-        // Add subcategory pages
-        if (category.subcategories) {
-          for (const [subcategoryId, subcategory] of Object.entries(category.subcategories)) {
-            routes.push({
-              url: `${baseUrl}/categories/${categoryId}/${subcategoryId}`,
-              lastModified: currentDate,
-              changeFrequency: 'daily',
-              priority: 0.7,
-            })
+    // 4. Loop through all categories
+    if (categories) {
+      for (const [categoryId, categoryData] of Object.entries(categories)) {
+        // Category page: /categories/{categoryId}
+        const categoryUrl = `${baseUrl}/categories/${categoryId}`;
+        if (!uniqueUrls.has(categoryUrl)) {
+          uniqueUrls.add(categoryUrl);
+          routes.push({
+            url: categoryUrl,
+            lastModified: currentDate,
+            changeFrequency: 'daily',
+            priority: 0.8,
+          });
+        }
+
+        // 5. Add valid subcategory pages, if any
+        if (categoryData.subcategories) {
+          for (const [subcategoryId] of Object.entries(categoryData.subcategories)) {
+            // Skip placeholder or prompt-like IDs
+            if (subcategoryId === '-' || subcategoryId.startsWith('-OG')) {
+              continue;
+            }
+
+            // Subcategory page: /categories/{categoryId}/{subcategoryId}
+            const subcategoryUrl = `${baseUrl}/categories/${categoryId}/${subcategoryId}`;
+            if (!uniqueUrls.has(subcategoryUrl)) {
+              uniqueUrls.add(subcategoryUrl);
+              routes.push({
+                url: subcategoryUrl,
+                lastModified: currentDate,
+                changeFrequency: 'daily',
+                priority: 0.7,
+              });
+            }
           }
         }
       }
     }
-
-    // Get all prompts using our API endpoint
-    const promptsResponse = await axios.get(`${baseUrl}/api/prompts`);
-    const prompts = promptsResponse.data as Record<string, Prompt>;
-
-    // Add prompt pages
-    if (prompts) {
-      for (const [promptId, prompt] of Object.entries(prompts)) {
-        if (prompt.visibility === 'public') {
-          routes.push({
-            url: `${baseUrl}/categories/${prompt.category}/${prompt.subcategory}/prompts/${promptId}`,
-            lastModified: prompt.updatedAt || prompt.createdAt || currentDate,
-            changeFrequency: 'weekly',
-            priority: 0.6,
-          })
-        }
-      }
-    }
   } catch (error) {
-    console.error('Error fetching data for sitemap:', error);
-    // Return static routes if API calls fail
-    return routes;
+    console.error('Error fetching categories:', error);
   }
 
-  return routes
-} 
+  // 6. Return the final list of routes
+  return routes;
+}

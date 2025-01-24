@@ -293,7 +293,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-4xl font-bold text-center text-[#00ffff] mb-12">
-              Benefits of PromptsForEveryone.com
+              Benefits of PromptsForEveryone
             </h2>
           </div>
 
