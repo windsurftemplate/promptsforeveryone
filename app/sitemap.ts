@@ -92,7 +92,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (categories) {
       for (const [categoryId, categoryData] of Object.entries(categories)) {
         // Category page: /categories/{categoryId}
-        const categoryUrl = `${baseUrl}/categories/${categoryId}`;
+        const encodedCategoryId = encodeURIComponent(categoryId);
+        const categoryUrl = `${baseUrl}/categories/${encodedCategoryId}`;
         if (!uniqueUrls.has(categoryUrl)) {
           uniqueUrls.add(categoryUrl);
           routes.push({
@@ -103,16 +104,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           });
         }
 
-        // 5. Add valid subcategory pages, if any
+        // 5. Add subcategory pages with normalized names
         if (categoryData.subcategories) {
-          for (const [subcategoryId] of Object.entries(categoryData.subcategories)) {
-            // Skip placeholder or prompt-like IDs
-            if (subcategoryId === '-' || subcategoryId.startsWith('-OG')) {
-              continue;
-            }
+          for (const [_, subcategory] of Object.entries(categoryData.subcategories)) {
+            // Skip if no name is provided
+            if (!subcategory.name) continue;
 
-            // Subcategory page: /categories/{categoryId}/{subcategoryId}
-            const subcategoryUrl = `${baseUrl}/categories/${categoryId}/${subcategoryId}`;
+            // First normalize spaces and case
+            const normalizedName = subcategory.name
+              .toLowerCase()
+              .replace(/\s+/g, '-');
+            
+            // Then encode the name, which will preserve special characters like & as %26
+            const encodedSubcategoryName = encodeURIComponent(normalizedName);
+            
+            // Subcategory page: /categories/{categoryId}/{normalized-subcategory-name}
+            const subcategoryUrl = `${baseUrl}/categories/${encodedCategoryId}/${encodedSubcategoryName}`;
             if (!uniqueUrls.has(subcategoryUrl)) {
               uniqueUrls.add(subcategoryUrl);
               routes.push({
