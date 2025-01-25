@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata, Viewport } from 'next';
 
 const defaultKeywords = [
   'AI prompts',
@@ -20,6 +20,14 @@ const defaultKeywords = [
   'prompt examples'
 ];
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#00ffff',
+  colorScheme: 'dark',
+};
+
 export const defaultMetadata: Metadata = {
   metadataBase: new URL('https://promptsforeveryone.com'),
   title: {
@@ -36,16 +44,9 @@ export const defaultMetadata: Metadata = {
     address: false,
     telephone: false,
   },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  themeColor: '#00ffff',
-  colorScheme: 'dark',
   applicationName: 'Prompts For Everyone',
   referrer: 'origin-when-cross-origin',
-  manifest: '/manifest.json',
+  manifest: '/site.webmanifest',
   appleWebApp: {
     capable: true,
     title: 'Prompts For Everyone',
