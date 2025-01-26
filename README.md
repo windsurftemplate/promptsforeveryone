@@ -125,6 +125,18 @@ The PromptCard component is a key UI element used throughout the application for
 - `POST /api/subscription/cancel` - Cancel subscription
 - `GET /api/subscription/status` - Get subscription status
 
+### Blog
+- `GET /api/blogs` - List all blogs (with pagination)
+  - Query params:
+    - `page`: Page number
+    - `limit`: Items per page
+    - `status`: published/draft
+- `GET /api/blogs/[id]` - Get specific blog
+- `POST /api/blogs` - Create new blog (admin)
+- `PUT /api/blogs/[id]` - Update blog (admin)
+- `DELETE /api/blogs/[id]` - Delete blog (admin)
+- `PUT /api/blogs/[id]/status` - Update blog status (admin)
+
 ## Important Implementation Details
 
 ### Authentication Flow
@@ -181,6 +193,25 @@ The PromptCard component is a key UI element used throughout the application for
     - subcategories/
       /{subcategoryId}
         - name
+
+/blogs
+  /{blogId}
+    - title
+    - content
+    - slug
+    - excerpt
+    - featuredImage
+    - authorId
+    - status (published/draft)
+    - publishedAt
+    - createdAt
+    - updatedAt
+    - tags: []
+    - comments/
+      /{commentId}
+        - userId
+        - content
+        - createdAt
 ```
 
 ### Ad Management

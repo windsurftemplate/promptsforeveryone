@@ -8,7 +8,24 @@ import { Toaster } from 'sonner';
 import NavbarWrapper from './components/NavbarWrapper';
 import { defaultMetadata } from './metadata';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    'sans-serif'
+  ],
+  adjustFontFallback: true
+});
 
 export const metadata: Metadata = {
   ...defaultMetadata,

@@ -7,26 +7,7 @@ import { ref, get, push } from 'firebase/database';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
-import dynamic from 'next/dynamic';
-
-interface MonacoEditorProps {
-  content: string;
-  onChange: (value: string) => void;
-  theme?: string;
-  fontSize?: number;
-}
-
-const MonacoEditorWrapper = dynamic<MonacoEditorProps>(
-  () => import('@/components/editor/MonacoEditorWrapper'),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="w-full h-[70vh] bg-black/50 animate-pulse rounded-md flex items-center justify-center">
-        Loading Editor...
-      </div>
-    ),
-  }
-);
+import { generateSlug } from '@/lib/blog';
 
 interface BlogPost {
   title: string;
@@ -34,6 +15,7 @@ interface BlogPost {
   date: string;
   readTime: string;
   summary: string;
+  slug?: string;
 }
 
 export default function NewBlogPost() {
@@ -82,7 +64,8 @@ export default function NewBlogPost() {
         ...post,
         author: user?.displayName || user?.email || 'Anonymous',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        slug: generateSlug(post.title)
       });
       router.push('/admin');
     } catch (err) {
@@ -179,11 +162,11 @@ export default function NewBlogPost() {
               Content (HTML)
             </label>
             <div className="border border-[#00ffff]/20 rounded-lg overflow-hidden">
-              <MonacoEditorWrapper
-                content={post.content}
-                onChange={(value) => setPost({ ...post, content: value })}
-                theme="vs-dark"
-                fontSize={14}
+              <textarea
+                value={post.content}
+                onChange={(e) => setPost({ ...post, content: e.target.value })}
+                className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#00ffff]/40"
+                placeholder="Enter blog content in HTML format"
               />
             </div>
           </div>

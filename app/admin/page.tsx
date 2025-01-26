@@ -14,6 +14,7 @@ import { ads as staticAds, Ad as AdType } from '@/config/ads';
 import { motion } from 'framer-motion';
 import AdManagement from '@/components/admin/AdManagement';
 import { toast } from 'sonner';
+import { parseBlogContent, formatBlogContent, generateSlug, BlogPost } from '@/lib/blog';
 
 interface User {
   uid: string;
@@ -23,14 +24,6 @@ interface User {
   createdAt?: string;
   lastLogin?: string;
   promptCount?: number;
-}
-
-interface BlogPost {
-  id: string;
-  title: string;
-  date: string;
-  readTime: string;
-  summary: string;
 }
 
 interface Category {
@@ -97,6 +90,8 @@ export default function AdminDashboard() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [adContentType, setAdContentType] = useState<'image' | 'html'>('image');
   const [htmlContent, setHtmlContent] = useState('');
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const handleCopy = async (text: string) => {
     try {
@@ -153,16 +148,25 @@ export default function AdminDashboard() {
       setIsLoading(false);
     });
 
-    // Fetch all blog posts
+    // Fetch blog posts
     const blogRef = ref(db, 'blog');
     const unsubscribeBlog = onValue(blogRef, (snapshot) => {
       if (snapshot.exists()) {
         const blogData = snapshot.val();
         const blogArray = Object.entries(blogData).map(([id, post]: [string, any]) => ({
           id,
-          ...post,
+          title: post.title,
+          content: post.content,
+          date: post.date,
+          readTime: post.readTime,
+          summary: post.summary,
+          slug: post.slug || post.title.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '')
         }));
         setBlogPosts(blogArray);
+      } else {
+        setBlogPosts([]);
       }
     });
 
@@ -306,6 +310,35 @@ export default function AdminDashboard() {
       } catch (error) {
         console.error('Error deleting blog post:', error);
       }
+    }
+  };
+
+  const handleSavePost = async (post: BlogPost) => {
+    setSaving(true);
+    try {
+      // Ensure all required fields are present
+      const postData = {
+        ...post,
+        title: post.title || '',
+        content: post.content || '',
+        date: post.date || new Date().toISOString(),
+        readTime: post.readTime || '5 min read',
+        summary: post.summary || '',
+        author: post.author || 'Anonymous',
+        tags: post.tags || [],
+        slug: generateSlug(post.title || ''),
+        updatedAt: new Date().toISOString()
+      };
+
+      const postRef = ref(db, `blog/${post.id}`);
+      await set(postRef, postData);
+      setEditingPost(null);
+      setBlogPosts(blogPosts.map(p => p.id === post.id ? postData : p));
+    } catch (err) {
+      console.error('Error updating blog post:', err);
+      setError('Failed to update blog post');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -538,6 +571,131 @@ export default function AdminDashboard() {
     }
   };
 
+  const createExamplePosts = async () => {
+    try {
+      const posts = [
+        {
+          title: "Getting Started with AI Prompts: A Beginner's Guide",
+          content: `
+            <article class="prose prose-invert max-w-none">
+              <h2>Understanding AI Prompts</h2>
+              <p>AI prompts are the key to effective communication with artificial intelligence models. Whether you're using ChatGPT, DALL-E, or any other AI tool, the quality of your results largely depends on how well you craft your prompts.</p>
+              
+              <h3>Key Elements of a Good Prompt</h3>
+              <ul>
+                <li><strong>Clear Objective:</strong> Define exactly what you want to achieve</li>
+                <li><strong>Specific Context:</strong> Provide relevant background information</li>
+                <li><strong>Appropriate Detail:</strong> Include necessary specifics without overloading</li>
+                <li><strong>Constraints:</strong> Set clear boundaries and limitations</li>
+              </ul>
+              
+              <h3>Common Prompt Patterns</h3>
+              <p>Here are some effective patterns for different use cases:</p>
+              <ol>
+                <li><strong>Role-based:</strong> "Act as a [role] and help me with [task]"</li>
+                <li><strong>Step-by-step:</strong> "Break down the process of [task] into detailed steps"</li>
+                <li><strong>Comparative:</strong> "Compare and contrast [A] and [B] in terms of [aspects]"</li>
+                <li><strong>Analytical:</strong> "Analyze [topic] from [specific perspectives]"</li>
+              </ol>
+              
+              <h3>Tips for Better Results</h3>
+              <p>To get the most out of your AI interactions:</p>
+              <ul>
+                <li>Be specific about your requirements</li>
+                <li>Use clear and concise language</li>
+                <li>Break complex requests into smaller parts</li>
+                <li>Iterate and refine based on responses</li>
+              </ul>
+              
+              <h3>Practice Exercise</h3>
+              <p>Try crafting prompts for these scenarios:</p>
+              <ol>
+                <li>Writing a product description</li>
+                <li>Analyzing a business strategy</li>
+                <li>Creating a learning curriculum</li>
+                <li>Solving a technical problem</li>
+              </ol>
+              
+              <p>Remember, effective prompt crafting is an iterative process. Don't be afraid to experiment and refine your approach based on the results you receive.</p>
+            </article>
+          `,
+          date: new Date().toISOString(),
+          readTime: "8 min read",
+          summary: "Learn the fundamentals of crafting effective AI prompts in this comprehensive guide for beginners.",
+          tags: ["AI", "Prompts", "Tutorial", "Beginners"],
+          author: "AI Expert",
+          slug: "getting-started-with-ai-prompts-a-beginners-guide"
+        },
+        {
+          title: "Advanced Techniques for AI Prompt Engineering",
+          content: `
+            <article class="prose prose-invert max-w-none">
+              <h2>Mastering AI Prompt Engineering</h2>
+              <p>As AI technology evolves, the art of prompt engineering becomes increasingly sophisticated. This guide explores advanced techniques for crafting prompts that yield exceptional results.</p>
+              
+              <h3>Advanced Prompt Patterns</h3>
+              <ul>
+                <li><strong>Chain-of-Thought:</strong> Guide the AI through logical reasoning steps</li>
+                <li><strong>Few-Shot Learning:</strong> Provide examples to establish patterns</li>
+                <li><strong>Zero-Shot Prompting:</strong> Direct instruction without examples</li>
+                <li><strong>Meta-Prompting:</strong> Prompts about improving prompts</li>
+              </ul>
+              
+              <h3>Optimization Strategies</h3>
+              <p>Enhance your prompt effectiveness through:</p>
+              <ol>
+                <li>Temperature and Top-P adjustments</li>
+                <li>Context window optimization</li>
+                <li>Token efficiency techniques</li>
+                <li>Response format control</li>
+              </ol>
+              
+              <h3>Industry Applications</h3>
+              <p>Real-world applications in:</p>
+              <ul>
+                <li>Content Generation</li>
+                <li>Code Generation</li>
+                <li>Data Analysis</li>
+                <li>Creative Writing</li>
+              </ul>
+              
+              <h3>Best Practices</h3>
+              <p>Advanced considerations for professional prompt engineering:</p>
+              <ul>
+                <li>Ethical considerations</li>
+                <li>Bias mitigation</li>
+                <li>Quality assurance</li>
+                <li>Performance monitoring</li>
+              </ul>
+            </article>
+          `,
+          date: new Date().toISOString(),
+          readTime: "10 min read",
+          summary: "Explore advanced techniques in AI prompt engineering, from chain-of-thought prompting to industry applications.",
+          tags: ["AI", "Advanced", "Prompt Engineering", "Technical"],
+          author: "Prompt Engineer",
+          slug: "advanced-techniques-for-ai-prompt-engineering"
+        }
+      ];
+
+      // Add posts to Firebase
+      const blogRef = ref(db, 'blog');
+      for (const post of posts) {
+        const newPostRef = push(blogRef);
+        await set(newPostRef, {
+          ...post,
+          id: newPostRef.key,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      console.log('Example posts created successfully');
+    } catch (error) {
+      console.error('Error creating example posts:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <div className="border-b border-[#00ffff]/20">
@@ -700,57 +858,151 @@ export default function AdminDashboard() {
 
             {activeTab === 'blog' && (
           <div className="space-y-6">
-            <div className="flex justify-end">
-              <Link href="/admin/blog/new">
-                <Button variant="default">
-                  Create New Post
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-semibold text-white">Blog Posts</h2>
+              <div className="flex gap-4">
+                <Button
+                  variant="outline"
+                  onClick={createExamplePosts}
+                >
+                  Create Example Posts
                 </Button>
-              </Link>
+                <Button
+                  variant="default"
+                  onClick={() => router.push('/admin/blog/new')}
+                >
+                  New Post
+                </Button>
+              </div>
             </div>
 
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[#00ffff]/20">
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Date</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Read Time</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {blogPosts.map((post) => (
-                      <tr 
-                        key={post.id}
-                        className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
-                      >
-                        <td className="px-6 py-4 text-white">{post.title}</td>
-                        <td className="px-6 py-4 text-white/60">
-                          {new Date(post.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-white/60">{post.readTime}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-3">
-                            <Link href={`/admin/blog/edit/${post.id}`}>
-                              <Button variant="ghost" size="sm">
-                                <PencilIcon className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDeletePost(post.id)}
-                            >
-                              <TrashIcon className="h-4 w-4 text-red-500" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+                <p className="text-red-500">{error}</p>
               </div>
+            )}
+
+            <div className="grid gap-6">
+              {editingPost && (
+                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
+                  <div>
+                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={editingPost.title}
+                      onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                      className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+                      placeholder="Enter post title"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                      Summary
+                    </label>
+                    <textarea
+                      value={editingPost.summary}
+                      onChange={(e) => setEditingPost({ ...editingPost, summary: e.target.value })}
+                      className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40 h-24"
+                      placeholder="Enter post summary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                      Read Time
+                    </label>
+                    <input
+                      type="text"
+                      value={editingPost.readTime}
+                      onChange={(e) => setEditingPost({ ...editingPost, readTime: e.target.value })}
+                      className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+                      placeholder="e.g., 5 min read"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                      Content (HTML)
+                    </label>
+                    <div className="border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                      <textarea
+                        value={editingPost.content}
+                        onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                        className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#00ffff]/40"
+                        placeholder="Enter blog content in HTML format"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-4">
+                    <Button
+                      variant="secondary"
+                      onClick={() => setEditingPost(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="default"
+                      onClick={() => handleSavePost(editingPost)}
+                      disabled={saving}
+                    >
+                      {saving ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {!editingPost && (
+                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b border-[#00ffff]/20">
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Date</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Read Time</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {blogPosts.map((post) => (
+                          <tr 
+                            key={post.id}
+                            className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
+                          >
+                            <td className="px-6 py-4 text-white">{post.title}</td>
+                            <td className="px-6 py-4 text-white/60">
+                              {new Date(post.date).toLocaleDateString()}
+                            </td>
+                            <td className="px-6 py-4 text-white/60">{post.readTime}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center space-x-3">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => setEditingPost(post)}
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleDeletePost(post.id)}
+                                >
+                                  <TrashIcon className="h-4 w-4 text-red-500" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
             )}

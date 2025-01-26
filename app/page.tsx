@@ -522,7 +522,6 @@ export default function HomePage() {
                   <li><Link href="/explore" className="text-white/60 hover:text-[#00ffff] transition-colors">Explore</Link></li>
                   <li><Link href="/submit" className="text-white/60 hover:text-[#00ffff] transition-colors">Submit Prompt</Link></li>
                   <li><Link href="/price" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link></li>
-                  <li><Link href="/docs" className="text-white/60 hover:text-[#00ffff] transition-colors">Documentation</Link></li>
                 </ul>
               </div>
               <div className="text-center">

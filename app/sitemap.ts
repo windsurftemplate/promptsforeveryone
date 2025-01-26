@@ -1,5 +1,7 @@
 import { MetadataRoute } from 'next';
 import axios from 'axios';
+import { initializeApp, getApps } from 'firebase/app';
+import { getDatabase, ref, get } from 'firebase/database';
 
 interface Category {
   name: string;
@@ -11,6 +13,25 @@ interface Category {
     };
   };
 }
+
+interface BlogPost {
+  slug: string;
+  date: string;
+}
+
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+};
+
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+const db = getDatabase(app);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.promptsforeveryone.com';
@@ -81,14 +102,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    // 2. Fetch the list of categories from your API
+    // 2. Fetch blog posts from Firebase
+    const blogRef = ref(db, 'blog');
+    const blogSnapshot = await get(blogRef);
+    
+    if (blogSnapshot.exists()) {
+      const blogData = blogSnapshot.val();
+      const blogPosts = Object.values(blogData) as BlogPost[];
+      
+      // Add each blog post to the sitemap
+      blogPosts.forEach((post) => {
+        if (post.slug) {
+          routes.push({
+            url: `${baseUrl}/blog/${post.slug}`,
+            lastModified: post.date || currentDate,
+            changeFrequency: 'monthly',
+            priority: 0.6,
+          });
+        }
+      });
+    }
+
+    // 3. Fetch the list of categories from your API
     const categoriesResponse = await axios.get(`${baseUrl}/api/categories`);
     const categories = categoriesResponse.data as Record<string, Category>;
 
-    // 3. Use a Set to avoid adding duplicate URLs
+    // 4. Use a Set to avoid adding duplicate URLs
     const uniqueUrls = new Set<string>();
 
-    // 4. Loop through all categories
+    // 5. Loop through all categories
     if (categories) {
       for (const [categoryId, categoryData] of Object.entries(categories)) {
         // Category page: /categories/{categoryId}
@@ -104,7 +146,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           });
         }
 
-        // 5. Add subcategory pages with normalized names
+        // 6. Add subcategory pages with normalized names
         if (categoryData.subcategories) {
           for (const [_, subcategory] of Object.entries(categoryData.subcategories)) {
             // Skip if no name is provided
@@ -134,9 +176,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error generating sitemap:', error);
   }
 
-  // 6. Return the final list of routes
+  // 7. Return the final list of routes
   return routes;
 }
