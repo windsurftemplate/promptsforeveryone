@@ -10,6 +10,24 @@
 
         gtag('config', 'G-RH79PQ2B33');
     </script>
+    <!-- Microsoft Clarity Analytics Tracking Code -->
+    <script type="text/javascript">
+        (function(window, document, clarityName, scriptType, clarityID, scriptElement, existingScript) {
+            // Initialize clarity function if not already defined
+            window[clarityName] = window[clarityName] || function() {
+                (window[clarityName].q = window[clarityName].q || []).push(arguments);
+            };
+            
+            // Create new script element
+            scriptElement = document.createElement(scriptType);
+            scriptElement.async = 1;
+            scriptElement.src = "https://www.clarity.ms/tag/" + clarityID;
+            
+            // Insert script before first script tag
+            existingScript = document.getElementsByTagName(scriptType)[0];
+            existingScript.parentNode.insertBefore(scriptElement, existingScript);
+        })(window, document, "clarity", "script", "pv143imsm3");
+    </script>
     // ... rest of your head content
 </head>
 // ... rest of your HTML 
