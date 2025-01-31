@@ -176,11 +176,11 @@ const PromptCoach: React.FC = () => {
         throw new Error(errorData.error)
       }
 
-      if (!data.choices?.[0]?.message?.content) {
+      if (!data.feedback) {
         throw new Error('Received invalid response from AI service')
       }
 
-      setAiAnalysis(data.choices[0].message.content)
+      setAiAnalysis(data.feedback)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(errorMessage)

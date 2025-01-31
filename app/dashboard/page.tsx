@@ -19,6 +19,10 @@ import { ads } from '@/config/ads';
 import PromptList from '@/components/PromptList';
 import { Prompt, PromptCategory, PromptVisibility } from '@/types/prompt';
 import { motion } from 'framer-motion';
+import TemplateGenerator from '@/components/templates/TemplateGenerator';
+import PromptLearning from '@/components/prompt-learning/PromptLearning';
+import InteractiveLearning from '@/components/prompt-learning/InteractiveLearning';
+import CheatSheets from '@/components/prompt-learning/CheatSheets';
 
 interface Category {
   id: string;
@@ -52,7 +56,7 @@ export default function DashboardPage() {
   const { selectedCategory, selectedSubcategory, isSidebarCollapsed, setSelectedCategory, viewMode, setViewMode } = useDashboard();
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
-  const [activeTab, setActiveTab] = useState<'prompts' | 'generator' | 'coach' | 'profile'>('prompts');
+  const [activeTab, setActiveTab] = useState<'prompts' | 'generator' | 'coach' | 'profile' | 'templates' | 'learn' | 'interactive' | 'cheatsheets'>('prompts');
   const [userStats, setUserStats] = useState({
     totalPrompts: 0,
     privateCategories: 0,
@@ -436,47 +440,89 @@ export default function DashboardPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-[#00ffff] mb-8 mx-4">
-          <button
-            onClick={() => setActiveTab('prompts')}
-            className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === 'prompts'
-                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            Prompts
-          </button>
-          <button
-            onClick={() => setActiveTab('generator')}
-            className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === 'generator'
-                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            Prompt Generator
-          </button>
-          <button
-            onClick={() => setActiveTab('coach')}
-            className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === 'coach'
-                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            Prompt Coach
-          </button>
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`px-6 py-3 font-medium text-sm transition-colors ${
-              activeTab === 'profile'
-                ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            Profile Settings
-          </button>
+        <div className="flex items-center justify-between mb-8 px-6 pt-6">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setActiveTab('prompts')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'prompts'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              My Prompts
+            </button>
+            <button
+              onClick={() => setActiveTab('generator')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'generator'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Generator
+            </button>
+            <button
+              onClick={() => setActiveTab('coach')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'coach'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Coach
+            </button>
+            <button
+              onClick={() => setActiveTab('templates')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'templates'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Templates
+            </button>
+            <button
+              onClick={() => setActiveTab('learn')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'learn'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Learn
+            </button>
+            <button
+              onClick={() => setActiveTab('interactive')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'interactive'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Practice
+            </button>
+            <button
+              onClick={() => setActiveTab('cheatsheets')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'cheatsheets'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Cheat Sheets
+            </button>
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`px-4 py-2 rounded-lg transition-colors ${
+                activeTab === 'profile'
+                  ? 'bg-[#00ffff] text-black'
+                  : 'text-gray-400 hover:text-[#00ffff]'
+              }`}
+            >
+              Profile
+            </button>
+          </div>
         </div>
 
         {activeTab === 'prompts' && (
@@ -599,6 +645,30 @@ export default function DashboardPage() {
         {activeTab === 'coach' && (
           <div className="mx-4">
             <PromptCoach />
+          </div>
+        )}
+
+        {activeTab === 'templates' && (
+          <div className="mx-4">
+            <TemplateGenerator />
+          </div>
+        )}
+
+        {activeTab === 'learn' && (
+          <div className="mx-4">
+            <PromptLearning />
+          </div>
+        )}
+
+        {activeTab === 'interactive' && (
+          <div className="mx-4">
+            <InteractiveLearning />
+          </div>
+        )}
+
+        {activeTab === 'cheatsheets' && (
+          <div className="mx-4">
+            <CheatSheets />
           </div>
         )}
 

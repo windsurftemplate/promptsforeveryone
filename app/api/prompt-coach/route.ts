@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { AI_CONFIG } from '@/config/ai';
 
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY
 const API_URL = 'https://api.together.xyz/v1/chat/completions'
@@ -21,18 +22,12 @@ export async function POST(req: Request) {
       )
     }
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${TOGETHER_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a Prompt Engineering expert. Analyze prompts and provide detailed, constructive feedback to help users improve them. Focus on:
+    const requestBody = {
+      model: AI_CONFIG.chatModel,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a Prompt Engineering expert. Analyze prompts and provide detailed, constructive feedback to help users improve them. Focus on:
 1. Clarity and specificity
 2. Context and background information
 3. Target audience definition
@@ -42,53 +37,53 @@ export async function POST(req: Request) {
 7. Examples of improved versions
 
 Keep your feedback constructive, specific, and actionable.`
-          },
-          {
-            role: 'user',
-            content: `Please analyze this prompt and provide detailed feedback: "${prompt}"`
-          }
-        ],
-        max_tokens: 1024,
-        temperature: 0.7,
-      })
+        },
+        {
+          role: 'user',
+          content: `Please analyze this prompt and provide detailed feedback: "${prompt}"`
+        }
+      ],
+      temperature: AI_CONFIG.chatSettings.temperature,
+      max_tokens: AI_CONFIG.chatSettings.max_tokens,
+      top_p: AI_CONFIG.chatSettings.top_p
+    }
+
+    console.log('Request body:', JSON.stringify(requestBody, null, 2))
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${TOGETHER_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody)
     })
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null)
-      const errorMessage = errorData?.error?.message || response.statusText || 'Unknown error occurred'
-      throw new Error(`API Error (${response.status}): ${errorMessage}`)
+      console.error('API Error Response:', JSON.stringify(errorData, null, 2))
+      throw new Error(
+        errorData?.error?.message || 
+        `Failed to analyze prompt. Status: ${response.status}. Message: ${JSON.stringify(errorData)}`
+      )
     }
 
     const data = await response.json()
+    console.log('API Response:', JSON.stringify(data, null, 2))
     
-    if (!data.choices?.[0]?.message?.content) {
+    // Check for both possible response formats
+    const content = data.choices?.[0]?.message?.content || data.output?.choices?.[0]?.message?.content
+    if (!content) {
+      console.error('Invalid API Response Format:', JSON.stringify(data, null, 2))
       throw new Error('Invalid response format from AI service')
     }
 
-    return NextResponse.json(data)
+    return NextResponse.json({ feedback: content })
   } catch (error) {
-    console.error('Error in prompt-coach API:', error)
-    
-    // Determine if it's a known error type
-    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
-    
-    // Map error messages to user-friendly responses
-    const userFriendlyError = errorMessage.includes('API Error (429)') 
-      ? 'Too many requests. Please try again in a moment.'
-      : errorMessage.includes('API Error (401)') 
-      ? 'Authentication error. Please contact support.'
-      : errorMessage.includes('API Error (503)') 
-      ? 'AI service is temporarily unavailable. Please try again later.'
-      : errorMessage.includes('Invalid response format') 
-      ? 'Received invalid response from AI service. Please try again.'
-      : 'Failed to analyze prompt. Please try again later.'
-
+    console.error('Error analyzing prompt:', error)
     return NextResponse.json(
-      { 
-        error: userFriendlyError,
-        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
-      },
+      { error: error instanceof Error ? error.message : 'Failed to analyze prompt' },
       { status: 500 }
-    )
+    );
   }
 } 

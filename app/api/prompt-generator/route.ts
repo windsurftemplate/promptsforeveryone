@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { AI_CONFIG } from '@/config/ai';
 
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY
 const TOGETHER_API_URL = 'https://api.together.xyz/inference'
@@ -30,49 +31,22 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${TOGETHER_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+        model: AI_CONFIG.model,
         prompt: `You are a creative prompt generator. Generate a high-quality prompt for the following category: ${category}. Follow this instruction: ${instruction}. The prompt should be engaging, specific, and actionable. Format your response as a JSON object with "title" and "prompt" fields.`,
-        temperature: 0.8,
-        top_p: 0.9,
-        top_k: 50,
-        max_tokens: 400,
-        repetition_penalty: 1.1
+        ...AI_CONFIG.settings
       })
     })
 
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`)
+      throw new Error('Failed to generate prompt')
     }
 
     const data = await response.json()
-    const generatedText = data.output.choices[0].text
-
-    try {
-      // Parse the generated text as JSON
-      const parsedResponse = JSON.parse(generatedText)
-      return NextResponse.json(parsedResponse)
-    } catch (parseError) {
-      // If parsing fails, try to extract title and prompt using regex
-      const titleMatch = generatedText.match(/"title":\s*"([^"]+)"/)
-      const promptMatch = generatedText.match(/"prompt":\s*"([^"]+)"/)
-
-      if (titleMatch && promptMatch) {
-        return NextResponse.json({
-          title: titleMatch[1],
-          prompt: promptMatch[1]
-        })
-      } else {
-        // If regex fails, return the raw text as prompt
-        return NextResponse.json({
-          title: `${category} Prompt`,
-          prompt: generatedText.trim()
-        })
-      }
-    }
+    return NextResponse.json(data)
   } catch (error) {
     console.error('Error generating prompt:', error)
     return NextResponse.json(
-      { error: 'Failed to generate prompt. Please try again.' },
+      { error: 'Failed to generate prompt' },
       { status: 500 }
     )
   }

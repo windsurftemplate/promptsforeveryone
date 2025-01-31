@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { AI_CONFIG } from '@/config/ai';
 
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY
 const TOGETHER_API_URL = 'https://api.together.xyz/inference'
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+        model: AI_CONFIG.model,
         prompt: `You are a creative prompt enhancement expert. Your task is to take a basic prompt and enhance it by:
 1. Adding more specific details and context
 2. Making it more engaging and creative
@@ -40,11 +41,7 @@ Keep the enhanced version concise but more effective than the original.
 Respond with ONLY the enhanced prompt, no explanations or additional text.
 
 Enhance this prompt: "${prompt}"`,
-        temperature: 0.7,
-        top_p: 0.7,
-        top_k: 50,
-        repetition_penalty: 1.1,
-        max_tokens: 400,
+        ...AI_CONFIG.settings
       }),
     })
 
@@ -63,7 +60,7 @@ Enhance this prompt: "${prompt}"`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'meta-llama/Llama-3.3-70B-Instruct-Turbo-Free',
+        model: AI_CONFIG.model,
         prompt: `You are a title enhancement expert. Your task is to take a basic title and enhance it to be more engaging and descriptive.
 
 Original Title: "${title}"
@@ -76,11 +73,7 @@ Create an enhanced version of the title that:
 4. Captures attention immediately
 
 Generate only the enhanced title without any additional text or punctuation:`,
-        temperature: 0.7,
-        top_p: 0.7,
-        top_k: 50,
-        repetition_penalty: 1.1,
-        max_tokens: 400,
+        ...AI_CONFIG.settings
       }),
     })
 
@@ -91,12 +84,12 @@ Generate only the enhanced title without any additional text or punctuation:`,
     const titleData = await titleResponse.json()
     const enhancedTitle = titleData.output.choices[0].text.trim()
 
-    return NextResponse.json({ 
-      enhancedPrompt,
-      enhancedTitle
+    return NextResponse.json({
+      title: enhancedTitle,
+      prompt: enhancedPrompt
     })
   } catch (error) {
-    console.error('Error in prompt enhancement:', error)
+    console.error('Error enhancing prompt:', error)
     return NextResponse.json(
       { error: 'Failed to enhance prompt' },
       { status: 500 }
