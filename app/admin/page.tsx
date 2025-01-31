@@ -92,6 +92,7 @@ export default function AdminDashboard() {
   const [htmlContent, setHtmlContent] = useState('');
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pwaStats, setPwaStats] = useState({ installs: 0 });
 
   const handleCopy = async (text: string) => {
     try {
@@ -295,10 +296,19 @@ export default function AdminDashboard() {
 
     fetchPrompts();
 
+    // Fetch PWA stats
+    const pwaStatsRef = ref(db, 'stats/pwa');
+    const unsubscribePwaStats = onValue(pwaStatsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setPwaStats(snapshot.val());
+      }
+    });
+
     return () => {
       unsubscribeUsers();
       unsubscribeBlog();
       unsubscribe();
+      unsubscribePwaStats();
     };
   }, [user, router]);
 
@@ -773,228 +783,83 @@ export default function AdminDashboard() {
         ) : (
           <>
             {activeTab === 'users' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                <h3 className="text-[#00ffff] text-sm mb-1">Total Users</h3>
-                <p className="text-2xl font-semibold text-white">{users.length}</p>
-              </div>
-              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                <h3 className="text-[#00ffff] text-sm mb-1">Admin Users</h3>
-                <p className="text-2xl font-semibold text-white">
-                  {users.filter(user => user.role === 'admin').length}
-                </p>
-              </div>
-            </div>
-            <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-[#00ffff]/20">
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Email</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Role</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Plan</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Prompts</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
-                      <th className="px-6 py-4 text-left text-[#00ffff]">Last Login</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user) => (
-                      <tr 
-                        key={user.uid}
-                        className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
-                      >
-                        <td className="px-6 py-4 text-white">{user.email}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 rounded-full text-sm ${
-                              user.role === 'admin' 
-                                ? 'bg-red-500/20 text-red-400'
-                                : 'bg-blue-500/20 text-blue-400'
-                            }`}>
-                              {user.role || 'user'}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateUser(user.uid, 'role', user.role === 'admin' ? 'user' : 'admin')}
-                              className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
-                            >
-                              <PencilIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 rounded-full text-sm ${
-                              user.plan === 'paid' 
-                                ? 'bg-green-500/20 text-green-400'
-                                : 'bg-gray-500/20 text-gray-400'
-                            }`}>
-                              {user.plan || 'free'}
-                            </span>
-                            <button
-                              onClick={() => handleUpdateUser(user.uid, 'plan', user.plan === 'paid' ? 'free' : 'paid')}
-                              className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
-                            >
-                              <PencilIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-white/60">{user.promptCount}</td>
-                        <td className="px-6 py-4 text-white/60">
-                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 text-white/60">
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'N/A'}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-            )}
-
-            {activeTab === 'blog' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold text-white">Blog Posts</h2>
-              <div className="flex gap-4">
-                <Button
-                  variant="outline"
-                  onClick={createExamplePosts}
-                >
-                  Create Example Posts
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={() => router.push('/admin/blog/new')}
-                >
-                  New Post
-                </Button>
-              </div>
-            </div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
-                <p className="text-red-500">{error}</p>
-              </div>
-            )}
-
-            <div className="grid gap-6">
-              {editingPost && (
-                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
-                      Title
-                    </label>
-                    <input
-                      type="text"
-                      value={editingPost.title}
-                      onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                      className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
-                      placeholder="Enter post title"
-                    />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <h3 className="text-[#00ffff] text-sm mb-1">Total Users</h3>
+                    <p className="text-2xl font-semibold text-white">{users.length}</p>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
-                      Summary
-                    </label>
-                    <textarea
-                      value={editingPost.summary}
-                      onChange={(e) => setEditingPost({ ...editingPost, summary: e.target.value })}
-                      className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40 h-24"
-                      placeholder="Enter post summary"
-                    />
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <h3 className="text-[#00ffff] text-sm mb-1">Admin Users</h3>
+                    <p className="text-2xl font-semibold text-white">
+                      {users.filter(user => user.role === 'admin').length}
+                    </p>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
-                      Read Time
-                    </label>
-                    <input
-                      type="text"
-                      value={editingPost.readTime}
-                      onChange={(e) => setEditingPost({ ...editingPost, readTime: e.target.value })}
-                      className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
-                      placeholder="e.g., 5 min read"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-[#00ffff] mb-2">
-                      Content (HTML)
-                    </label>
-                    <div className="border border-[#00ffff]/20 rounded-lg overflow-hidden">
-                      <textarea
-                        value={editingPost.content}
-                        onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-                        className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#00ffff]/40"
-                        placeholder="Enter blog content in HTML format"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end space-x-4">
-                    <Button
-                      variant="secondary"
-                      onClick={() => setEditingPost(null)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      variant="default"
-                      onClick={() => handleSavePost(editingPost)}
-                      disabled={saving}
-                    >
-                      {saving ? 'Saving...' : 'Save'}
-                    </Button>
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <h3 className="text-[#00ffff] text-sm mb-1">PWA Installs</h3>
+                    <p className="text-2xl font-semibold text-white">{pwaStats.installs}</p>
                   </div>
                 </div>
-              )}
-
-              {!editingPost && (
                 <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-[#00ffff]/20">
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Date</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Read Time</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Email</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Role</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Plan</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Prompts</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
+                          <th className="px-6 py-4 text-left text-[#00ffff]">Last Login</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {blogPosts.map((post) => (
+                        {users.map((user) => (
                           <tr 
-                            key={post.id}
+                            key={user.uid}
                             className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
                           >
-                            <td className="px-6 py-4 text-white">{post.title}</td>
-                            <td className="px-6 py-4 text-white/60">
-                              {new Date(post.date).toLocaleDateString()}
-                            </td>
-                            <td className="px-6 py-4 text-white/60">{post.readTime}</td>
+                            <td className="px-6 py-4 text-white">{user.email}</td>
                             <td className="px-6 py-4">
-                              <div className="flex items-center space-x-3">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => setEditingPost(post)}
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-1 rounded-full text-sm ${
+                                  user.role === 'admin' 
+                                    ? 'bg-red-500/20 text-red-400'
+                                    : 'bg-blue-500/20 text-blue-400'
+                                }`}>
+                                  {user.role || 'user'}
+                                </span>
+                                <button
+                                  onClick={() => handleUpdateUser(user.uid, 'role', user.role === 'admin' ? 'user' : 'admin')}
+                                  className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
                                 >
                                   <PencilIcon className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => handleDeletePost(post.id)}
-                                >
-                                  <TrashIcon className="h-4 w-4 text-red-500" />
-                                </Button>
+                                </button>
                               </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-1 rounded-full text-sm ${
+                                  user.plan === 'paid' 
+                                    ? 'bg-green-500/20 text-green-400'
+                                    : 'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                  {user.plan || 'free'}
+                                </span>
+                                <button
+                                  onClick={() => handleUpdateUser(user.uid, 'plan', user.plan === 'paid' ? 'free' : 'paid')}
+                                  className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
+                                >
+                                  <PencilIcon className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-white/60">{user.promptCount}</td>
+                            <td className="px-6 py-4 text-white/60">
+                              {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td className="px-6 py-4 text-white/60">
+                              {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'N/A'}
                             </td>
                           </tr>
                         ))}
@@ -1002,176 +867,325 @@ export default function AdminDashboard() {
                     </table>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
+
+            {activeTab === 'blog' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-semibold text-white">Blog Posts</h2>
+                  <div className="flex gap-4">
+                    <Button
+                      variant="outline"
+                      onClick={createExamplePosts}
+                    >
+                      Create Example Posts
+                    </Button>
+                    <Button
+                      variant="default"
+                      onClick={() => router.push('/admin/blog/new')}
+                    >
+                      New Post
+                    </Button>
+                  </div>
+                </div>
+
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6">
+                    <p className="text-red-500">{error}</p>
+                  </div>
+                )}
+
+                <div className="grid gap-6">
+                  {editingPost && (
+                    <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                          Title
+                        </label>
+                        <input
+                          type="text"
+                          value={editingPost.title}
+                          onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                          className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+                          placeholder="Enter post title"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                          Summary
+                        </label>
+                        <textarea
+                          value={editingPost.summary}
+                          onChange={(e) => setEditingPost({ ...editingPost, summary: e.target.value })}
+                          className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40 h-24"
+                          placeholder="Enter post summary"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                          Read Time
+                        </label>
+                        <input
+                          type="text"
+                          value={editingPost.readTime}
+                          onChange={(e) => setEditingPost({ ...editingPost, readTime: e.target.value })}
+                          className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+                          placeholder="e.g., 5 min read"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                          Content (HTML)
+                        </label>
+                        <div className="border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                          <textarea
+                            value={editingPost.content}
+                            onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                            className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#00ffff]/40"
+                            placeholder="Enter blog content in HTML format"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end space-x-4">
+                        <Button
+                          variant="secondary"
+                          onClick={() => setEditingPost(null)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="default"
+                          onClick={() => handleSavePost(editingPost)}
+                          disabled={saving}
+                        >
+                          {saving ? 'Saving...' : 'Save'}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {!editingPost && (
+                    <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-[#00ffff]/20">
+                              <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
+                              <th className="px-6 py-4 text-left text-[#00ffff]">Date</th>
+                              <th className="px-6 py-4 text-left text-[#00ffff]">Read Time</th>
+                              <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {blogPosts.map((post) => (
+                              <tr 
+                                key={post.id}
+                                className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
+                              >
+                                <td className="px-6 py-4 text-white">{post.title}</td>
+                                <td className="px-6 py-4 text-white/60">
+                                  {new Date(post.date).toLocaleDateString()}
+                                </td>
+                                <td className="px-6 py-4 text-white/60">{post.readTime}</td>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center space-x-3">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={() => setEditingPost(post)}
+                                    >
+                                      <PencilIcon className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={() => handleDeletePost(post.id)}
+                                    >
+                                      <TrashIcon className="h-4 w-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
 
             {activeTab === 'categories' && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                <h3 className="text-[#00ffff] text-sm mb-1">Total Categories</h3>
-                <p className="text-2xl font-semibold text-white">{categories.length}</p>
-              </div>
-              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                <h3 className="text-[#00ffff] text-sm mb-1">Total Subcategories</h3>
-                <p className="text-2xl font-semibold text-white">
-                  {categories.reduce((total, category) => 
-                    total + (category.subcategories ? Object.keys(category.subcategories).length : 0), 
-                  0)}
-                </p>
-              </div>
-              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                <h3 className="text-[#00ffff] text-sm mb-1">Total Pages</h3>
-                <p className="text-2xl font-semibold text-white">
-                  {(() => {
-                    // Count static pages
-                    let count = 6; // home, categories, explore, blog, about, contact
-                    
-                    // Count category and subcategory pages
-                    categories.forEach(category => {
-                      // Add main category page
-                      count++;
-                      // Add subcategory pages
-                      if (category.subcategories) {
-                        count += Object.keys(category.subcategories).length;
-                      }
-                    });
-                    
-                    // Count prompt pages
-                    count += prompts.filter(prompt => !prompt.isPrivate).length;
-                    
-                    return count;
-                  })()}
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">Categories</h2>
-              <Button
-                onClick={() => setIsAddingCategory(true)}
-                className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
-              >
-                Add Category
-              </Button>
-            </div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            {isAddingCategory && (
-              <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                <input
-                  type="text"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="Category name"
-                  className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none mb-4"
-                />
-                <div className="flex gap-2">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <h3 className="text-[#00ffff] text-sm mb-1">Total Categories</h3>
+                    <p className="text-2xl font-semibold text-white">{categories.length}</p>
+                  </div>
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <h3 className="text-[#00ffff] text-sm mb-1">Total Subcategories</h3>
+                    <p className="text-2xl font-semibold text-white">
+                      {categories.reduce((total, category) => 
+                        total + (category.subcategories ? Object.keys(category.subcategories).length : 0), 
+                      0)}
+                    </p>
+                  </div>
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <h3 className="text-[#00ffff] text-sm mb-1">Total Pages</h3>
+                    <p className="text-2xl font-semibold text-white">
+                      {(() => {
+                        // Count static pages
+                        let count = 6; // home, categories, explore, blog, about, contact
+                        
+                        // Count category and subcategory pages
+                        categories.forEach(category => {
+                          // Add main category page
+                          count++;
+                          // Add subcategory pages
+                          if (category.subcategories) {
+                            count += Object.keys(category.subcategories).length;
+                          }
+                        });
+                        
+                        // Count prompt pages
+                        count += prompts.filter(prompt => !prompt.isPrivate).length;
+                        
+                        return count;
+                      })()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold text-white">Categories</h2>
                   <Button
-                    onClick={handleAddCategory}
+                    onClick={() => setIsAddingCategory(true)}
                     className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
                   >
                     Add Category
                   </Button>
-                  <Button
-                    onClick={() => {
-                      setIsAddingCategory(false);
-                      setNewCategoryName('');
-                    }}
-                    className="bg-black/50 text-white border border-[#00ffff]/20 px-4 py-2 rounded-lg hover:border-[#00ffff]/40 transition-colors"
-                  >
-                    Cancel
-                  </Button>
                 </div>
-              </div>
-            )}
 
-            <div className="space-y-4">
-              {categories.map((category) => (
-                <div key={category.id} className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-medium text-white">{category.name}</h3>
+                {error && (
+                  <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-lg">
+                    {error}
+                  </div>
+                )}
+
+                {isAddingCategory && (
+                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <input
+                      type="text"
+                      value={newCategoryName}
+                      onChange={(e) => setNewCategoryName(e.target.value)}
+                      placeholder="Category name"
+                      className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none mb-4"
+                    />
                     <div className="flex gap-2">
                       <Button
-                        onClick={() => {
-                          setSelectedCategory(category.id);
-                          setIsAddingSubcategory(true);
-                        }}
-                        className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+                        onClick={handleAddCategory}
+                        className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
                       >
-                        Add Subcategory
+                        Add Category
                       </Button>
                       <Button
-                        onClick={() => handleDeleteCategory(category.id)}
-                        className="text-red-500 hover:text-red-400 transition-colors"
+                        onClick={() => {
+                          setIsAddingCategory(false);
+                          setNewCategoryName('');
+                        }}
+                        className="bg-black/50 text-white border border-[#00ffff]/20 px-4 py-2 rounded-lg hover:border-[#00ffff]/40 transition-colors"
                       >
-                        Delete
+                        Cancel
                       </Button>
                     </div>
                   </div>
+                )}
 
-                  {selectedCategory === category.id && isAddingSubcategory && (
-                    <div className="mb-4 bg-black/20 border border-[#00ffff]/10 rounded-lg p-4">
-                      <input
-                        type="text"
-                        value={newSubcategoryName}
-                        onChange={(e) => setNewSubcategoryName(e.target.value)}
-                        placeholder="Subcategory name"
-                        className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none mb-4"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleAddSubcategory(category.id)}
-                          className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
-                        >
-                          Add Subcategory
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setIsAddingSubcategory(false);
-                            setNewSubcategoryName('');
-                            setSelectedCategory(null);
-                          }}
-                          className="bg-black/50 text-white border border-[#00ffff]/20 px-4 py-2 rounded-lg hover:border-[#00ffff]/40 transition-colors"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {category.subcategories && Object.keys(category.subcategories).length > 0 && (
-                    <div className="mt-4">
-                      <h4 className="text-sm font-medium text-white/60 mb-2">Subcategories:</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {Object.entries(category.subcategories).map(([id, subcategory]) => (
-                          <div
-                            key={id}
-                            className="flex justify-between items-center bg-black/20 border border-[#00ffff]/10 rounded-lg p-2"
+                <div className="space-y-4">
+                  {categories.map((category) => (
+                    <div key={category.id} className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                      <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-medium text-white">{category.name}</h3>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => {
+                              setSelectedCategory(category.id);
+                              setIsAddingSubcategory(true);
+                            }}
+                            className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
                           >
-                            <span className="text-white">{subcategory.name}</span>
+                            Add Subcategory
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="text-red-500 hover:text-red-400 transition-colors"
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+
+                      {selectedCategory === category.id && isAddingSubcategory && (
+                        <div className="mb-4 bg-black/20 border border-[#00ffff]/10 rounded-lg p-4">
+                          <input
+                            type="text"
+                            value={newSubcategoryName}
+                            onChange={(e) => setNewSubcategoryName(e.target.value)}
+                            placeholder="Subcategory name"
+                            className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none mb-4"
+                          />
+                          <div className="flex gap-2">
                             <Button
-                              onClick={() => handleDeleteSubcategory(category.id, id)}
-                              className="text-red-500 hover:text-red-400 transition-colors"
+                              onClick={() => handleAddSubcategory(category.id)}
+                              className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
                             >
-                              Delete
+                              Add Subcategory
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                setIsAddingSubcategory(false);
+                                setNewSubcategoryName('');
+                                setSelectedCategory(null);
+                              }}
+                              className="bg-black/50 text-white border border-[#00ffff]/20 px-4 py-2 rounded-lg hover:border-[#00ffff]/40 transition-colors"
+                            >
+                              Cancel
                             </Button>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      )}
+
+                      {category.subcategories && Object.keys(category.subcategories).length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium text-white/60 mb-2">Subcategories:</h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {Object.entries(category.subcategories).map(([id, subcategory]) => (
+                              <div
+                                key={id}
+                                className="flex justify-between items-center bg-black/20 border border-[#00ffff]/10 rounded-lg p-2"
+                              >
+                                <span className="text-white">{subcategory.name}</span>
+                                <Button
+                                  onClick={() => handleDeleteSubcategory(category.id, id)}
+                                  className="text-red-500 hover:text-red-400 transition-colors"
+                                >
+                                  Delete
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
             {activeTab === 'prompts' && (
               <div className="space-y-6">
