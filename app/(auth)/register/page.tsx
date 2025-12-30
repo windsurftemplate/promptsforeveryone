@@ -7,6 +7,7 @@ import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, sign
 import { ref, get, set } from 'firebase/database';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { SparklesIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -18,13 +19,8 @@ export default function RegisterPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Scroll to top on component mount
     if (typeof window !== 'undefined') {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     }
   }, []);
 
@@ -33,7 +29,7 @@ export default function RegisterPage() {
     setError('');
 
     if (!tosAgreed) {
-      setError('⚠️ Please check the Terms of Service box to continue');
+      setError('Please agree to the Terms of Service to continue');
       return;
     }
 
@@ -47,11 +43,9 @@ export default function RegisterPage() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // Update user profile with name
+
       await updateProfile(user, { displayName: name });
 
-      // Save user data to Firebase Realtime Database
       const userRef = ref(db, `users/${user.uid}`);
       await set(userRef, {
         email: user.email,
@@ -64,10 +58,9 @@ export default function RegisterPage() {
 
       router.push('/dashboard');
     } catch (err: any) {
-      // Handle specific Firebase auth errors
       switch (err.code) {
         case 'auth/email-already-in-use':
-          setError('This email is already registered. Please try logging in instead.');
+          setError('This email is already registered. Please sign in instead.');
           break;
         case 'auth/invalid-email':
           setError('Please enter a valid email address.');
@@ -78,7 +71,6 @@ export default function RegisterPage() {
         default:
           setError('Failed to create an account. Please try again.');
       }
-      console.error(err);
     }
 
     setLoading(false);
@@ -86,7 +78,7 @@ export default function RegisterPage() {
 
   const handleGoogleSignIn = async () => {
     if (!tosAgreed) {
-      setError('You must agree to the Terms of Service to create an account');
+      setError('Please agree to the Terms of Service to continue');
       return;
     }
 
@@ -94,18 +86,14 @@ export default function RegisterPage() {
 
     try {
       const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
+      provider.setCustomParameters({ prompt: 'select_account' });
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user already exists in database
       const userRef = ref(db, `users/${user.uid}`);
       const snapshot = await get(userRef);
 
       if (!snapshot.exists()) {
-        // Create new user document in database
         await set(userRef, {
           email: user.email,
           name: user.displayName,
@@ -115,39 +103,45 @@ export default function RegisterPage() {
           lastLogin: new Date().toISOString()
         });
       } else {
-        // Update last login time
         await set(ref(db, `users/${user.uid}/lastLogin`), new Date().toISOString());
       }
 
       router.push('/dashboard');
     } catch (err) {
       setError('Failed to sign in with Google. Please try again.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <div className="w-12 h-12 rounded-xl bg-emerald/10 border border-emerald/20 flex items-center justify-center">
+              <SparklesIcon className="w-6 h-6 text-emerald" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-medium text-white tracking-tight font-display">
             Create Account
           </h2>
-          <p className="mt-2 text-white/60">
-            Join our community
+          <p className="mt-2 text-sm text-neutral-500">
+            Join our community of prompt creators
           </p>
         </div>
 
-        <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-8 shadow-lg backdrop-blur-sm">
+        {/* Card */}
+        <div className="glass-panel rounded-2xl p-8">
+          {/* Google Sign In */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-[#00ffff]/20 text-sm font-medium rounded-md text-white bg-black/50 hover:bg-[#00ffff]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00ffff] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-sm font-medium text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -165,27 +159,34 @@ export default function RegisterPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {loading ? 'Signing in...' : 'Continue with Google'}
+            {loading ? 'Signing up...' : 'Continue with Google'}
           </button>
 
+          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#00ffff]/20"></div>
+              <div className="w-full border-t border-white/10" />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-black text-white/60">Or continue with email</span>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-3 bg-black text-neutral-500">or continue with email</span>
             </div>
           </div>
 
+          {/* Error Message */}
           {error && (
-            <div className={`mb-4 p-3 rounded ${error.includes('Terms of Service') ? 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-500' : 'bg-red-500/10 border border-red-500/20 text-red-500'}`}>
+            <div className={`mb-6 p-3 rounded-lg text-sm text-center ${
+              error.includes('Terms')
+                ? 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-400'
+                : 'bg-red-500/10 border border-red-500/20 text-red-400'
+            }`}>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-white/80 mb-1">
+              <label htmlFor="name" className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
                 Name
               </label>
               <input
@@ -194,16 +195,13 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
-                placeholder="Enter your name"
+                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-emerald/50 focus:ring-1 focus:ring-emerald/30 transition-all"
+                placeholder="Your display name"
               />
-              <p className="mt-1 text-sm text-white/60">
-                This will be your public display name
-              </p>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-1">
+              <label htmlFor="email" className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
                 Email
               </label>
               <input
@@ -212,16 +210,13 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
-                placeholder="Enter your email"
+                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-emerald/50 focus:ring-1 focus:ring-emerald/30 transition-all"
+                placeholder="you@example.com"
               />
-              <p className="mt-1 text-sm text-white/60">
-                Your email will be used to sign in to your account
-              </p>
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-1">
+              <label htmlFor="password" className="block text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2">
                 Password
               </label>
               <input
@@ -230,50 +225,82 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
-                placeholder="Create a password"
+                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-emerald/50 focus:ring-1 focus:ring-emerald/30 transition-all"
+                placeholder="At least 6 characters"
               />
-              <p className="mt-1 text-sm text-white/60">
-                Password must be at least 6 characters long. For better security, include numbers, symbols, and mixed case letters.
+              <p className="mt-1.5 text-xs text-neutral-600">
+                Use 6+ characters with numbers and symbols for best security
               </p>
             </div>
 
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
+            {/* Terms Checkbox */}
+            <div className="flex items-start gap-3">
+              <div className="relative flex items-center">
                 <input
                   id="tos"
                   name="tos"
                   type="checkbox"
                   checked={tosAgreed}
                   onChange={(e) => setTosAgreed(e.target.checked)}
-                  className={`h-4 w-4 rounded border-[#00ffff]/20 bg-black/50 text-[#00ffff] focus:ring-[#00ffff]/50 ${!tosAgreed && error && error.includes('Terms of Service') ? 'ring-2 ring-red-500' : ''}`}
+                  className="sr-only"
                 />
+                <button
+                  type="button"
+                  onClick={() => setTosAgreed(!tosAgreed)}
+                  className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
+                    tosAgreed
+                      ? 'bg-emerald border-emerald'
+                      : 'bg-black/40 border-white/20 hover:border-white/40'
+                  }`}
+                >
+                  {tosAgreed && <CheckIcon className="w-3 h-3 text-white" />}
+                </button>
               </div>
-              <div className="ml-3">
-                <label htmlFor="tos" className={`text-sm ${!tosAgreed && error && error.includes('Terms of Service') ? 'text-red-500' : 'text-white/80'}`}>
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-[#00ffff] hover:text-[#00ffff]/80" target="_blank">
-                    Terms of Service
-                  </Link>
-                </label>
-              </div>
+              <label htmlFor="tos" className="text-sm text-neutral-400">
+                I agree to the{' '}
+                <Link href="/terms" className="text-emerald hover:text-emerald-light transition-colors" target="_blank">
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link href="/privacy" className="text-emerald hover:text-emerald-light transition-colors" target="_blank">
+                  Privacy Policy
+                </Link>
+              </label>
             </div>
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-3 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full"
+              size="lg"
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-white/60">
+          {/* Footer */}
+          <p className="mt-6 text-center text-sm text-neutral-500">
             Already have an account?{' '}
-            <Link href="/login" className="text-[#00ffff] hover:text-[#00ffff]/80">
+            <Link href="/login" className="text-emerald hover:text-emerald-light transition-colors">
               Sign in
             </Link>
           </p>
+        </div>
+
+        {/* Benefits */}
+        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+          <div className="text-neutral-600">
+            <p className="text-xs uppercase tracking-wider mb-1">Free</p>
+            <p className="text-[10px] text-neutral-700">to get started</p>
+          </div>
+          <div className="text-neutral-600">
+            <p className="text-xs uppercase tracking-wider mb-1">1000+</p>
+            <p className="text-[10px] text-neutral-700">prompts available</p>
+          </div>
+          <div className="text-neutral-600">
+            <p className="text-xs uppercase tracking-wider mb-1">AI</p>
+            <p className="text-[10px] text-neutral-700">coaching included</p>
+          </div>
         </div>
       </div>
     </div>
