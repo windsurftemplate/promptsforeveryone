@@ -1,27 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { useRouter, usePathname } from 'next/navigation';
-import { 
+import {
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import { ref, get } from 'firebase/database';
 import { db } from '@/lib/firebase';
-import { Anton } from 'next/font/google';
 
 // Lazy load the menu components
 const DesktopMenu = lazy(() => import('@/components/navbar/DesktopMenu'));
 const MobileMenu = lazy(() => import('@/components/navbar/MobileMenu'));
-
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'],
-});
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
@@ -78,36 +73,29 @@ export default function Navbar() {
   };
 
   return (
-    <nav 
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-7xl transition-all duration-300 rounded-2xl ${
-        isScrolled 
-          ? 'bg-black/80 backdrop-blur-xl shadow-lg shadow-[#00ffff]/10 border border-[#00ffff]/10' 
-          : 'bg-black/50 backdrop-blur-md border border-white/5'
+    <header
+      className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
+        isScrolled
+          ? 'bg-black/60 backdrop-blur-xl border-b border-white/5'
+          : 'bg-transparent'
       }`}
     >
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-3 group">
-              <div className="relative w-8 h-8 transition-transform duration-300 group-hover:scale-110">
-                <Image 
-                  src="/logo.png" 
-                  alt="Logo" 
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </div>
-              <span className={`${anton.className} text-2xl font-bold text-[#00ffff] tracking-tight leading-none`}>
-                <span className="hidden md:inline">Prompts For Everyone</span>
-                <span className="md:hidden">PFE</span>
-              </span>
-            </Link>
-          </div>
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="relative flex items-center justify-center w-6 h-6">
+              <SparklesIcon className="w-6 h-6 text-emerald transition-transform duration-300 group-hover:scale-110" />
+            </div>
+            <span className="font-semibold tracking-tight text-white text-sm uppercase">
+              <span className="hidden md:inline">Prompts For Everyone</span>
+              <span className="md:hidden">PFE</span>
+            </span>
+          </Link>
 
           {/* Desktop Menu */}
           <Suspense fallback={<div className="hidden md:block w-[400px]" />}>
-            <DesktopMenu 
+            <DesktopMenu
               user={user}
               isAdmin={isAdmin}
               isPaidUser={isPaidUser}
@@ -118,7 +106,7 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
-              className="text-white/80 hover:text-[#00ffff] transition-colors duration-300"
+              className="text-neutral-400 hover:text-white transition-colors duration-300 p-2"
               aria-label="Toggle menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -135,7 +123,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <Suspense fallback={<div className="h-[200px] bg-black/90 backdrop-blur-xl" />}>
-          <MobileMenu 
+          <MobileMenu
             user={user}
             isAdmin={isAdmin}
             isPaidUser={isPaidUser}
@@ -143,6 +131,6 @@ export default function Navbar() {
           />
         </Suspense>
       )}
-    </nav>
+    </header>
   );
 }

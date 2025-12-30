@@ -1,56 +1,67 @@
 'use client';
 
-import React, { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { Anton } from 'next/font/google';
 import dynamic from 'next/dynamic';
-import { SparklesIcon, LightBulbIcon, ChatBubbleBottomCenterTextIcon, ShieldCheckIcon, ArrowPathIcon, CloudArrowUpIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import {
+  SparklesIcon,
+  LightBulbIcon,
+  ChatBubbleBottomCenterTextIcon,
+  ShieldCheckIcon,
+  ArrowPathIcon,
+  CloudArrowUpIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  RocketLaunchIcon,
+  CpuChipIcon,
+  BoltIcon,
+} from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import DashboardPreview from '@/components/DashboardPreview';
 
 // Lazy load non-critical components
-const ChatWindow = dynamic(() => import('@/components/ChatWindow'), { 
-  ssr: false,
-  loading: () => <div className="w-[400px] h-[500px] bg-black/50 animate-pulse rounded-lg" />
-});
 const FeatureCarousel = dynamic(() => import('@/components/FeatureCarousel'), { ssr: false });
-const TwitterIcon = dynamic(() => import('@/components/icons/TwitterIcon'), { ssr: false });
-const GitHubIcon = dynamic(() => import('@/components/icons/GitHubIcon'), { ssr: false });
 
-const anton = Anton({ 
-  weight: '400',
-  subsets: ['latin'],
-});
+// Reveal animation hook
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null);
 
-// First, let's add a reusable geometric animation component
-const GeometricAnimations = () => (
-  <div className="absolute inset-0 opacity-20 pointer-events-none">
-    <div className="absolute top-20 right-20 w-24 h-24 border border-[#00ffff] rotate-45 animate-spin-slow"></div>
-    <div className="absolute bottom-10 left-1/4 w-40 h-40 border-2 border-[#00ffff] rounded-full animate-pulse delay-300"></div>
-    <div className="absolute bottom-20 right-1/4 w-20 h-20 border border-[#00ffff] rotate-12 animate-spin-slow delay-500"></div>
-  </div>
-);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
+// Reveal wrapper component
+function Reveal({ children, className = '', delay = '' }: { children: React.ReactNode; className?: string; delay?: string }) {
+  const ref = useReveal();
+  return (
+    <div ref={ref} className={`reveal ${delay} ${className}`}>
+      {children}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
   const { user } = useAuth();
-  const heroRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
-  const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isFeaturesVisible, setIsFeaturesVisible] = useState(false);
-  const { ref: howItWorksRef, isVisible: howItWorksVisible } = useScrollAnimation();
-  const { ref: whyUseRef, isVisible: whyUseVisible } = useScrollAnimation();
-  const { ref: pricingRef, isVisible: pricingVisible } = useScrollAnimation();
-
-  const titles = [
-    'Unleash AI\'s Power With Questions',
-    'Ask Better, Generate More Magic',
-    'Explore Our Library of Prompts',
-  ];
 
   useEffect(() => {
     if (user) {
@@ -58,489 +69,483 @@ export default function HomePage() {
     }
   }, [user, router]);
 
-  // Only run title rotation on desktop and when component is visible
-  useEffect(() => {
-    if (window.innerWidth >= 768) { // md breakpoint
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setIsVisible(entry.isIntersecting);
-        },
-        { threshold: 0.1 }
-      );
-
-      if (textRef.current) {
-        observer.observe(textRef.current);
-      }
-
-      let interval: NodeJS.Timeout;
-      if (isVisible) {
-        interval = setInterval(() => {
-          setCurrentTitleIndex((current) =>
-            current === titles.length - 1 ? 0 : current + 1
-          );
-        }, 3000);
-      }
-
-      return () => {
-        observer.disconnect();
-        if (interval) clearInterval(interval);
-      };
-    }
-  }, [isVisible]);
-
-  // Optimize scroll handler with throttling
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (heroRef.current && textRef.current) {
-            const scrolled = window.scrollY;
-            const rate = scrolled * 0.5;
-            heroRef.current.style.transform = `translate3d(0, ${rate}px, 0)`;
-            textRef.current.style.transform = `translate3d(0, ${rate * 0.8}px, 0)`;
-          }
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <div className="relative">
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-100px)]">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[#000000]"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-[#001a1a] to-[#000000] opacity-80"></div>
-        </div>
-        
-        {/* Content wrapper */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-          {/* Main content container */}
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-16">
-              {/* Left side content */}
-              <div 
-                ref={textRef} 
-                className="text-left space-y-8 max-w-2xl animate-fadeIn"
-              >
-                <h1 className={`${anton.className} text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight`}>
-                  <span className="text-white block md:hidden">
-                    Organize, Discover, and Share Ideas
-                  </span>
-                  <span className="text-white hidden md:block">
-                    {titles[currentTitleIndex]}
-                  </span>
-                </h1>
-                
-                <p className="text-xl md:text-2xl text-gray-400 max-w-xl leading-relaxed">
-                  Join our community of prompt enthusiasts because creativity isn't an accident — it's a question waiting for the perfect answer.
-                </p>
+      <section className="pt-32 pb-24 md:pt-48 md:pb-36 flex flex-col overflow-hidden text-center px-6 relative items-center">
+        <div className="relative z-10 flex flex-col items-center max-w-5xl mx-auto">
+          {/* Decorative Icon */}
+          <div className="mb-8 opacity-60">
+            <div className="w-16 h-16 rounded-2xl bg-emerald/10 border border-emerald/20 flex items-center justify-center">
+              <SparklesIcon className="w-8 h-8 text-emerald" />
+            </div>
+          </div>
 
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <Link href="/categories">
-                    <Button 
-                      className="bg-[#00ffff] hover:bg-[#00ffff]/90 text-black px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,255,255,0.3)]"
-                    >
-                      Browse Categories
-                    </Button>
-                  </Link>
-                  <Link href="/register">
-                    <Button 
-                      variant="outline"
-                      className="border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10 px-8 py-3 text-lg font-semibold rounded-lg transition-all duration-300"
-                    >
-                      Join Community
-                    </Button>
-                  </Link>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-medium text-white tracking-tighter mb-8 leading-[0.95] font-display">
+            Discover Prompts That
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-neutral-400 to-neutral-700">
+              Spark Innovation.
+            </span>
+          </h1>
+
+          <p className="text-neutral-400 text-sm md:text-base max-w-xl mx-auto mb-12 leading-relaxed font-light tracking-wide">
+            Join a community of AI enthusiasts sharing powerful prompts.
+            Find inspiration, save time, and unlock the full potential of AI
+            with our curated prompt library.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto items-center justify-center">
+            {/* Shimmer Button */}
+            <Link
+              href="/categories"
+              className="group relative inline-flex cursor-pointer overflow-hidden rounded-full transition-all duration-300 hover:scale-105 hover:shadow-glow-lg w-full sm:w-auto justify-center"
+            >
+              <div className="absolute inset-0 rounded-full">
+                <div className="absolute inset-[-200%] w-[400%] h-[400%] animate-rotate-gradient">
+                  <div className="absolute inset-0 bg-[conic-gradient(from_270deg,transparent_0,rgba(255,255,255,0.6)_90deg,transparent_90deg)]" />
                 </div>
               </div>
+              <div className="absolute inset-[1px] rounded-full bg-emerald/90 backdrop-blur" />
+              <span className="relative z-10 flex items-center gap-2 py-3.5 px-8 text-xs uppercase font-semibold tracking-wider text-white whitespace-nowrap">
+                Browse Prompts
+              </span>
+            </Link>
 
-              {/* Right side - Chat Window */}
-              <div className="hidden md:block">
-                <ChatWindow />
+            <Link
+              href="/register"
+              className="flex items-center justify-center gap-2 px-8 py-3.5 glass-panel text-neutral-300 hover:text-white text-xs uppercase font-medium tracking-wider rounded-full transition-colors w-full sm:w-auto group"
+            >
+              Join Community
+              <ChevronDownIcon className="w-3.5 h-3.5 text-neutral-500 group-hover:text-white transition-colors rotate-[-90deg]" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Decorative Line */}
+        <div className="mt-32 decorative-line" />
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-24 px-6 border-y border-white/5 relative bg-black/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Reveal>
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+                  1000+
+                </div>
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Prompts</p>
+                <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
+                  Curated prompts across multiple categories ready to use.
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal delay="delay-75">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+                  50+
+                </div>
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Categories</p>
+                <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
+                  From coding to creative writing, find your niche.
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal delay="delay-150">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+                  Free
+                </div>
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Access</p>
+                <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
+                  Start using community prompts at no cost.
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal delay="delay-200">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+                  AI+
+                </div>
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Tools</p>
+                <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
+                  Prompt coach, generator, and learning modules.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Section */}
+      <section className="py-32 px-6 border-b border-white/5 relative z-10">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+          <Reveal className="space-y-8">
+            <h2 className="text-3xl md:text-4xl font-medium text-white tracking-tighter font-display">
+              Stop Starting From Scratch.
+            </h2>
+            <div className="space-y-8">
+              <div className="flex items-start gap-5 group">
+                <div className="w-0.5 h-12 bg-neutral-800 group-hover:bg-neutral-700 transition-colors mt-1" />
+                <div>
+                  <h4 className="text-white text-sm font-medium mb-2">The Blank Page Problem</h4>
+                  <p className="text-neutral-500 text-sm font-light leading-relaxed">
+                    Spending hours crafting the perfect prompt? Most people struggle
+                    to get quality outputs because they don't know where to start.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-5 group">
+                <div className="w-0.5 h-12 bg-emerald shadow-glow mt-1" />
+                <div>
+                  <h4 className="text-white text-sm font-medium mb-2">The Community Solution</h4>
+                  <p className="text-neutral-400 text-sm font-light leading-relaxed">
+                    Access battle-tested prompts from creators worldwide. Learn from
+                    the best, adapt to your needs, and share your discoveries.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
+          </Reveal>
 
-      {/* New Vision Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black via-black/95 to-black/90 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <div className="container mx-auto px-4">
-          <div 
-            ref={whyUseRef} 
-            className={`max-w-3xl mx-auto transition-all duration-1000 transform ${
-              whyUseVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <div className="bg-black/70 backdrop-blur-xl border border-[#00ffff]/20 rounded-xl p-8 hover:border-[#00ffff]/40 transition-all duration-300 shadow-[0_0_50px_rgba(0,255,255,0.1)] hover:shadow-[0_0_50px_rgba(0,255,255,0.2)]">
-              <p className="text-xl text-gray-300 leading-relaxed mb-8">
-                I used to think mastering the latest tech trends was the key to unlocking AI's full potential. 
-                But here's the reality: it's never been about the algorithm—it's about the AI prompts you feed it. 
-                Without the right questions, you'll never see the possibilities sitting just beyond your reach. 
-                In other words, <span className="text-[#00ffff] font-semibold">better prompts mean bigger breakthroughs</span>.
+          <Reveal delay="delay-100">
+            <div className="glass-panel p-10 rounded-2xl relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute top-0 right-0 p-6 opacity-10">
+                <CpuChipIcon className="w-16 h-16 text-white" />
+              </div>
+              <p className="text-xl md:text-2xl font-light text-neutral-200 leading-relaxed mb-8 relative z-10">
+                "Better prompts mean bigger breakthroughs. The right question unlocks
+                possibilities you never knew existed."
               </p>
-
-              <p className="text-xl text-gray-300 leading-relaxed">
-                Now, think about why most online content feels so bland and predictable. 
-                It's not that content creators lack talent—they're just stuck recycling the same prompts over and over. 
-                That's exactly why <span className="text-[#00ffff] font-semibold">PromptsForEveryone.com</span> was built: to shatter the cycle of half-baked ideas and ignite unstoppable momentum. 
-                This prompt library transforms ordinary brainstorming into a springboard for innovation, productivity, and creativity. 
-                It's time to break free from the same old scripts and discover what you're truly capable of when you ask the right questions.
-              </p>
+              <div className="flex items-center gap-3 relative z-10">
+                <div className="w-6 h-px bg-emerald" />
+                <span className="text-[10px] uppercase tracking-[0.2em] text-emerald font-semibold">
+                  Prompts For Everyone
+                </span>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <div className="container mx-auto px-4">
-          <div 
-            ref={howItWorksRef}
-            className={`max-w-4xl mx-auto transition-all duration-1000 transform ${
-              howItWorksVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <h2 className="text-4xl md:text-4xl font-bold text-center text-[#00ffff] mb-12">
+      {/* How It Works */}
+      <section className="py-32 px-6 border-b border-white/5 bg-neutral-900/10 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
+          <Reveal>
+            <h2 className="text-2xl font-medium text-white tracking-tight mb-16 text-center font-display">
               How It Works
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="text-center p-6 bg-black/50 rounded-xl border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-[#00ffff]/10 rounded-full">
-                  <span className="text-[#00ffff] text-2xl font-bold">1</span>
-                </div>
-                <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Sign Up</h3>
-                <p className="text-gray-400">
-                Set up your free account and dive straight into our platform
-                </p>
-              </div>
+          </Reveal>
 
-              <div className="text-center p-6 bg-black/50 rounded-xl border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-[#00ffff]/10 rounded-full">
-                  <span className="text-[#00ffff] text-2xl font-bold">2</span>
-                </div>
-                <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Create & Organize</h3>
-                <p className="text-gray-400">
-                Craft your prompts and keep them neatly organized in one place
-                </p>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+            {/* Connecting Line */}
+            <div className="hidden md:block absolute top-6 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -z-10" />
 
-              <div className="text-center p-6 bg-black/50 rounded-xl border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                <div className="w-16 h-16 mb-6 mx-auto flex items-center justify-center bg-[#00ffff]/10 rounded-full">
-                  <span className="text-[#00ffff] text-2xl font-bold">3</span>
-                </div>
-                <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Share & Collaborate</h3>
-                <p className="text-gray-400">
-                Put your prompts to work share them with the community and watch ideas grow!
-                </p>
+            <Reveal className="flex flex-col md:items-center md:text-center">
+              <div className="w-12 h-12 glass-panel rounded-full flex items-center justify-center text-sm font-bold text-white mb-6 z-10 shadow-glass">
+                01
               </div>
-            </div>
+              <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">
+                Explore
+              </h3>
+              <p className="text-xs text-neutral-500 leading-relaxed max-w-[200px]">
+                Browse our curated library of prompts across 50+ categories.
+              </p>
+            </Reveal>
+
+            <Reveal delay="delay-75" className="flex flex-col md:items-center md:text-center">
+              <div className="w-12 h-12 bg-emerald rounded-full flex items-center justify-center text-sm font-bold text-white mb-6 z-10 shadow-glow ring-4 ring-black/50">
+                02
+              </div>
+              <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">
+                Create & Save
+              </h3>
+              <p className="text-xs text-neutral-500 leading-relaxed max-w-[200px]">
+                Craft your own prompts or save favorites to your collection.
+              </p>
+            </Reveal>
+
+            <Reveal delay="delay-150" className="flex flex-col md:items-center md:text-center">
+              <div className="w-12 h-12 glass-panel rounded-full flex items-center justify-center text-sm font-bold text-white mb-6 z-10 shadow-glass">
+                03
+              </div>
+              <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">
+                Share & Grow
+              </h3>
+              <p className="text-xs text-neutral-500 leading-relaxed max-w-[200px]">
+                Contribute to the community and learn from others.
+              </p>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Category Showcase Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-4">
-              Explore Our Categories
-            </h2>
-          </div>
-          <FeatureCarousel />
-        </div>
-      </section>
-
-      {/* Dashboard Preview Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <DashboardPreview />
-      </section>
-
-      {/* Why Use Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black/90 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-4xl font-bold text-center text-[#00ffff] mb-12">
-              Benefits of PromptsForEveryone
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-              <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
-                <SparklesIcon className="h-6 w-6 text-[#00ffff]" />
+      {/* Features Section */}
+      <section className="py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <Reveal>
+            <div className="flex items-center gap-3 mb-10">
+              <div className="p-2 rounded bg-white/5 border border-white/10">
+                <BoltIcon className="w-4 h-4 text-emerald" />
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Boost Creativity and Overcome Writer's Block</h3>
-              <p className="text-gray-400">Access fresh ideas and inspiration to spark creativity for writing, coding, or brainstorming</p>
+              <h2 className="text-2xl font-medium text-white tracking-tight font-display">
+                Powerful Features
+              </h2>
             </div>
+          </Reveal>
 
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-              <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
-                <LightBulbIcon className="h-6 w-6 text-[#00ffff]" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Reveal>
+              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-emerald/10 flex items-center justify-center mb-6 text-emerald group-hover:scale-110 transition-transform duration-500">
+                  <SparklesIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-white font-medium mb-2">AI Prompt Coach</h3>
+                <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                  Get personalized suggestions to improve your prompts for better AI outputs.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Smart Categories</h3>
-              <p className="text-gray-400">Organize prompts with intelligent categorization and easy-to-navigate subcategories.</p>
-            </div>
+            </Reveal>
 
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-              <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
-                <ChatBubbleBottomCenterTextIcon className="h-6 w-6 text-[#00ffff]" />
+            <Reveal delay="delay-75">
+              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
+                  <LightBulbIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-white font-medium mb-2">Smart Categories</h3>
+                <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                  Intelligent categorization with easy-to-navigate subcategories.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Voting & Rating System</h3>
-              <p className="text-gray-400">Feature top contributors on a leaderboard, inspiring others to participate and earn visibility.</p>
-            </div>
+            </Reveal>
 
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-              <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
-                <ShieldCheckIcon className="h-6 w-6 text-[#00ffff]" />
+            <Reveal delay="delay-100">
+              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
+                  <ChatBubbleBottomCenterTextIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-white font-medium mb-2">Community Voting</h3>
+                <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                  Top contributors featured on our leaderboard for visibility.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Private Collections</h3>
-              <p className="text-gray-400">Create and manage private prompt collections for personal or team use for Pro users.</p>
-            </div>
+            </Reveal>
 
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-              <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
-                <ArrowPathIcon className="h-6 w-6 text-[#00ffff]" />
+            <Reveal delay="delay-150">
+              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
+                  <ShieldCheckIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-white font-medium mb-2">Private Collections</h3>
+                <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                  Create and manage private prompt collections for Pro users.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Learn and Grow Skills</h3>
-              <p className="text-gray-400">Explore prompt categories to learn new techniques, expand skill sets, and enhance productivity</p>
-            </div>
+            </Reveal>
 
-            <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-              <div className="rounded-full bg-[#00ffff]/10 w-12 h-12 flex items-center justify-center mb-4">
-                <CloudArrowUpIcon className="h-6 w-6 text-[#00ffff]" />
+            <Reveal delay="delay-200">
+              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
+                  <ArrowPathIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-white font-medium mb-2">Learning Modules</h3>
+                <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                  Interactive lessons to master the art of prompt engineering.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-3">Save Time with Ready-to-Use Prompts</h3>
-              <p className="text-gray-400">Eliminate the need to start from scratch by using pre-made prompts that accelerate workflows</p>
-            </div>
+            </Reveal>
+
+            <Reveal delay="delay-300">
+              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
+                  <RocketLaunchIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-white font-medium mb-2">Prompt Generator</h3>
+                <p className="text-xs text-neutral-400 font-light leading-relaxed">
+                  Auto-generate prompts from simple descriptions with AI.
+                </p>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/90 via-black/95 to-black overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.05),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <div className="container mx-auto px-4">
-          <div 
-            ref={pricingRef}
-            className={`max-w-6xl mx-auto transition-all duration-1000 transform ${
-              pricingVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-center text-[#00ffff] mb-12">
-                Simplified Pricing
-              </h2>
-              <p className="text-xl text-gray-400">Start for free upgrade to save private collections</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Free Plan */}
-              <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
-                <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Free</h3>
-                  <div className="text-4xl font-bold text-[#00ffff] mb-4">$0</div>
-                  <p className="text-gray-400">Perfect for sharing and always free!</p>
-                </div>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+      <section className="py-32 px-6 relative overflow-hidden">
+        <div className="relative max-w-5xl mx-auto text-center">
+          <Reveal>
+            <h2 className="text-4xl md:text-5xl font-medium text-white tracking-tighter mb-8 font-display">
+              Simple, Transparent Pricing.
+            </h2>
+            <p className="text-neutral-400 mb-16 text-sm font-light">
+              Start for free. Upgrade to unlock private collections.
+            </p>
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {/* Free Plan */}
+            <Reveal>
+              <div className="glass-panel p-8 rounded-2xl hover:border-white/20 transition-all flex flex-col items-center relative overflow-hidden">
+                <span className="text-xs text-neutral-400 font-medium uppercase tracking-widest mb-4">
+                  Free
+                </span>
+                <span className="text-3xl font-bold text-white mb-2">$0</span>
+                <span className="text-xs text-neutral-500 mb-8">Forever free</span>
+
+                <ul className="space-y-3 mb-8 text-left w-full">
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Access to Community Prompts</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Basic Prompt Creation</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Discover and Share Ideas</span>
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>AI Random Prompt Generator</span>
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>AI Prompt Coach </span>
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <span>AI Prompt Coach</span>
                   </li>
                 </ul>
-                <Link href="/register" className="block">
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
-                  >
+
+                <Link href="/register" className="w-full">
+                  <Button variant="outline" className="w-full">
                     Get Started
                   </Button>
                 </Link>
               </div>
+            </Reveal>
 
-              {/* Pro Plan */}
-              <div className="bg-black/50 backdrop-blur-lg border-2 border-[#00ffff] rounded-xl p-8 hover:border-[#00ffff] hover:bg-[#00ffff]/5 transition-all duration-300 transform hover:-translate-y-1 relative">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-[#00ffff] text-black px-4 py-1 rounded-full text-sm font-semibold">
-                    Most Popular
-                  </span>
+            {/* Pro Plan */}
+            <Reveal delay="delay-75">
+              <div className="relative p-8 rounded-2xl bg-emerald/10 border border-emerald hover:bg-emerald/15 transition-all flex flex-col items-center overflow-hidden shadow-glow transform md:-translate-y-4">
+                <div className="absolute inset-0 bg-gradient-to-b from-emerald/10 to-transparent opacity-50" />
+                <div className="absolute top-0 px-4 py-1 bg-emerald text-white text-[10px] uppercase font-bold tracking-widest rounded-b-lg">
+                  Most Popular
                 </div>
-                <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Pro</h3>
-                  <div className="text-4xl font-bold text-[#00ffff] mb-4">$9</div>
-                  <p className="text-gray-400">Everything you need</p>
-                </div>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+
+                <span className="text-xs text-emerald font-bold uppercase tracking-widest mb-4 mt-2 relative z-10">
+                  Pro
+                </span>
+                <span className="text-3xl font-bold text-white mb-2 relative z-10">$9</span>
+                <span className="text-xs text-neutral-500 mb-8 relative z-10">per month</span>
+
+                <ul className="space-y-3 mb-8 text-left w-full relative z-10">
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Everything in Free</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Advanced Prompt Creation</span>
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <span>Unlimited Private Prompts</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Save and Organize Unlimited Prompts</span>
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>Priority Access to New Features</span>
-                  </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Ad-Free Experience</span>
                   </li>
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <span>Priority Features</span>
+                  </li>
                 </ul>
-                <Link href="/register?plan=pro" className="block">
-                  <Button className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-semibold">
-                    Join Us
+
+                <Link href="/register?plan=pro" className="w-full relative z-10">
+                  <Button className="w-full">
+                    Upgrade Now
                   </Button>
                 </Link>
               </div>
+            </Reveal>
 
-              {/* Enterprise Plan */}
-              <div className="bg-black/50 backdrop-blur-lg border border-[#00ffff]/10 rounded-xl p-8 hover:border-[#00ffff]/30 transition-all duration-300">
-                <div className="text-center mb-8">
-                  <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Enterprise</h3>
-                  <div className="text-4xl font-bold text-[#00ffff] mb-4">Custom</div>
-                  <p className="text-gray-400">For large teams & organizations</p>
-                </div>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+            {/* Enterprise Plan */}
+            <Reveal delay="delay-150">
+              <div className="glass-panel p-8 rounded-2xl hover:border-white/20 transition-all flex flex-col items-center relative overflow-hidden">
+                <span className="text-xs text-neutral-400 font-medium uppercase tracking-widest mb-4">
+                  Enterprise
+                </span>
+                <span className="text-3xl font-bold text-white mb-2">Custom</span>
+                <span className="text-xs text-neutral-500 mb-8">Contact us</span>
+
+                <ul className="space-y-3 mb-8 text-left w-full">
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Everything in Pro</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Custom Integrations</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
+                  <li className="flex items-center gap-3 text-sm text-neutral-300">
+                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
                     <span>Dedicated Support</span>
                   </li>
-                  <li className="flex items-center text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] mr-2 shrink-0" />
-                    <span>SLA Guarantees</span>
-                  </li>
                 </ul>
-                <Link href="/contact" className="block">
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-[#00ffff] text-[#00ffff] hover:bg-[#00ffff]/10"
-                  >
+
+                <Link href="/contact" className="w-full">
+                  <Button variant="outline" className="w-full">
                     Contact Sales
                   </Button>
                 </Link>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Ready to Get Started Section */}
-      <section className="relative z-20 min-h-screen flex items-center bg-gradient-to-b from-black/95 to-black overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(0,255,255,0.1),transparent_70%)]"></div>
-        <GeometricAnimations />
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent mb-6 animate-gradient">
-            Ready to see what happens when AI meets true human insight?
+      {/* CTA Section */}
+      <section className="py-32 px-6 relative overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(10,143,106,0.1),transparent_70%)]" />
+        <Reveal>
+          <div className="max-w-3xl mx-auto text-center relative z-10">
+            <h2 className="text-4xl md:text-5xl font-medium text-white tracking-tighter mb-8 font-display">
+              Ready to unlock AI's potential?
             </h2>
-            <div className="flex gap-6 justify-center">
+            <p className="text-neutral-400 mb-12 text-sm font-light">
+              Join thousands of creators using better prompts for better results.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
-                <Button className="px-8 py-4 text-lg">
+                <Button size="lg" className="px-8">
                   Get Started Free
                 </Button>
               </Link>
               <Link href="/categories">
-                <Button variant="secondary" className="px-8 py-4 text-lg">
+                <Button variant="outline" size="lg" className="px-8">
                   Explore Prompts
                 </Button>
               </Link>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-20 py-12 bg-black border-t border-[#00ffff]/10">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
-              <div className="text-center">
-                <h3 className="text-[#00ffff] font-semibold mb-4">Product</h3>
-                <ul className="space-y-3">
-                  <li><Link href="/explore" className="text-white/60 hover:text-[#00ffff] transition-colors">Explore</Link></li>
-                  <li><Link href="/submit" className="text-white/60 hover:text-[#00ffff] transition-colors">Submit Prompt</Link></li>
-                  <li><Link href="/price" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link></li>
-                </ul>
-              </div>
-              <div className="text-center">
-                <h3 className="text-[#00ffff] font-semibold mb-4">Resources</h3>
-                <ul className="space-y-3">
-                  <li><Link href="/guides" className="text-white/60 hover:text-[#00ffff] transition-colors">Guides</Link></li>
-                  <li><Link href="/blog" className="text-white/60 hover:text-[#00ffff] transition-colors">Blog</Link></li>
-                  <li><Link href="/about" className="text-white/60 hover:text-[#00ffff] transition-colors">About</Link></li>
-                  <li><Link href="/careers" className="text-white/60 hover:text-[#00ffff] transition-colors">Careers</Link></li>
-                </ul>
-              </div>
-              <div className="text-center">
-                <h3 className="text-[#00ffff] font-semibold mb-4">Legal</h3>
-                <ul className="space-y-3">
-                  <li><Link href="/terms" className="text-white/60 hover:text-[#00ffff] transition-colors">Terms</Link></li>
-                  <li><Link href="/privacy" className="text-white/60 hover:text-[#00ffff] transition-colors">Privacy</Link></li>
-                </ul>
-              </div>
-            </div>
-            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#00ffff]/10">
-              <div className="text-white/60 text-sm mb-4 md:mb-0">
-                © 2025 Prompts For Everyone. All rights reserved.
-              </div>
-              <div className="flex gap-6">
-                <Link href="https://twitter.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
-                  <TwitterIcon className="w-5 h-5" />
-                </Link>
-                <Link href="https://github.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
-                  <GitHubIcon className="w-5 h-5" />
-                </Link>
-              </div>
-            </div>
-          </div>
+      <footer className="py-16 border-t border-white/5 text-center bg-black">
+        <p className="text-sm font-semibold text-white tracking-tight mb-2 font-display">
+          PROMPTS FOR EVERYONE
+        </p>
+        <p className="text-[10px] text-neutral-600 mb-10">
+          Empowering creators with better AI interactions.
+        </p>
+
+        <div className="flex justify-center gap-8 text-[10px] text-neutral-600 uppercase tracking-widest font-medium mb-8">
+          <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+          <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+          <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+          <Link href="/about" className="hover:text-white transition-colors">About</Link>
         </div>
+
+        <p className="text-[10px] text-neutral-700">
+          © 2025 Prompts For Everyone. All rights reserved.
+        </p>
       </footer>
     </div>
   );
