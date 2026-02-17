@@ -53,10 +53,7 @@ export default function VoteButton({ promptId, initialVotes = 0, onVoteChange }:
     e.stopPropagation(); // Prevent event bubbling
 
     if (!user) {
-      const shouldLogin = window.confirm('You need to be logged in to vote. Would you like to log in now?');
-      if (shouldLogin) {
-        router.push('/login');
-      }
+      router.push('/login');
       return;
     }
 

@@ -11,6 +11,7 @@ import { PencilIcon, TrashIcon, ClipboardDocumentIcon, ChartBarIcon, DocumentIco
 import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 import PromptCard from '@/components/PromptCard';
+import DeleteConfirmationDialog from '@/components/ui/DeleteConfirmationDialog';
 import ProfileSettings from '@/components/dashboard/ProfileSettings';
 import { default as PromptGenerator } from '@/components/prompt-generator/PromptGenerator';
 import { default as PromptCoach } from '@/components/prompt-coach/PromptCoach';
@@ -57,6 +58,8 @@ export default function DashboardPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [privateCategories, setPrivateCategories] = useState<Category[]>([]);
   const [activeTab, setActiveTab] = useState<'prompts' | 'generator' | 'coach' | 'profile' | 'templates' | 'learn' | 'interactive' | 'cheatsheets'>('prompts');
+  const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [userStats, setUserStats] = useState({
     totalPrompts: 0,
     privateCategories: 0,
@@ -267,43 +270,44 @@ export default function DashboardPage() {
     setSelectedPrompt(null);
   };
 
-  const handleDelete = async (promptId: string | undefined) => {
+  const handleDelete = (promptId: string | undefined) => {
     if (!promptId || !user) return;
-    if (window.confirm('Are you sure you want to delete this prompt?')) {
-      try {
-        const originalId = promptId.replace(/^(private-|public-)/, '');
+    setPromptToDelete(promptId);
+  };
 
-        const privatePromptRef = ref(db, `users/${user.uid}/prompts/${originalId}`);
-        const publicPromptRef = ref(db, `prompts/${originalId}`);
+  const handleConfirmDelete = async () => {
+    if (!promptToDelete || !user) return;
+    setIsDeleting(true);
+    try {
+      const originalId = promptToDelete.replace(/^(private-|public-)/, '');
 
-        // Check if the prompt exists in either location
-        const [privateSnapshot, publicSnapshot] = await Promise.all([
-          get(privatePromptRef),
-          get(publicPromptRef)
-        ]);
-        
-        let deleted = false;
-        
-        if (privateSnapshot.exists()) {
-          await remove(privatePromptRef);
-          deleted = true;
-        }
+      const privatePromptRef = ref(db, `users/${user.uid}/prompts/${originalId}`);
+      const publicPromptRef = ref(db, `prompts/${originalId}`);
 
-        if (publicSnapshot.exists()) {
-          const promptData = publicSnapshot.val();
-          if (promptData.userId === user.uid) {
-            await remove(publicPromptRef);
-            deleted = true;
-          } else {
-            throw new Error('You do not have permission to delete this prompt');
-          }
-        }
-        // Always refresh the page after deletion attempt
-        window.location.reload();
-      } catch (error) {
-        console.error('Error deleting prompt:', error);
-        alert('Failed to delete prompt. Please try again.');
+      const [privateSnapshot, publicSnapshot] = await Promise.all([
+        get(privatePromptRef),
+        get(publicPromptRef)
+      ]);
+
+      if (privateSnapshot.exists()) {
+        await remove(privatePromptRef);
       }
+
+      if (publicSnapshot.exists()) {
+        const promptData = publicSnapshot.val();
+        if (promptData.userId === user.uid) {
+          await remove(publicPromptRef);
+        } else {
+          throw new Error('You do not have permission to delete this prompt');
+        }
+      }
+
+      setPromptToDelete(null);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting prompt:', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -621,6 +625,13 @@ export default function DashboardPage() {
             onDeleteAction={handleDelete}
           />
         )}
+
+        <DeleteConfirmationDialog
+          isOpen={!!promptToDelete}
+          isDeleting={isDeleting}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setPromptToDelete(null)}
+        />
       </div>
     </div>
   );

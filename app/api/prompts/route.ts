@@ -9,11 +9,7 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000'
 ];
 
-/**
- * Middleware to check request method and origin
- */
 function validateRequest(request: NextRequest) {
-  // Only allow GET requests
   if (request.method !== 'GET') {
     return NextResponse.json(
       { error: 'Method not allowed' },
@@ -21,13 +17,9 @@ function validateRequest(request: NextRequest) {
     );
   }
 
-  // Check origin in production
   if (process.env.NODE_ENV === 'production') {
     const origin = request.headers.get('origin');
-    console.log('Request origin:', origin);
-    
     if (origin && !ALLOWED_ORIGINS.includes(origin)) {
-      console.error('Unauthorized origin:', origin);
       return NextResponse.json(
         { error: 'Unauthorized origin' },
         { status: 403 }
@@ -38,37 +30,21 @@ function validateRequest(request: NextRequest) {
   return null;
 }
 
-/**
- * Route handler for prompts data
- */
 export async function GET(request: NextRequest) {
   try {
-    // Validate request
     const validationError = validateRequest(request);
     if (validationError) {
       return validationError;
     }
 
-    // Get category ID from URL if present
     const url = new URL(request.url);
     const categoryId = url.searchParams.get('categoryId');
     const subcategoryId = url.searchParams.get('subcategoryId');
     const promptId = url.searchParams.get('promptId');
-    const isAdmin = url.searchParams.get('isAdmin') === 'true';
 
-    console.log('Fetching prompts for:', { 
-      categoryId, 
-      subcategoryId,
-      promptId,
-      isAdmin
-    });
-
-    // Fetch prompts from Firebase
-    console.log('Fetching from Firebase URL:', `${FIREBASE_DB_URL}/prompts.json`);
     const response = await axios.get(`${FIREBASE_DB_URL}/prompts.json`);
 
     if (!response.data) {
-      console.log('No prompts found in database');
       return NextResponse.json({}, { status: 200 });
     }
 
@@ -79,139 +55,41 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Prompt not found' }, { status: 404 });
       }
 
-      // If the prompt has visibility set and is not public, and not an admin request, return an error
-      if (prompt.visibility && prompt.visibility !== 'public' && !isAdmin) {
+      if (prompt.visibility && prompt.visibility !== 'public') {
         return NextResponse.json(
           { error: 'This prompt is private', visibility: prompt.visibility },
           { status: 403 }
         );
       }
 
-      // Return the prompt
       const voteCount = prompt.votes ? Object.keys(prompt.votes).length : 0;
       return NextResponse.json({
         [promptId]: {
           ...prompt,
           likes: voteCount,
-          visibility: prompt.visibility || 'public' // Ensure visibility is set
+          visibility: prompt.visibility || 'public'
         }
       });
     }
 
-    // Log the first few prompts from Firebase to see their structure
-    const samplePrompts = Object.entries(response.data).slice(0, 3);
-    console.log('Sample prompts from Firebase:', 
-      samplePrompts.map(([id, data]: [string, any]) => ({
-        id,
-        categoryId: data.categoryId,
-        subcategoryId: data.subcategoryId,
-        visibility: data.visibility,
-        title: data.title
-      }))
-    );
-
-    console.log('Firebase response:', {
-      status: response.status,
-      hasData: !!response.data,
-      promptCount: Object.keys(response.data).length,
-      categories: Array.from(new Set(Object.values(response.data).map((p: any) => p.categoryId))),
-      subcategories: Array.from(new Set(Object.values(response.data).map((p: any) => p.subcategoryId)))
-    });
-
-    // Log what we're looking for
-    const matchingPrompts = Object.entries(response.data)
-      .filter(([_, data]: [string, any]) => 
-        data.categoryId === categoryId && 
-        data.subcategoryId === subcategoryId &&
-        (!data.visibility || data.visibility === 'public')
-      );
-
-    console.log('Looking for prompts with:', {
-      categoryId,
-      subcategoryId,
-      totalPrompts: Object.keys(response.data).length,
-      publicPrompts: Object.values(response.data).filter((p: any) => p.visibility === 'public').length,
-      categoryMatches: Object.values(response.data).filter((p: any) => p.categoryId === categoryId).length,
-      subcategoryMatches: Object.values(response.data).filter((p: any) => p.subcategoryId === subcategoryId).length,
-      fullMatches: matchingPrompts.length,
-      matchingPrompts: matchingPrompts.map(([id, data]: [string, any]) => ({
-        id,
-        title: data.title,
-        categoryId: data.categoryId,
-        subcategoryId: data.subcategoryId,
-        visibility: data.visibility
-      }))
-    });
-
-    // Filter prompts
+    // Only return public prompts — admin visibility requires server-side auth
     const prompts = Object.entries(response.data)
       .reduce((acc, [id, data]: [string, any]) => {
-        console.log('Processing prompt:', { 
-          id, 
-          visibility: data.visibility, 
-          categoryId: data.categoryId, 
-          subcategoryId: data.subcategoryId,
-          matches: {
-            isPublic: data.visibility === 'public',
-            isAdmin: isAdmin,
-            categoryMatches: !categoryId || data.categoryId === categoryId,
-            subcategoryMatches: !subcategoryId || data.subcategoryId === subcategoryId
-          }
-        });
-        
-        // For admin requests, include all prompts. For non-admin, only include public prompts.
-        if (isAdmin || !data.visibility || data.visibility === 'public') {
-          // Only filter by category and subcategory if they are provided
-          if (categoryId && subcategoryId) {
-            if (data.categoryId !== categoryId) {
-              console.log('Skipping - category mismatch:', { expected: categoryId, got: data.categoryId });
-              return acc;
-            }
-            if (data.subcategoryId !== subcategoryId) {
-              console.log('Skipping - subcategory mismatch:', { 
-                expected: subcategoryId, 
-                got: data.subcategoryId,
-                prompt: {
-                  id,
-                  title: data.title,
-                  categoryId: data.categoryId
-                }
-              });
-              return acc;
-            }
-          }
+        const isPublic = !data.visibility || data.visibility === 'public';
+        const categoryMatches = !categoryId || data.categoryId === categoryId;
+        const subcategoryMatches = !subcategoryId || data.subcategoryId === subcategoryId;
 
-          console.log('Including prompt:', {
-            id,
-            title: data.title,
-            categoryId: data.categoryId,
-            subcategoryId: data.subcategoryId,
-            visibility: data.visibility,
-            reason: categoryId && subcategoryId ? 'matches category and subcategory' : isAdmin ? 'admin request' : 'public prompt'
-          });
-
-          // Calculate vote count from votes object
+        if (isPublic && categoryMatches && subcategoryMatches) {
           const voteCount = data.votes ? Object.keys(data.votes).length : 0;
-          
           acc[id] = {
             ...data,
-            likes: voteCount, // Update likes field with actual vote count
-            visibility: data.visibility || 'public' // Ensure visibility is preserved and default to public
+            likes: voteCount,
+            visibility: data.visibility || 'public'
           };
         }
         return acc;
       }, {} as Record<string, any>);
 
-    console.log('Final prompts:', {
-      count: Object.keys(prompts).length,
-      prompts: Object.keys(prompts).map(id => ({
-        id,
-        categoryId: prompts[id].categoryId,
-        subcategoryId: prompts[id].subcategoryId
-      }))
-    });
-
-    // Return successful response
     return NextResponse.json(prompts, {
       status: 200,
       headers: {
@@ -219,10 +97,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    // Log error for monitoring
     console.error('Prompts API error:', error);
-
-    // Return error response
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -230,6 +105,5 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Only allow GET requests
 export const runtime = 'edge';
-export const dynamic = 'force-dynamic'; 
+export const dynamic = 'force-dynamic';

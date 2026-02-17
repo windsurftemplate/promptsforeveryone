@@ -19,7 +19,7 @@ export const ads: Ad[] = [
           alt="Upgrade to Pro" 
           class="w-full max-w-3xl h-auto rounded-lg shadow-lg mb-4"
         />
-        <a href="/pricing" class="mt-2 px-6 py-2 bg-[#00ffff] text-black rounded-lg hover:bg-[#00ffff]/80 transition-colors">
+        <a href="/pricing" class="mt-2 px-6 py-2 bg-violet-500 text-black rounded-lg hover:bg-violet-500/80 transition-colors">
           Learn More
         </a>
       </div>
@@ -38,7 +38,7 @@ export const ads: Ad[] = [
           alt="AI Prompt Coach" 
           class="w-full max-w-md h-auto rounded-lg shadow-lg mb-4"
         />
-        <a href="/coach" class="mt-2 text-[#00ffff] hover:underline">Try AI Prompt Coach →</a>
+        <a href="/coach" class="mt-2 text-violet-400 hover:underline">Try AI Prompt Coach →</a>
       </div>
     `,
     status: 'active',
