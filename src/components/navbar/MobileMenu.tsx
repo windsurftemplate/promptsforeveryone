@@ -74,7 +74,7 @@ export default function MobileMenu({ user, isAdmin, isPaidUser, onSignOut }: Mob
                 <ArrowLeftOnRectangleIcon className={iconClass} />
                 <span className={labelClass}>Login</span>
               </Link>
-              <Link href="/register" className={`${menuItemClass} text-emerald`}>
+              <Link href="/register" className={`${menuItemClass} text-violet-400`}>
                 <UserPlusIcon className={iconClass} />
                 <span className={labelClass}>Sign Up</span>
               </Link>

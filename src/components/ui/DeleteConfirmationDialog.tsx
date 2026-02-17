@@ -19,7 +19,7 @@ export default function DeleteConfirmationDialog({
     <div className={`fixed inset-0 z-50 ${isOpen ? 'block' : 'hidden'}`}>
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onCancel} />
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md">
-        <div className="bg-black/90 border border-[#00ffff]/20 rounded-lg p-6 shadow-xl">
+        <div className="bg-black/90 border border-[#8B5CF6]/20 rounded-lg p-6 shadow-xl">
           <h3 className="text-lg font-semibold text-white mb-4">Delete Prompt</h3>
           <p className="text-white/70 mb-6">Are you sure you want to delete this prompt? This action cannot be undone.</p>
           <div className="flex justify-end gap-4">

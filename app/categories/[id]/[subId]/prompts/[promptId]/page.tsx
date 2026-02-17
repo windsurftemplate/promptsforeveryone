@@ -172,8 +172,8 @@ export default function PromptPage() {
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
         >
-          <div className="absolute inset-0 rounded-full border-t-2 border-[#00ffff] opacity-20"></div>
-          <div className="absolute inset-0 rounded-full border-l-2 border-[#00ffff]"></div>
+          <div className="absolute inset-0 rounded-full border-t-2 border-[#8B5CF6] opacity-20"></div>
+          <div className="absolute inset-0 rounded-full border-l-2 border-[#8B5CF6]"></div>
         </motion.div>
       </div>
     );
@@ -196,7 +196,7 @@ export default function PromptPage() {
         <p className="text-red-500 mb-4">{error}</p>
         <button 
           onClick={() => router.push('/')}
-          className="px-4 py-2 bg-[#00ffff]/10 text-[#00ffff] rounded-lg hover:bg-[#00ffff]/20 transition-colors"
+          className="px-4 py-2 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-lg hover:bg-[#8B5CF6]/20 transition-colors"
         >
           Back to Home
         </button>
@@ -209,7 +209,7 @@ export default function PromptPage() {
     <div className="min-h-screen relative">
       {/* Background with enhanced fade effect */}
       <div className="fixed inset-0 bg-gradient-to-t from-black via-black to-transparent" />
-      <div className="fixed inset-0 bg-[#00ffff]/5" />
+      <div className="fixed inset-0 bg-[#8B5CF6]/5" />
       
       {/* Content */}
       <div className="relative z-10">
@@ -237,14 +237,14 @@ export default function PromptPage() {
             <div className="flex items-center gap-2 text-sm">
               <Link 
                 href="/categories"
-                className="text-white/60 hover:text-[#00ffff] transition-colors"
+                className="text-white/60 hover:text-[#8B5CF6] transition-colors"
               >
                 Categories
               </Link>
               <span className="text-white/60">/</span>
               <Link 
                 href={`/categories/${categoryId}`}
-                className="text-white/60 hover:text-[#00ffff] transition-colors"
+                className="text-white/60 hover:text-[#8B5CF6] transition-colors"
               >
                 {categoryName || 'Loading...'}
               </Link>
@@ -252,19 +252,19 @@ export default function PromptPage() {
               {subcategoryName ? (
                 <Link 
                   href={`/categories/${categoryId}/${subcategoryName.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+                  className="text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors"
                 >
                   {subcategoryName}
                 </Link>
               ) : (
-                <span className="text-[#00ffff]/60">Loading...</span>
+                <span className="text-[#8B5CF6]/60">Loading...</span>
               )}
             </div>
 
             {/* Back Button */}
             <Link 
               href={`/categories/${categoryId}/${subcategoryName ? subcategoryName.toLowerCase().replace(/\s+/g, '-') : subcategoryId}`}
-              className="inline-flex items-center text-[#00ffff] hover:text-[#00ffff]/80 group"
+              className="inline-flex items-center text-[#8B5CF6] hover:text-[#8B5CF6]/80 group"
             >
               <ArrowLeftIcon className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
               {subcategoryName ? `Back to ${subcategoryName}` : 'Back'}
@@ -276,12 +276,12 @@ export default function PromptPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden"
+            className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg overflow-hidden"
           >
             {/* Header Section */}
-            <div className="relative p-8 border-b border-[#00ffff]/10">
+            <div className="relative p-8 border-b border-[#8B5CF6]/10">
               <motion.div 
-                className="absolute top-0 right-0 w-64 h-64 bg-[#00ffff]/5 rounded-full blur-3xl -z-10"
+                className="absolute top-0 right-0 w-64 h-64 bg-[#8B5CF6]/5 rounded-full blur-3xl -z-10"
                 animate={{
                   scale: [1, 1.2, 1],
                   opacity: [0.1, 0.2, 0.1],
@@ -294,7 +294,7 @@ export default function PromptPage() {
               />
               
               <motion.h1 
-                className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] via-white to-[#00ffff] bg-clip-text text-transparent mb-4"
+                className="text-4xl font-bold bg-gradient-to-r from-[#8B5CF6] via-white to-[#8B5CF6] bg-clip-text text-transparent mb-4"
                 layout
               >
                 {prompt?.title}
@@ -314,7 +314,7 @@ export default function PromptPage() {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: index * 0.1 }}
-                    className="px-3 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] text-sm border border-[#00ffff]/20"
+                    className="px-3 py-1 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6] text-sm border border-[#8B5CF6]/20"
                   >
                     {tag}
                   </motion.span>
@@ -333,7 +333,7 @@ export default function PromptPage() {
               >
                 <motion.button
                   onClick={handleCopy}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 text-[#00ffff]/60 hover:text-[#00ffff] hover:bg-black/60 backdrop-blur-lg transition-colors relative"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 text-[#8B5CF6]/60 hover:text-[#8B5CF6] hover:bg-black/60 backdrop-blur-lg transition-colors relative"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -342,7 +342,7 @@ export default function PromptPage() {
                   <AnimatePresence>
                     {contentCopied && (
                       <motion.span 
-                        className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg"
+                        className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#8B5CF6] text-black text-xs px-2 py-1 rounded shadow-lg"
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
@@ -355,7 +355,7 @@ export default function PromptPage() {
 
                 <motion.button
                   onClick={handleShare}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 text-[#00ffff]/60 hover:text-[#00ffff] hover:bg-black/60 backdrop-blur-lg transition-colors relative"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 text-[#8B5CF6]/60 hover:text-[#8B5CF6] hover:bg-black/60 backdrop-blur-lg transition-colors relative"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -364,7 +364,7 @@ export default function PromptPage() {
                   <AnimatePresence>
                     {urlCopied && (
                       <motion.span 
-                        className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg"
+                        className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#8B5CF6] text-black text-xs px-2 py-1 rounded shadow-lg"
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -5 }}
@@ -378,7 +378,7 @@ export default function PromptPage() {
                 <motion.button
                   onClick={handleLike}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-black/40 backdrop-blur-lg transition-colors ${
-                    isLiked ? 'text-[#00ffff]' : 'text-[#00ffff]/60 hover:text-[#00ffff]'
+                    isLiked ? 'text-[#8B5CF6]' : 'text-[#8B5CF6]/60 hover:text-[#8B5CF6]'
                   }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -395,11 +395,11 @@ export default function PromptPage() {
 
               {/* Prompt Content */}
               <motion.div 
-                className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 group relative overflow-hidden"
+                className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6 group relative overflow-hidden"
                 whileHover={{ scale: 1.005 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-[#00ffff]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <pre className="text-white/90 whitespace-pre-wrap font-mono relative z-10">
                   {prompt?.content}
@@ -414,7 +414,7 @@ export default function PromptPage() {
                 transition={{ delay: 0.7 }}
               >
                 <div className="flex items-center gap-2">
-                  <SparklesIcon className="h-5 w-5 text-[#00ffff]" />
+                  <SparklesIcon className="h-5 w-5 text-[#8B5CF6]" />
                   <span>Created by {prompt?.userName}</span>
                   <span>•</span>
                   <span>{prompt?.createdAt && new Date(prompt.createdAt).toLocaleDateString()}</span>

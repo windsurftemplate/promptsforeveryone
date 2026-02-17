@@ -97,7 +97,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
         <h2 className="text-2xl font-bold text-white">Ad Management</h2>
         <Button
           onClick={() => setIsAddingAd(true)}
-          className="bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20"
+          className="bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20"
         >
           Add New Ad
         </Button>
@@ -107,7 +107,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6"
+          className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6"
         >
           <form onSubmit={handleAdSubmit} className="space-y-6">
             <div>
@@ -116,7 +116,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
                 type="text"
                 value={newAd.title}
                 onChange={(e) => setNewAd({ ...newAd, title: e.target.value })}
-                className="w-full bg-black/50 border border-[#00ffff]/20 rounded px-4 py-2 text-white"
+                className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded px-4 py-2 text-white"
                 placeholder="Ad Title"
               />
             </div>
@@ -126,7 +126,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
               <select
                 value={newAd.type}
                 onChange={(e) => setNewAd({ ...newAd, type: e.target.value as 'banner' | 'inline' })}
-                className="w-full bg-black/50 border border-[#00ffff]/20 rounded px-4 py-2 text-white"
+                className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded px-4 py-2 text-white"
               >
                 <option value="banner">Banner</option>
                 <option value="inline">Inline</option>
@@ -167,7 +167,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
                   accept="image/*"
                   onChange={handleImageChange}
                   ref={imageInputRef}
-                  className="w-full bg-black/50 border border-[#00ffff]/20 rounded px-4 py-2 text-white"
+                  className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded px-4 py-2 text-white"
                 />
                 {imagePreview && (
                   <div className="mt-4 h-48 flex justify-center">
@@ -181,7 +181,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
                 <textarea
                   value={htmlContent}
                   onChange={(e) => setHtmlContent(e.target.value)}
-                  className="w-full h-48 bg-black/50 border border-[#00ffff]/20 rounded px-4 py-2 text-white font-mono"
+                  className="w-full h-48 bg-black/50 border border-[#8B5CF6]/20 rounded px-4 py-2 text-white font-mono"
                   placeholder="Enter HTML content"
                 />
               </div>
@@ -192,7 +192,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
               <select
                 value={newAd.status}
                 onChange={(e) => setNewAd({ ...newAd, status: e.target.value as 'active' | 'inactive' })}
-                className="w-full bg-black/50 border border-[#00ffff]/20 rounded px-4 py-2 text-white"
+                className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded px-4 py-2 text-white"
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -206,7 +206,7 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
             <div className="flex gap-4">
               <Button
                 type="submit"
-                className="bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20"
+                className="bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20"
               >
                 Add Ad
               </Button>
@@ -228,18 +228,18 @@ export default function AdManagement({ ads, onUpdateAction }: Props) {
             key={ad.id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6"
+            className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6"
           >
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-xl font-semibold text-white">{ad.title}</h3>
-                <p className="text-[#00ffff]/60">Type: {ad.type}</p>
+                <p className="text-[#8B5CF6]/60">Type: {ad.type}</p>
               </div>
               <div className="flex items-center gap-4">
                 <select
                   value={ad.status}
                   onChange={(e) => handleAdStatusChange(ad.id, e.target.value as 'active' | 'inactive')}
-                  className="bg-black/50 border border-[#00ffff]/20 rounded px-3 py-1 text-white text-sm"
+                  className="bg-black/50 border border-[#8B5CF6]/20 rounded px-3 py-1 text-white text-sm"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>

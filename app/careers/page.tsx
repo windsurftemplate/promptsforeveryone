@@ -119,7 +119,7 @@ export default function CareersPage() {
     <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 py-12 pt-24">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6] bg-clip-text text-transparent mb-4">
             Join Our Team
           </h1>
           <p className="text-white/60 max-w-2xl mx-auto">
@@ -128,36 +128,36 @@ export default function CareersPage() {
         </div>
 
         <div className="max-w-3xl mx-auto">
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8 mb-8">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8 mb-8">
             <h2 className="text-2xl font-semibold text-white mb-6">Why Join Us?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <h3 className="text-[#00ffff] font-medium">Innovation First</h3>
+                <h3 className="text-[#8B5CF6] font-medium">Innovation First</h3>
                 <p className="text-white/60">Work on cutting-edge AI technology and shape the future of prompt engineering.</p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-[#00ffff] font-medium">Remote-First Culture</h3>
+                <h3 className="text-[#8B5CF6] font-medium">Remote-First Culture</h3>
                 <p className="text-white/60">Work from anywhere in the world with our distributed team.</p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-[#00ffff] font-medium">Growth Opportunities</h3>
+                <h3 className="text-[#8B5CF6] font-medium">Growth Opportunities</h3>
                 <p className="text-white/60">Continuous learning and development in a rapidly evolving field.</p>
               </div>
               <div className="space-y-2">
-                <h3 className="text-[#00ffff] font-medium">Impactful Work</h3>
+                <h3 className="text-[#8B5CF6] font-medium">Impactful Work</h3>
                 <p className="text-white/60">Help democratize access to AI technology and empower users worldwide.</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8 mb-8">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8 mb-8">
             <h2 className="text-2xl font-semibold text-white mb-6">Open Positions</h2>
             
             {openPositions.map((position, index) => (
               <div key={index} className="mb-8 last:mb-0">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-[#00ffff]">{position.title}</h3>
+                    <h3 className="text-xl font-semibold text-[#8B5CF6]">{position.title}</h3>
                     <div className="flex gap-4 mt-2">
                       <span className="text-white/60 text-sm">{position.type}</span>
                       <span className="text-white/60 text-sm">{position.location}</span>
@@ -216,7 +216,7 @@ export default function CareersPage() {
             ))}
           </div>
 
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8">
             <h2 className="text-2xl font-semibold text-white mb-6">Apply Now</h2>
             <p className="text-white/60 mb-8">
               Submit your application below and we'll get back to you as soon as possible.
@@ -234,7 +234,7 @@ export default function CareersPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent"
                   placeholder="Your name"
                 />
               </div>
@@ -250,7 +250,7 @@ export default function CareersPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent"
                   placeholder="your@email.com"
                 />
               </div>
@@ -265,7 +265,7 @@ export default function CareersPage() {
                   value={formData.role}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent"
                 >
                   <option value="">Select a role</option>
                   <option value="Engineering">Engineering</option>
@@ -288,7 +288,7 @@ export default function CareersPage() {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent resize-none"
                   placeholder="Tell us about yourself and why you're interested in joining our team..."
                 />
                   </div>
@@ -300,7 +300,7 @@ export default function CareersPage() {
                 <div className="flex items-center space-x-4">
                   <label
                     htmlFor="resume"
-                    className="flex items-center px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white/60 hover:text-[#00ffff] hover:border-[#00ffff]/40 cursor-pointer transition-colors"
+                    className="flex items-center px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white/60 hover:text-[#8B5CF6] hover:border-[#8B5CF6]/40 cursor-pointer transition-colors"
                   >
                     <DocumentTextIcon className="w-5 h-5 mr-2" />
                     {formData.resume ? 'Change File' : 'Upload File'}
@@ -334,7 +334,7 @@ export default function CareersPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full px-8 py-3 bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-8 py-3 bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Application'}
               </button>

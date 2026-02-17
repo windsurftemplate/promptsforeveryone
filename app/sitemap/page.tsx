@@ -38,13 +38,13 @@ export default function SitemapPage() {
   return (
     <div className="min-h-screen bg-black pt-32 pb-16">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#8B5CF6] to-white bg-clip-text text-transparent mb-8">
           Sitemap
         </h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Main Pages */}
-          <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Main Pages</h2>
             <div className="space-y-4">
               {mainPages.map((page) => (
@@ -53,8 +53,8 @@ export default function SitemapPage() {
                   href={page.path}
                   className="block group"
                 >
-                  <div className="p-3 rounded-lg border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                    <h3 className="text-[#00ffff] group-hover:text-[#00ffff]/80 font-medium mb-1">
+                  <div className="p-3 rounded-lg border border-[#8B5CF6]/10 hover:border-[#8B5CF6]/30 transition-colors">
+                    <h3 className="text-[#8B5CF6] group-hover:text-[#8B5CF6]/80 font-medium mb-1">
                       {page.name}
                     </h3>
                     <p className="text-white/60 text-sm">{page.description}</p>
@@ -65,7 +65,7 @@ export default function SitemapPage() {
           </div>
 
           {/* Account Pages */}
-          <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Account Pages</h2>
             <div className="space-y-4">
               {accountPages.map((page) => (
@@ -74,8 +74,8 @@ export default function SitemapPage() {
                   href={page.path}
                   className="block group"
                 >
-                  <div className="p-3 rounded-lg border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                    <h3 className="text-[#00ffff] group-hover:text-[#00ffff]/80 font-medium mb-1">
+                  <div className="p-3 rounded-lg border border-[#8B5CF6]/10 hover:border-[#8B5CF6]/30 transition-colors">
+                    <h3 className="text-[#8B5CF6] group-hover:text-[#8B5CF6]/80 font-medium mb-1">
                       {page.name}
                     </h3>
                     <p className="text-white/60 text-sm">{page.description}</p>
@@ -87,7 +87,7 @@ export default function SitemapPage() {
 
           {/* Admin Pages (only shown to admin users) */}
           {user?.role === 'admin' && (
-            <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6">
+            <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-white mb-4">Admin Pages</h2>
               <div className="space-y-4">
                 {adminPages.map((page) => (
@@ -96,8 +96,8 @@ export default function SitemapPage() {
                     href={page.path}
                     className="block group"
                   >
-                    <div className="p-3 rounded-lg border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                      <h3 className="text-[#00ffff] group-hover:text-[#00ffff]/80 font-medium mb-1">
+                    <div className="p-3 rounded-lg border border-[#8B5CF6]/10 hover:border-[#8B5CF6]/30 transition-colors">
+                      <h3 className="text-[#8B5CF6] group-hover:text-[#8B5CF6]/80 font-medium mb-1">
                         {page.name}
                       </h3>
                       <p className="text-white/60 text-sm">{page.description}</p>
@@ -109,7 +109,7 @@ export default function SitemapPage() {
           )}
 
           {/* Other Pages */}
-          <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-6">
             <h2 className="text-xl font-semibold text-white mb-4">Other Pages</h2>
             <div className="space-y-4">
               {otherPages.map((page) => (
@@ -118,8 +118,8 @@ export default function SitemapPage() {
                   href={page.path}
                   className="block group"
                 >
-                  <div className="p-3 rounded-lg border border-[#00ffff]/10 hover:border-[#00ffff]/30 transition-colors">
-                    <h3 className="text-[#00ffff] group-hover:text-[#00ffff]/80 font-medium mb-1">
+                  <div className="p-3 rounded-lg border border-[#8B5CF6]/10 hover:border-[#8B5CF6]/30 transition-colors">
+                    <h3 className="text-[#8B5CF6] group-hover:text-[#8B5CF6]/80 font-medium mb-1">
                       {page.name}
                     </h3>
                     <p className="text-white/60 text-sm">{page.description}</p>

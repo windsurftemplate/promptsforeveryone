@@ -102,7 +102,7 @@ export default function TemplateGenerator() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#00ffff] mb-2">AI-Powered Templates</h2>
+        <h2 className="text-2xl font-bold text-[#8B5CF6] mb-2">AI-Powered Templates</h2>
         <p className="text-gray-400">Generate professional templates for various purposes using AI</p>
       </div>
 
@@ -115,20 +115,20 @@ export default function TemplateGenerator() {
               </label>
               <Listbox value={selectedType} onChange={handleTypeChange}>
                 <div className="relative mt-1">
-                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-black py-3 pl-4 pr-10 text-left border border-[#00ffff]/20 hover:border-[#00ffff]/40 focus:outline-none focus-visible:border-[#00ffff]">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-black py-3 pl-4 pr-10 text-left border border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40 focus:outline-none focus-visible:border-[#8B5CF6]">
                     <span className="block truncate text-white">{selectedType.name}</span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                       <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </span>
                   </Listbox.Button>
-                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-black py-1 border border-[#00ffff]/20">
+                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-black py-1 border border-[#8B5CF6]/20">
                     {templateTypes.map((type) => (
                       <Listbox.Option
                         key={type.id}
                         value={type}
                         className={({ active }) =>
                           `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                            active ? 'bg-[#00ffff]/10 text-[#00ffff]' : 'text-white'
+                            active ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' : 'text-white'
                           }`
                         }
                       >
@@ -152,7 +152,7 @@ export default function TemplateGenerator() {
                 name="purpose"
                 value={formData.purpose}
                 onChange={handleInputChange}
-                className="w-full rounded-lg bg-black border border-[#00ffff]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#00ffff]/40"
+                className="w-full rounded-lg bg-black border border-[#8B5CF6]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#8B5CF6]/40"
                 placeholder="e.g., Follow-up email after client meeting"
               />
             </div>
@@ -163,20 +163,20 @@ export default function TemplateGenerator() {
               </label>
               <Listbox value={selectedTone} onChange={handleToneChange}>
                 <div className="relative mt-1">
-                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-black py-3 pl-4 pr-10 text-left border border-[#00ffff]/20 hover:border-[#00ffff]/40 focus:outline-none focus-visible:border-[#00ffff]">
+                  <Listbox.Button className="relative w-full cursor-pointer rounded-lg bg-black py-3 pl-4 pr-10 text-left border border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40 focus:outline-none focus-visible:border-[#8B5CF6]">
                     <span className="block truncate text-white">{selectedTone.name}</span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                       <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
                     </span>
                   </Listbox.Button>
-                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-black py-1 border border-[#00ffff]/20">
+                  <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-black py-1 border border-[#8B5CF6]/20">
                     {toneOptions.map((tone) => (
                       <Listbox.Option
                         key={tone.id}
                         value={tone}
                         className={({ active }) =>
                           `relative cursor-pointer select-none py-2 pl-4 pr-4 ${
-                            active ? 'bg-[#00ffff]/10 text-[#00ffff]' : 'text-white'
+                            active ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' : 'text-white'
                           }`
                         }
                       >
@@ -200,7 +200,7 @@ export default function TemplateGenerator() {
                 name="length"
                 value={formData.length}
                 onChange={handleInputChange}
-                className="w-full rounded-lg bg-black border border-[#00ffff]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#00ffff]/40"
+                className="w-full rounded-lg bg-black border border-[#8B5CF6]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#8B5CF6]/40"
                 placeholder="e.g., Short (100 words), Medium (300 words)"
               />
             </div>
@@ -214,7 +214,7 @@ export default function TemplateGenerator() {
                 value={formData.additionalInfo}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full rounded-lg bg-black border border-[#00ffff]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#00ffff]/40"
+                className="w-full rounded-lg bg-black border border-[#8B5CF6]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#8B5CF6]/40"
                 placeholder="Any specific details or requirements..."
               />
             </div>
@@ -222,7 +222,7 @@ export default function TemplateGenerator() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-semibold py-3"
+              className="w-full bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-semibold py-3"
             >
               {loading ? 'Generating...' : 'Generate Template'}
             </Button>
@@ -232,10 +232,10 @@ export default function TemplateGenerator() {
         <div className="lg:col-span-2">
           <div className="sticky top-6">
             <h3 className="text-lg font-medium text-white mb-4">Generated Template</h3>
-            <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6 min-h-[600px]">
+            <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6 min-h-[600px]">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ffff]"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6]"></div>
                 </div>
               ) : generatedContent ? (
                 <div className="prose prose-invert max-w-none">

@@ -101,12 +101,6 @@ export default function DashboardPage() {
       return;
     }
 
-    console.log('Dashboard effect running with:', {
-      user: user.uid,
-      selectedCategory,
-      selectedSubcategory
-    });
-
     // Check user's subscription status
     const userRef = ref(db, `users/${user.uid}`);
     get(userRef).then((snapshot) => {
@@ -121,9 +115,8 @@ export default function DashboardPage() {
         const unsubscribePublic = onValue(publicCategoriesRef, (snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.val();
-            console.log('Public categories raw data:', data);
             const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
-              id,  // This is the category ID that should match with prompts
+              id,
               name: category.name,
               subcategories: category.subcategories ? Object.entries(category.subcategories).reduce((acc, [subId, sub]: [string, any]) => ({
                 ...acc,
@@ -131,7 +124,6 @@ export default function DashboardPage() {
               }), {}) : {},
               isPrivate: false,
             }));
-            console.log('Processed public categories:', categoriesArray);
             setCategories(categoriesArray);
           }
         });
@@ -141,9 +133,8 @@ export default function DashboardPage() {
           const unsubscribePrivate = onValue(privateCategoriesRef, (snapshot) => {
             if (snapshot.exists()) {
               const data = snapshot.val();
-              console.log('Private categories raw data:', data);
               const categoriesArray = Object.entries(data).map(([id, category]: [string, any]) => ({
-                id,  // This is the category ID that should match with prompts
+                id,
                 name: category.name,
                 subcategories: category.subcategories ? Object.entries(category.subcategories).reduce((acc, [subId, sub]: [string, any]) => ({
                   ...acc,
@@ -151,7 +142,6 @@ export default function DashboardPage() {
                 }), {}) : {},
                 isPrivate: true,
               }));
-              console.log('Processed private categories:', categoriesArray);
               setPrivateCategories(categoriesArray);
             }
           });
@@ -193,16 +183,9 @@ export default function DashboardPage() {
       ? ref(db, `users/${user.uid}/prompts`)
       : ref(db, 'prompts');
 
-    console.log('Fetching prompts with:', {
-      selectedCategory,
-      selectedSubcategory,
-      promptsRef: promptsRef.toString()
-    });
-
     const unsubscribePrompts = onValue(promptsRef, (snapshot) => {
       if (snapshot.exists()) {
         const rawData = snapshot.val();
-        console.log('Raw prompts data:', rawData);
 
         const promptsData = Object.entries(rawData)
           .map(([id, data]: [string, any]) => {
@@ -216,18 +199,6 @@ export default function DashboardPage() {
             };
             return prompt;
           });
-
-        console.log('All prompts before filtering:', promptsData);
-        console.log('Filtering with:', {
-          selectedCategory: selectedCategory ? {
-            id: selectedCategory.id,
-            isPrivate: selectedCategory.isPrivate
-          } : null,
-          selectedSubcategory: selectedSubcategory ? {
-            id: selectedSubcategory.id,
-            name: selectedSubcategory.name
-          } : null
-        });
 
         // Filter by category and subcategory
         const filteredPrompts = promptsData.filter(prompt => {
@@ -243,12 +214,6 @@ export default function DashboardPage() {
 
           // For specific category filtering
           const categoryMatch = selectedCategory.id === prompt.categoryId;
-          console.log('Category match check:', {
-            promptId: prompt.id,
-            promptCategoryId: prompt.categoryId,
-            selectedCategoryId: selectedCategory.id,
-            match: categoryMatch
-          });
 
           if (!categoryMatch) {
             return false;
@@ -256,20 +221,11 @@ export default function DashboardPage() {
 
           // For subcategory filtering
           if (selectedSubcategory) {
-            const subcategoryMatch = selectedSubcategory.id === prompt.subcategoryId;
-            console.log('Subcategory match check:', {
-              promptId: prompt.id,
-              promptSubcategoryId: prompt.subcategoryId,
-              selectedSubcategoryId: selectedSubcategory.id,
-              match: subcategoryMatch
-            });
-            return subcategoryMatch;
+            return selectedSubcategory.id === prompt.subcategoryId;
           }
 
           return true;
         });
-
-        console.log('Filtered prompts:', filteredPrompts);
 
         // Sort prompts by creation date
         const sortedPrompts = filteredPrompts.sort((a, b) => 
@@ -278,7 +234,6 @@ export default function DashboardPage() {
 
         setPrompts(sortedPrompts);
       } else {
-        console.log('No prompts found in Firebase');
         setPrompts([]);
       }
       setLoading(false);
@@ -316,19 +271,11 @@ export default function DashboardPage() {
     if (!promptId || !user) return;
     if (window.confirm('Are you sure you want to delete this prompt?')) {
       try {
-        console.log('Attempting to delete prompt:', promptId);
-        
-        // Remove the prefix to get the original ID
         const originalId = promptId.replace(/^(private-|public-)/, '');
-        console.log('Original ID after removing prefix:', originalId);
-        
-        // Try to delete from both locations to ensure it's removed
+
         const privatePromptRef = ref(db, `users/${user.uid}/prompts/${originalId}`);
         const publicPromptRef = ref(db, `prompts/${originalId}`);
-        
-        console.log('Checking private path:', `users/${user.uid}/prompts/${originalId}`);
-        console.log('Checking public path:', `prompts/${originalId}`);
-        
+
         // Check if the prompt exists in either location
         const [privateSnapshot, publicSnapshot] = await Promise.all([
           get(privatePromptRef),
@@ -338,30 +285,18 @@ export default function DashboardPage() {
         let deleted = false;
         
         if (privateSnapshot.exists()) {
-          console.log('Found prompt in private location, deleting...');
           await remove(privatePromptRef);
           deleted = true;
         }
-        
+
         if (publicSnapshot.exists()) {
           const promptData = publicSnapshot.val();
           if (promptData.userId === user.uid) {
-            console.log('Found prompt in public location, deleting...');
             await remove(publicPromptRef);
             deleted = true;
           } else {
             throw new Error('You do not have permission to delete this prompt');
           }
-        }
-        
-        if (!deleted) {
-          console.error('Prompt not found in database. Details:', {
-            promptId,
-            originalId,
-            privateExists: privateSnapshot.exists(),
-            publicExists: publicSnapshot.exists(),
-            userId: user.uid
-          });
         }
         // Always refresh the page after deletion attempt
         window.location.reload();
@@ -424,7 +359,7 @@ export default function DashboardPage() {
   }, [visiblePrompts, localAds, handleDelete, handleCopy, handleEdit]);
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background-base">
       {/* Content */}
       <div className="relative py-8">
         {/* Banner ad for non-pro users */}
@@ -446,8 +381,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('prompts')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'prompts'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               My Prompts
@@ -456,8 +391,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('generator')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'generator'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Generator
@@ -466,8 +401,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('coach')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'coach'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Coach
@@ -476,8 +411,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('templates')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'templates'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Templates
@@ -486,8 +421,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('learn')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'learn'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Learn
@@ -496,8 +431,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('interactive')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'interactive'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Practice
@@ -506,8 +441,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('cheatsheets')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'cheatsheets'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Cheat Sheets
@@ -516,8 +451,8 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('profile')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 activeTab === 'profile'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'text-gray-400 hover:text-[#00ffff]'
+                  ? 'bg-violet/15 text-violet-400 border border-violet/20'
+                  : 'text-zinc-500 hover:text-white hover:bg-white/5'
               }`}
             >
               Profile
@@ -528,33 +463,33 @@ export default function DashboardPage() {
         {activeTab === 'prompts' && (
           <>
             {/* File Path Bar */}
-            <div className="bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4 mx-4 mb-4 flex items-center gap-2 group hover:border-[#00ffff]/20 transition-all duration-300">
+            <div className="bg-black/40 backdrop-blur-sm border border-white/8 rounded-lg p-4 mx-4 mb-4 flex items-center gap-2 group hover:border-violet/20 transition-all duration-300">
               <div className="flex items-center gap-2 text-sm">
                 <button 
                   onClick={() => {
                     setSelectedCategory(null);
                   }}
-                  className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors duration-200 flex items-center gap-1.5"
+                  className="text-violet-400 hover:text-violet-400/80 transition-colors duration-200 flex items-center gap-1.5"
                 >
                   <HomeIcon className="h-4 w-4" />
                   Home
                 </button>
                 {selectedCategory && (
                   <>
-                    <span className="text-[#00ffff]/40">/</span>
+                    <span className="text-violet-400/40">/</span>
                     <button 
                       onClick={() => {
                         setSelectedCategory(selectedCategory);
                       }}
-                      className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors duration-200 flex items-center gap-1.5"
+                      className="text-violet-400 hover:text-violet-400/80 transition-colors duration-200 flex items-center gap-1.5"
                     >
                       <FolderOpenIcon className="h-4 w-4" />
                       {selectedCategory.isPrivate ? 'private' : 'public'}
                     </button>
                     {currentCategory && (
                       <>
-                        <span className="text-[#00ffff]/40">/</span>
-                        <span className="text-[#00ffff] flex items-center gap-1.5">
+                        <span className="text-violet-400/40">/</span>
+                        <span className="text-violet-400 flex items-center gap-1.5">
                           <FolderIcon className="h-4 w-4" />
                           {currentCategory.name}
                         </span>
@@ -563,8 +498,8 @@ export default function DashboardPage() {
                   </>
                 )}
               </div>
-              <div className="ml-auto px-3 py-1 rounded-full bg-[#00ffff]/5 border border-[#00ffff]/10">
-                <span className="text-[#00ffff]/60 text-sm">
+              <div className="ml-auto px-3 py-1 rounded-full bg-violet/8 border border-white/8">
+                <span className="text-violet-400/60 text-sm">
                   {prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
                 </span>
               </div>
@@ -577,7 +512,7 @@ export default function DashboardPage() {
                   onClick={() => setViewMode('card')}
                   className={`flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     viewMode === 'card'
-                      ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                      ? 'bg-violet/15 text-violet-400'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -588,7 +523,7 @@ export default function DashboardPage() {
                   onClick={() => setViewMode('list')}
                   className={`flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                     viewMode === 'list'
-                      ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                      ? 'bg-violet/15 text-violet-400'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -601,7 +536,7 @@ export default function DashboardPage() {
             {/* Prompts Content */}
             {loading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-violet-500"></div>
               </div>
             ) : prompts.length === 0 ? (
               <div className="text-center py-12">
@@ -625,7 +560,7 @@ export default function DashboardPage() {
                   <div className="text-center py-8 mt-8">
                     <p className="text-white/60 mb-4">Scroll down to load more prompts</p>
                     <div className="animate-bounce">
-                      <svg className="w-6 h-6 text-[#00ffff] mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-6 h-6 text-violet-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                       </svg>
                     </div>

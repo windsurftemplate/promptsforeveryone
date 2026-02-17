@@ -73,14 +73,14 @@ export default function PromptLearning() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#00ffff] mb-2">Learn Prompting Effectively</h2>
+        <h2 className="text-2xl font-bold text-[#8B5CF6] mb-2">Learn Prompting Effectively</h2>
         <p className="text-gray-400">Master the art of crafting effective prompts with our interactive tools</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Prompt Builder */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
             <h3 className="text-lg font-medium text-white mb-4">Interactive Prompt Builder</h3>
             
             {/* Template Selection */}
@@ -95,8 +95,8 @@ export default function PromptLearning() {
                     onClick={() => applyTemplate(template)}
                     className={`p-4 rounded-lg border transition-all ${
                       selectedTemplate.id === template.id
-                        ? 'border-[#00ffff] bg-[#00ffff]/10'
-                        : 'border-[#00ffff]/20 hover:border-[#00ffff]/40'
+                        ? 'border-[#8B5CF6] bg-[#8B5CF6]/10'
+                        : 'border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40'
                     }`}
                   >
                     <div className="font-medium text-white">{template.name}</div>
@@ -115,7 +115,7 @@ export default function PromptLearning() {
                 value={userPrompt}
                 onChange={(e) => setUserPrompt(e.target.value)}
                 rows={8}
-                className="w-full rounded-lg bg-black border border-[#00ffff]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#00ffff]/40"
+                className="w-full rounded-lg bg-black border border-[#8B5CF6]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#8B5CF6]/40"
                 placeholder="Write your prompt here..."
               />
             </div>
@@ -123,7 +123,7 @@ export default function PromptLearning() {
             <Button
               onClick={analyzePrompt}
               disabled={loading}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-medium py-3"
+              className="w-full bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-medium py-3"
             >
               {loading ? 'Analyzing...' : 'Analyze Prompt'}
             </Button>
@@ -131,12 +131,12 @@ export default function PromptLearning() {
 
           {/* Feedback Section */}
           {feedback.length > 0 && (
-            <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+            <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4">AI Feedback</h3>
               <div className="space-y-4">
                 {feedback.map((item, index) => (
                   <div key={index} className="flex items-start gap-3 text-gray-300">
-                    <CheckIcon className="h-5 w-5 text-[#00ffff] shrink-0 mt-0.5" />
+                    <CheckIcon className="h-5 w-5 text-[#8B5CF6] shrink-0 mt-0.5" />
                     <span>{item}</span>
                   </div>
                 ))}
@@ -148,11 +148,11 @@ export default function PromptLearning() {
         {/* Right Column - Learning Resources */}
         <div className="lg:col-span-1 space-y-6">
           {/* Common Mistakes */}
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
             <h3 className="text-lg font-medium text-white mb-4">Common Mistakes to Avoid</h3>
             <div className="space-y-4">
               {commonMistakes.map((item, index) => (
-                <div key={index} className="border-b border-[#00ffff]/10 last:border-0 pb-4 last:pb-0">
+                <div key={index} className="border-b border-[#8B5CF6]/10 last:border-0 pb-4 last:pb-0">
                   <div className="flex items-start gap-3">
                     <XMarkIcon className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
                     <div>
@@ -166,11 +166,11 @@ export default function PromptLearning() {
           </div>
 
           {/* Example Comparison */}
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
             <h3 className="text-lg font-medium text-white mb-4">Example Comparison</h3>
             <Button
               onClick={() => setShowComparison(!showComparison)}
-              className="w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-medium"
+              className="w-full bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-medium"
             >
               {showComparison ? 'Hide Examples' : 'Show Examples'}
             </Button>

@@ -7,10 +7,10 @@ export default function DashboardPreview() {
       {/* Glowing border container */}
       <div className="relative rounded-2xl overflow-hidden animate-float">
         {/* Background glow effect */}
-        <div className="absolute -inset-1 bg-[#00ffff] opacity-20 blur-lg animate-pulse-glow" />
+        <div className="absolute -inset-1 bg-[#8B5CF6] opacity-20 blur-lg animate-pulse-glow" />
         
         {/* Border glow */}
-        <div className="absolute inset-0 rounded-2xl border border-[#00ffff]/50 z-10" />
+        <div className="absolute inset-0 rounded-2xl border border-[#8B5CF6]/50 z-10" />
         
         {/* Dark background for contrast */}
         <div className="relative bg-black/90 rounded-2xl overflow-hidden">

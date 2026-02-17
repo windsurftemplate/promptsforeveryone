@@ -80,8 +80,8 @@ export default function NewBlogPost() {
       <div className="min-h-screen bg-black pt-24">
         <div className="max-w-4xl mx-auto px-4">
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-[#00ffff]/10 rounded-lg w-3/4"></div>
-            <div className="h-4 bg-[#00ffff]/10 rounded-lg w-1/4"></div>
+            <div className="h-8 bg-[#8B5CF6]/10 rounded-lg w-3/4"></div>
+            <div className="h-4 bg-[#8B5CF6]/10 rounded-lg w-1/4"></div>
           </div>
         </div>
       </div>
@@ -92,7 +92,7 @@ export default function NewBlogPost() {
     <div className="min-h-screen bg-black pt-24">
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#8B5CF6] to-white bg-clip-text text-transparent">
             Create New Blog Post
           </h1>
           <div className="flex items-center space-x-4">
@@ -120,52 +120,52 @@ export default function NewBlogPost() {
 
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-[#00ffff] mb-2">
+            <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
               Title
             </label>
             <input
               type="text"
               value={post.title}
               onChange={(e) => setPost({ ...post, title: e.target.value })}
-              className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+              className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8B5CF6]/40"
               placeholder="Enter post title"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#00ffff] mb-2">
+            <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
               Summary
             </label>
             <textarea
               value={post.summary}
               onChange={(e) => setPost({ ...post, summary: e.target.value })}
-              className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40 h-24"
+              className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8B5CF6]/40 h-24"
               placeholder="Enter post summary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#00ffff] mb-2">
+            <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
               Read Time
             </label>
             <input
               type="text"
               value={post.readTime}
               onChange={(e) => setPost({ ...post, readTime: e.target.value })}
-              className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+              className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8B5CF6]/40"
               placeholder="e.g., 5 min read"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#00ffff] mb-2">
+            <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
               Content (HTML)
             </label>
-            <div className="border border-[#00ffff]/20 rounded-lg overflow-hidden">
+            <div className="border border-[#8B5CF6]/20 rounded-lg overflow-hidden">
               <textarea
                 value={post.content}
                 onChange={(e) => setPost({ ...post, content: e.target.value })}
-                className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#00ffff]/40"
+                className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]/40"
                 placeholder="Enter blog content in HTML format"
               />
             </div>

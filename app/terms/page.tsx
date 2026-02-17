@@ -5,7 +5,7 @@ import Card from '@/components/ui/Card';
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#00ffff] via-[#0099ff] to-[#00ffff] bg-clip-text text-transparent">
+      <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#8B5CF6] via-[#0099ff] to-[#8B5CF6] bg-clip-text text-transparent">
         Terms of Service
       </h1>
 

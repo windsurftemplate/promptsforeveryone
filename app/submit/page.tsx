@@ -198,7 +198,7 @@ export default function SubmitPage() {
           )}
 
           {/* Category Tabs */}
-          <div className="flex space-x-4 border-b border-[#00ffff]/20">
+          <div className="flex space-x-4 border-b border-[#8B5CF6]/20">
             <button
               type="button"
               onClick={() => {
@@ -207,7 +207,7 @@ export default function SubmitPage() {
               }}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === 'public'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -222,7 +222,7 @@ export default function SubmitPage() {
                 }}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === 'private'
-                    ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                    ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                     : 'text-white/60 hover:text-white'
                 }`}
               >
@@ -272,7 +272,7 @@ export default function SubmitPage() {
                       setError('Category name must be between 3 and 50 characters');
                     }
                   }}
-                  className="text-sm text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+                  className="text-sm text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors"
                 >
                   + Add New Category
                 </button>
@@ -285,7 +285,7 @@ export default function SubmitPage() {
                 setSelectedCategory(e.target.value);
                 setSelectedSubcategory(''); // Reset subcategory when category changes
               }}
-              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
+              className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-2 focus:border-[#8B5CF6]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#8B5CF6]/40 transition-colors"
             >
               <option value="" className="bg-black text-white">Select a category</option>
               {(activeTab === 'private' ? privateCategories : categories).map((category) => (
@@ -305,13 +305,13 @@ export default function SubmitPage() {
               return (
                 <div>
                   <label htmlFor="subcategory" className="block text-sm font-medium text-white mb-2">
-                    Subcategory <span className="text-[#00ffff]">*</span>
+                    Subcategory <span className="text-[#8B5CF6]">*</span>
                   </label>
                   <select
                     id="subcategory"
                     value={selectedSubcategory}
                     onChange={(e) => setSelectedSubcategory(e.target.value)}
-                    className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#00ffff]/40 transition-colors"
+                    className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-2 focus:border-[#8B5CF6]/40 focus:outline-none appearance-none cursor-pointer bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNCA2TDggMTBMMTIgNiIgc3Ryb2tlPSIjMDBmZmZmIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPjwvc3ZnPg==')] bg-no-repeat bg-right-1 bg-[length:16px] bg-[right_12px_center] pr-10 hover:border-[#8B5CF6]/40 transition-colors"
                     required
                   >
                     <option value="" className="bg-black text-white">Select a subcategory</option>
@@ -336,7 +336,7 @@ export default function SubmitPage() {
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-3 focus:border-[#00ffff]/40 focus:outline-none"
+              className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-3 focus:border-[#8B5CF6]/40 focus:outline-none"
               placeholder="Enter prompt title"
             />
           </div>
@@ -350,7 +350,7 @@ export default function SubmitPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={5}
-              className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-3 focus:border-[#00ffff]/40 focus:outline-none"
+              className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-3 focus:border-[#8B5CF6]/40 focus:outline-none"
               placeholder="Enter your prompt"
             />
           </div>
@@ -358,7 +358,7 @@ export default function SubmitPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-bold py-2 px-4 rounded-lg disabled:opacity-50"
+            className="w-full bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black font-bold py-2 px-4 rounded-lg disabled:opacity-50"
           >
             {isSubmitting ? 'Submitting...' : 'Submit Prompt'}
           </button>

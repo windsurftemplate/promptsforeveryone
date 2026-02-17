@@ -1,6 +1,7 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
+  darkMode: ["class"],
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -10,25 +11,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        emerald: {
-          DEFAULT: '#0A8F6A',
-          light: '#0FB97F',
-          dark: '#067A58',
-          50: '#E6F7F2',
-          100: '#C2EBE0',
-          200: '#8FD9C5',
-          300: '#5CC7AA',
-          400: '#29B58F',
-          500: '#0A8F6A',
-          600: '#087A5B',
-          700: '#06654C',
-          800: '#04503D',
-          900: '#023B2E',
+        violet: {
+          DEFAULT: '#8B5CF6',
+          light: '#A78BFA',
+          dark: '#7C3AED',
+          50: '#F5F3FF',
+          100: '#EDE9FE',
+          200: '#DDD6FE',
+          300: '#C4B5FD',
+          400: '#A78BFA',
+          500: '#8B5CF6',
+          600: '#7C3AED',
+          700: '#6D28D9',
+          800: '#5B21B6',
+          900: '#4C1D95',
+        },
+        background: {
+          base: '#0A0A0F',
+          elevated: '#0F0F17',
+          overlay: '#13131E',
+          border: '#1A1A2E',
         },
         surface: {
-          DEFAULT: 'rgba(0, 0, 0, 0.8)',
+          DEFAULT: 'rgba(255, 255, 255, 0.03)',
           light: 'rgba(255, 255, 255, 0.05)',
-          dark: '#050505',
+          accent: 'rgba(139, 92, 246, 0.06)',
+          dark: '#0A0A0F',
         },
         neutral: {
           850: '#1a1a1a',
@@ -47,6 +55,10 @@ const config: Config = {
         'soft-fade': 'softFade 0.5s ease forwards',
         'rotate-gradient': 'rotate-gradient 4s linear infinite',
         'border-beam': 'borderBeamRotation 4s linear infinite',
+        'scroll': 'scroll 25s linear infinite',
+        'blink': 'blink 1s step-end infinite',
+        'fadeIn': 'fadeIn 0.5s ease-out forwards',
+        'slideIn': 'slideIn 0.3s ease-out forwards',
       },
       keyframes: {
         glow: {
@@ -68,11 +80,11 @@ const config: Config = {
         'pulse-glow': {
           '0%, 100%': {
             opacity: '0.2',
-            boxShadow: '0 0 20px rgba(10, 143, 106, 0.2)',
+            boxShadow: '0 0 20px rgba(139, 92, 246, 0.2)',
           },
           '50%': {
             opacity: '0.4',
-            boxShadow: '0 0 40px rgba(10, 143, 106, 0.4)',
+            boxShadow: '0 0 40px rgba(139, 92, 246, 0.4)',
           },
         },
         'spin-slow': {
@@ -95,19 +107,36 @@ const config: Config = {
           '0%': { transform: 'translate(-50%, -50%) rotate(0deg)' },
           '100%': { transform: 'translate(-50%, -50%) rotate(360deg)' },
         },
+        scroll: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideIn: {
+          '0%': { opacity: '0', transform: 'translateX(-10px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-        'gradient-emerald': 'linear-gradient(180deg, rgba(10, 143, 106, 0.1) 0%, transparent 100%)',
-        'ambient': 'radial-gradient(circle at 15% 50%, rgba(10, 143, 106, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.03), transparent 25%)',
+        'gradient-violet': 'linear-gradient(180deg, rgba(139, 92, 246, 0.10) 0%, transparent 100%)',
+        'ambient': 'radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08), transparent 25%), radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.04), transparent 25%)',
+        'grid': "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.04)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e\")",
       },
       boxShadow: {
-        'glow-sm': '0 0 10px rgba(10, 143, 106, 0.2)',
-        'glow': '0 0 20px rgba(10, 143, 106, 0.3)',
-        'glow-lg': '0 0 40px rgba(10, 143, 106, 0.4)',
-        'glow-xl': '0 0 60px rgba(10, 143, 106, 0.5)',
-        'inner-glow': 'inset 0 0 20px rgba(10, 143, 106, 0.1)',
+        'glow-sm': '0 0 10px rgba(139, 92, 246, 0.2)',
+        'glow': '0 0 20px rgba(139, 92, 246, 0.3)',
+        'glow-lg': '0 0 40px rgba(139, 92, 246, 0.4)',
+        'glow-xl': '0 0 60px rgba(139, 92, 246, 0.5)',
+        'inner-glow': 'inset 0 0 20px rgba(139, 92, 246, 0.08)',
         'glass': '0 4px 24px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)',
         'glass-hover': '0 8px 32px -4px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
       },
@@ -123,7 +152,10 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-animate"),
+    require('tailwind-scrollbar'),
+  ],
 }
 
 export default config

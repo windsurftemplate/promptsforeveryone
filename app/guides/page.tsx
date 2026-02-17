@@ -18,8 +18,8 @@ export default function GuidesPage() {
           </p>
 
       <div className="space-y-8">
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Understanding AI Prompts</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Understanding AI Prompts</h3>
               <p className="text-white/80 mb-4">
                 AI prompts are instructions or queries that guide AI models to generate specific outputs.
                 The quality of your prompt directly affects the quality of the response.
@@ -32,8 +32,8 @@ export default function GuidesPage() {
               </ul>
             </div>
 
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Basic Prompt Structure</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Basic Prompt Structure</h3>
               <div className="space-y-4">
                 <div>
                   <h4 className="font-semibold text-white mb-2">1. Context Setting</h4>
@@ -67,8 +67,8 @@ export default function GuidesPage() {
           </p>
 
           <div className="space-y-8">
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Best Practices</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Best Practices</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <h4 className="font-semibold text-white mb-2">Be Specific</h4>
@@ -97,8 +97,8 @@ export default function GuidesPage() {
               </div>
             </div>
 
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Common Mistakes to Avoid</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Common Mistakes to Avoid</h3>
               <ul className="list-disc list-inside space-y-4 text-white/80">
                 <li>Being too vague or general in instructions</li>
                 <li>Omitting important context or requirements</li>
@@ -121,8 +121,8 @@ export default function GuidesPage() {
           </p>
 
           <div className="space-y-8">
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Chain of Thought Prompting</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Chain of Thought Prompting</h3>
               <p className="text-white/80 mb-4">
                 Guide the AI through a step-by-step reasoning process to arrive at better solutions.
               </p>
@@ -142,8 +142,8 @@ export default function GuidesPage() {
               </div>
         </div>
 
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Role-Based Prompting</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Role-Based Prompting</h3>
               <p className="text-white/80 mb-4">
                 Assign specific roles or personas to the AI to obtain specialized responses.
               </p>
@@ -176,8 +176,8 @@ export default function GuidesPage() {
           </p>
 
           <div className="space-y-8">
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Iterative Refinement</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Iterative Refinement</h3>
               <div className="space-y-4">
                 <div>
                   <h4 className="font-semibold text-white mb-2">1. Start Simple</h4>
@@ -198,8 +198,8 @@ export default function GuidesPage() {
               </div>
             </div>
 
-            <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Testing Strategies</h3>
+            <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Testing Strategies</h3>
               <ul className="list-disc list-inside space-y-4 text-white/80">
                 <li>Use different variations of the same prompt</li>
                 <li>Test with edge cases and unusual scenarios</li>
@@ -227,8 +227,8 @@ export default function GuidesPage() {
                   onClick={() => setActiveSection(key)}
                   className={`w-full text-left px-4 py-2 rounded-lg transition-colors duration-200 flex items-center justify-between ${
                     activeSection === key
-                      ? 'bg-[#00ffff]/10 text-[#00ffff]'
-                      : 'text-white/60 hover:bg-[#00ffff]/5 hover:text-[#00ffff]'
+                      ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]'
+                      : 'text-white/60 hover:bg-[#8B5CF6]/5 hover:text-[#8B5CF6]'
                   }`}
                 >
                   {section.title}
@@ -242,7 +242,7 @@ export default function GuidesPage() {
 
           {/* Main Content */}
           <div className="md:col-span-3">
-            <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8">
+            <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8">
               {sections[activeSection as keyof typeof sections].content}
             </div>
           </div>

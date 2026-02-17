@@ -153,11 +153,11 @@ export default function PopularPromptsPage() {
     <div className="min-h-screen bg-gradient-to-t from-black via-gray-900 to-black">
       {/* Fixed background gradient */}
       <div className="fixed inset-0 bg-gradient-to-t from-black to-transparent pointer-events-none" />
-      <div className="fixed inset-0 bg-[#00ffff]/5 pointer-events-none" />
+      <div className="fixed inset-0 bg-[#8B5CF6]/5 pointer-events-none" />
 
       <div className="relative container mx-auto px-4 pt-32 pb-16">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#8B5CF6] to-white bg-clip-text text-transparent">
             Trending top 100 Prompts
           </h1>
 
@@ -167,8 +167,8 @@ export default function PopularPromptsPage() {
               onClick={() => setTimeFilter('all')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 timeFilter === 'all'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'bg-black/30 text-white/60 hover:text-white border border-[#00ffff]/20'
+                  ? 'bg-[#8B5CF6] text-black'
+                  : 'bg-black/30 text-white/60 hover:text-white border border-[#8B5CF6]/20'
               }`}
             >
               All Time
@@ -177,8 +177,8 @@ export default function PopularPromptsPage() {
               onClick={() => setTimeFilter('week')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 timeFilter === 'week'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'bg-black/30 text-white/60 hover:text-white border border-[#00ffff]/20'
+                  ? 'bg-[#8B5CF6] text-black'
+                  : 'bg-black/30 text-white/60 hover:text-white border border-[#8B5CF6]/20'
               }`}
             >
               This Week
@@ -187,8 +187,8 @@ export default function PopularPromptsPage() {
               onClick={() => setTimeFilter('month')}
               className={`px-4 py-2 rounded-lg transition-colors ${
                 timeFilter === 'month'
-                  ? 'bg-[#00ffff] text-black'
-                  : 'bg-black/30 text-white/60 hover:text-white border border-[#00ffff]/20'
+                  ? 'bg-[#8B5CF6] text-black'
+                  : 'bg-black/30 text-white/60 hover:text-white border border-[#8B5CF6]/20'
               }`}
             >
               This Month
@@ -212,10 +212,10 @@ export default function PopularPromptsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center"
+            className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 flex items-center"
           >
-            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
-              <FireIcon className="h-6 w-6 text-[#00ffff]" />
+            <div className="rounded-full bg-[#8B5CF6]/10 p-3 mr-4">
+              <FireIcon className="h-6 w-6 text-[#8B5CF6]" />
             </div>
             <div>
               <p className="text-white/60">Most Voted</p>
@@ -232,10 +232,10 @@ export default function PopularPromptsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.1 }}
-            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center"
+            className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 flex items-center"
           >
-            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
-              <ChartBarIcon className="h-6 w-6 text-[#00ffff]" />
+            <div className="rounded-full bg-[#8B5CF6]/10 p-3 mr-4">
+              <ChartBarIcon className="h-6 w-6 text-[#8B5CF6]" />
             </div>
             <div>
               <p className="text-white/60">Total Prompts</p>
@@ -250,10 +250,10 @@ export default function PopularPromptsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 flex items-center"
+            className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 flex items-center"
           >
-            <div className="rounded-full bg-[#00ffff]/10 p-3 mr-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#00ffff]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="rounded-full bg-[#8B5CF6]/10 p-3 mr-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[#8B5CF6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
               </svg>
             </div>
@@ -271,7 +271,7 @@ export default function PopularPromptsPage() {
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
           </div>
         ) : prompts.length === 0 ? (
           <div className="text-center py-12">
@@ -291,14 +291,14 @@ export default function PopularPromptsPage() {
                       onClick={() => setSelectedPrompt(prompt)}
                       className="cursor-pointer"
                     >
-                      <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-[180px] bg-black/30">
+                      <Card className="p-6 hover:border-[#8B5CF6]/50 transition-all duration-300 group cursor-pointer h-[180px] bg-black/30">
                         <div className="flex flex-col justify-between h-full">
                           <div>
                             <div className="flex justify-between items-start mb-2">
-                              <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors truncate pr-4">
+                              <h3 className="text-xl font-semibold text-white group-hover:text-[#8B5CF6] transition-colors truncate pr-4">
                                 {prompt.title}
                               </h3>
-                              <div className="flex items-center text-[#00ffff] shrink-0">
+                              <div className="flex items-center text-[#8B5CF6] shrink-0">
                                 <span>{prompt.likes ?? 0}</span>
                               </div>
                             </div>
@@ -315,7 +315,7 @@ export default function PopularPromptsPage() {
                               </svg>
                               <span className="truncate max-w-[120px]">{prompt.userName}</span>
                             </div>
-                            <span className="text-[#00ffff]/60 shrink-0">
+                            <span className="text-[#8B5CF6]/60 shrink-0">
                               Rank #{prompts.indexOf(prompt) + 1}
                             </span>
                           </div>
@@ -343,7 +343,7 @@ export default function PopularPromptsPage() {
               <div className="text-center py-8">
                 <button
                   onClick={() => setVisibleCount(prev => prev + 20)}
-                  className="px-6 py-2 bg-[#00ffff]/10 text-[#00ffff] rounded-lg hover:bg-[#00ffff]/20 transition-colors"
+                  className="px-6 py-2 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-lg hover:bg-[#8B5CF6]/20 transition-colors"
                 >
                   Load More
                 </button>

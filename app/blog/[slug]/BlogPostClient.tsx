@@ -101,11 +101,11 @@ export default function BlogPostClient({ slug }: Props) {
           <div className="space-y-12">
             {/* Hero section loading state */}
             <div className="space-y-8">
-              <div className="h-2 w-24 bg-[#00ffff]/20 rounded-full animate-pulse" />
-              <div className="h-16 w-3/4 bg-[#00ffff]/10 rounded-lg animate-pulse" />
+              <div className="h-2 w-24 bg-[#8B5CF6]/20 rounded-full animate-pulse" />
+              <div className="h-16 w-3/4 bg-[#8B5CF6]/10 rounded-lg animate-pulse" />
               <div className="flex items-center space-x-4">
-                <div className="h-10 w-10 rounded-full bg-[#00ffff]/10 animate-pulse" />
-                <div className="h-4 w-32 bg-[#00ffff]/10 rounded-full animate-pulse" />
+                <div className="h-10 w-10 rounded-full bg-[#8B5CF6]/10 animate-pulse" />
+                <div className="h-4 w-32 bg-[#8B5CF6]/10 rounded-full animate-pulse" />
               </div>
             </div>
             
@@ -113,9 +113,9 @@ export default function BlogPostClient({ slug }: Props) {
             <div className="space-y-6 pt-12">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="space-y-3">
-                  <div className="h-4 bg-[#00ffff]/10 rounded-full w-full animate-pulse" />
-                  <div className="h-4 bg-[#00ffff]/10 rounded-full w-5/6 animate-pulse" />
-                  <div className="h-4 bg-[#00ffff]/10 rounded-full w-4/6 animate-pulse" />
+                  <div className="h-4 bg-[#8B5CF6]/10 rounded-full w-full animate-pulse" />
+                  <div className="h-4 bg-[#8B5CF6]/10 rounded-full w-5/6 animate-pulse" />
+                  <div className="h-4 bg-[#8B5CF6]/10 rounded-full w-4/6 animate-pulse" />
                 </div>
               ))}
             </div>

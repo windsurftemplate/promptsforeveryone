@@ -60,14 +60,14 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+      <div className="min-h-screen bg-background-base flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-violet-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background-base">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         {/* Banner ad for non-pro users */}
@@ -95,7 +95,7 @@ export default function CategoriesPage() {
                 delay: Math.random() * 2,
                 ease: "linear"
               }}
-              className="aspect-square bg-[#00ffff]"
+              className="aspect-square bg-violet"
             />
           ))}
         </div>
@@ -108,7 +108,7 @@ export default function CategoriesPage() {
             transition={{ duration: 0.6 }}
             className="max-w-3xl mx-auto text-center"
           >
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-white to-[#00ffff] bg-clip-text text-transparent mb-6">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-violet-300 via-white to-violet-400 bg-clip-text text-transparent mb-6">
               Explore Our Prompt Categories
             </h1>
             <p className="text-xl text-white/70 mb-12">
@@ -123,7 +123,7 @@ export default function CategoriesPage() {
                 transition={{ duration: 0.4, delay: 0.2 }}
                 className="text-center"
               >
-                <div className="text-4xl font-bold text-[#00ffff] mb-2">{categories.length}</div>
+                <div className="text-4xl font-bold text-violet-400 mb-2">{categories.length}</div>
                 <div className="text-white/60">Categories</div>
               </motion.div>
               <motion.div
@@ -132,7 +132,7 @@ export default function CategoriesPage() {
                 transition={{ duration: 0.4, delay: 0.3 }}
                 className="text-center"
               >
-                <div className="text-4xl font-bold text-[#00ffff] mb-2">
+                <div className="text-4xl font-bold text-violet-400 mb-2">
                   {categories.reduce((total, category) => 
                     total + (category.subcategories ? Object.keys(category.subcategories).length : 0), 
                   0)}
@@ -145,7 +145,7 @@ export default function CategoriesPage() {
                 transition={{ duration: 0.4, delay: 0.4 }}
                 className="text-center"
               >
-                <div className="text-4xl font-bold text-[#00ffff] mb-2">
+                <div className="text-4xl font-bold text-violet-400 mb-2">
                   {totalPrompts}
                 </div>
                 <div className="text-white/60">Total Prompts</div>
@@ -156,8 +156,8 @@ export default function CategoriesPage() {
 
         {/* Decorative elements */}
         <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent" />
-        <div className="absolute top-0 left-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
+        <div className="absolute top-0 left-0 w-1/3 h-full bg-violet opacity-[0.04] blur-3xl" />
+        <div className="absolute top-0 right-0 w-1/3 h-full bg-violet opacity-[0.04] blur-3xl" />
       </div>
 
       {/* Categories Grid */}
@@ -172,18 +172,18 @@ export default function CategoriesPage() {
                 className="h-full"
               >
                 <Link href={`/categories/${category.id}`} className="group h-full">
-                  <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 transition-all duration-300 h-full flex flex-col">
+                  <div className="feature-card p-6 hover:border-violet/25 transition-all duration-300 h-full flex flex-col">
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-2xl font-semibold text-white group-hover:text-[#00ffff] transition-colors">
+                      <h2 className="text-2xl font-semibold text-white group-hover:text-violet-400 transition-colors">
                         {category.name}
                       </h2>
-                      <ChevronRightIcon className="h-5 w-5 text-[#00ffff] opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                      <ChevronRightIcon className="h-5 w-5 text-violet-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                     </div>
                     <p className="text-white/60 mb-6 flex-grow">
                       {category.description || `Explore our collection of ${category.name.toLowerCase()} prompts`}
                     </p>
                     <div className="flex items-center justify-between mt-auto">
-                      <div className="text-[#00ffff]/80">
+                      <div className="text-violet-400/60">
                         {category.promptCount} {category.promptCount === 1 ? 'prompt' : 'prompts'}
                       </div>
                       {category.subcategories && Object.keys(category.subcategories).length > 0 && (
@@ -201,7 +201,7 @@ export default function CategoriesPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.4 }}
-                  className="h-[180px] bg-black/30 border border-[#00ffff]/20 rounded-lg p-4"
+                  className="h-[180px] bg-black/30 border border-white/8 rounded-lg p-4"
                 >
                   <AdDisplay ad={localAds.find(ad => ad.type === 'inline') ?? localAds[0]} />
                 </motion.div>

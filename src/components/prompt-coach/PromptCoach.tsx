@@ -50,8 +50,8 @@ const PromptCoach: React.FC = () => {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <h2 className="text-xl font-semibold text-[#00ffff]">Please log in to use the Prompt Coach</h2>
-        <Button onClick={() => router.push('/login')} className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]">
+        <h2 className="text-xl font-semibold text-[#8B5CF6]">Please log in to use the Prompt Coach</h2>
+        <Button onClick={() => router.push('/login')} className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6]">
           Log In
         </Button>
       </div>
@@ -243,17 +243,17 @@ const PromptCoach: React.FC = () => {
               key={item.category}
               className={`flex items-start gap-3 p-4 rounded-lg border ${
                 item.passed
-                  ? 'bg-[#00ffff]/5 border-[#00ffff]/20'
+                  ? 'bg-[#8B5CF6]/5 border-[#8B5CF6]/20'
                   : 'bg-red-500/5 border-red-500/20'
               }`}
             >
               {item.passed ? (
-                <CheckCircle className="w-5 h-5 text-[#00ffff] shrink-0" />
+                <CheckCircle className="w-5 h-5 text-[#8B5CF6] shrink-0" />
               ) : (
                 <XCircle className="w-5 h-5 text-red-500 shrink-0" />
               )}
               <div>
-                <h3 className={`font-medium mb-1 ${item.passed ? 'text-[#00ffff]' : 'text-red-500'}`}>
+                <h3 className={`font-medium mb-1 ${item.passed ? 'text-[#8B5CF6]' : 'text-red-500'}`}>
                   {item.category}
                 </h3>
                 <p className="text-sm text-white/70">{item.message}</p>
@@ -264,13 +264,13 @@ const PromptCoach: React.FC = () => {
       </div>
 
       {/* Input Section */}
-      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
+      <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/30 transition-all duration-300">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-[#00ffff]">Your Prompt</h2>
+          <h2 className="text-lg font-semibold text-[#8B5CF6]">Your Prompt</h2>
           <Button
             onClick={() => getAIAnalysis(prompt)}
             disabled={isLoading || !prompt.trim()}
-            className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+            className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2 disabled:opacity-50"
           >
             {isLoading ? (
               <>
@@ -288,21 +288,21 @@ const PromptCoach: React.FC = () => {
         <textarea
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          className="w-full min-h-[200px] text-white/90 text-lg bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none"
+          className="w-full min-h-[200px] text-white/90 text-lg bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-4 focus:border-[#8B5CF6]/40 focus:outline-none hover:border-[#8B5CF6]/40 transition-colors resize-none"
           placeholder="Enter your prompt here..."
         />
       </div>
 
       {/* AI Analysis Section */}
       {(isLoading || aiAnalysis || error) && (
-        <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
+        <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/30 transition-all duration-300">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-[#00ffff]">AI Analysis & Suggestions</h2>
+            <h2 className="text-lg font-semibold text-[#8B5CF6]">AI Analysis & Suggestions</h2>
             {aiAnalysis && (
               <Button
                 onClick={savePrompt}
                 disabled={isSaving}
-                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+                className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2 disabled:opacity-50"
               >
                 {isSaving ? (
                   <>
@@ -321,7 +321,7 @@ const PromptCoach: React.FC = () => {
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ffff]" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6]" />
             </div>
           ) : error ? (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">
@@ -332,7 +332,7 @@ const PromptCoach: React.FC = () => {
               <textarea
                 value={editedAIAnalysis}
                 onChange={(e) => setEditedAIAnalysis(e.target.value)}
-                className="w-full min-h-[800px] text-white/90 text-lg bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none"
+                className="w-full min-h-[800px] text-white/90 text-lg bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-4 focus:border-[#8B5CF6]/40 focus:outline-none hover:border-[#8B5CF6]/40 transition-colors resize-none"
                 placeholder="AI analysis will appear here..."
               />
               {successMessage && (

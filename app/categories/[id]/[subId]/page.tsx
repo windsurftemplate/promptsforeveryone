@@ -181,7 +181,7 @@ export default function SubcategoryPage({ params }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
       </div>
     );
   }
@@ -267,19 +267,19 @@ export default function SubcategoryPage({ params }: Props) {
           <div className="flex items-center gap-2 text-sm text-white/60">
             <Link 
               href="/categories"
-              className="hover:text-[#00ffff] transition-colors"
+              className="hover:text-[#8B5CF6] transition-colors"
             >
               Categories
             </Link>
             <span>/</span>
             <Link 
               href={`/categories/${encodeURIComponent(categoryId)}`}
-              className="hover:text-[#00ffff] transition-colors"
+              className="hover:text-[#8B5CF6] transition-colors"
             >
               {categoryName}
             </Link>
             <span>/</span>
-            <span className="text-[#00ffff]">
+            <span className="text-[#8B5CF6]">
               {subcategoryName}
             </span>
           </div>
@@ -300,7 +300,7 @@ export default function SubcategoryPage({ params }: Props) {
                   delay: Math.random() * 2,
                   ease: "linear"
                 }}
-                className="aspect-square bg-[#00ffff]"
+                className="aspect-square bg-[#8B5CF6]"
               />
             ))}
           </div>
@@ -313,7 +313,7 @@ export default function SubcategoryPage({ params }: Props) {
               transition={{ duration: 0.6 }}
               className="max-w-3xl"
             >
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-white to-[#00ffff] bg-clip-text text-transparent mb-6">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-[#8B5CF6] via-white to-[#8B5CF6] bg-clip-text text-transparent mb-6">
                 {subcategoryName}
               </h1>
               <p className="text-xl text-white/70 mb-12">
@@ -324,8 +324,8 @@ export default function SubcategoryPage({ params }: Props) {
 
           {/* Decorative elements */}
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent" />
-          <div className="absolute top-0 left-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
+          <div className="absolute top-0 left-0 w-1/3 h-full bg-[#8B5CF6] opacity-[0.02] blur-3xl" />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-[#8B5CF6] opacity-[0.02] blur-3xl" />
         </div>
 
         {/* Prompts Grid */}
@@ -350,10 +350,10 @@ export default function SubcategoryPage({ params }: Props) {
                   href={`/categories/${categoryId}/${subcategoryId}/prompts/${prompt.id.replace('public-', '')}`}
                   className="block h-full"
                 >
-                  <Card className="relative p-6 hover:border-[#00ffff]/50 hover:bg-black/60 transition-all duration-300 group cursor-pointer h-full backdrop-blur-lg overflow-hidden">
+                  <Card className="relative p-6 hover:border-[#8B5CF6]/50 hover:bg-black/60 transition-all duration-300 group cursor-pointer h-full backdrop-blur-lg overflow-hidden">
                     {/* Decorative corner accent */}
                     <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
-                      <div className="absolute top-0 right-0 w-16 h-16 bg-[#00ffff]/10 transform rotate-45 translate-x-8 -translate-y-8 group-hover:bg-[#00ffff]/20 transition-all duration-300" />
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-[#8B5CF6]/10 transform rotate-45 translate-x-8 -translate-y-8 group-hover:bg-[#8B5CF6]/20 transition-all duration-300" />
                     </div>
 
                   <div className="flex flex-col h-full">
@@ -364,7 +364,7 @@ export default function SubcategoryPage({ params }: Props) {
                         transition={{ duration: 0.3, delay: index * 0.1 + 0.2 }}
                       >
                         <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-xl font-semibold text-[#00ffff] group-hover:text-[#00ffff] transition-colors duration-300">
+                        <h3 className="text-xl font-semibold text-[#8B5CF6] group-hover:text-[#8B5CF6] transition-colors duration-300">
                           {prompt.title}
                         </h3>
                           <motion.div
@@ -393,7 +393,7 @@ export default function SubcategoryPage({ params }: Props) {
                           {prompt.tags.map((tag, index) => (
                             <span 
                               key={`${prompt.id}-tag-${index}`}
-                                className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff] border border-[#00ffff]/20 group-hover:border-[#00ffff]/40 transition-all duration-300"
+                                className="text-xs px-2 py-1 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 group-hover:border-[#8B5CF6]/40 transition-all duration-300"
                             >
                               {tag}
                             </span>
@@ -422,14 +422,14 @@ export default function SubcategoryPage({ params }: Props) {
                             setCopiedPromptId(prompt.id);
                             setTimeout(() => setCopiedPromptId(null), 2000);
                           }}
-                          className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors duration-300 relative"
+                          className="text-[#8B5CF6]/60 hover:text-[#8B5CF6] transition-colors duration-300 relative"
                           title="Copy prompt"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.95 }}
                         >
                           {copiedPromptId === prompt.id ? (
                               <motion.span 
-                                className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff] text-black text-xs px-2 py-1 rounded shadow-lg"
+                                className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#8B5CF6] text-black text-xs px-2 py-1 rounded shadow-lg"
                                 initial={{ opacity: 0, y: 5 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -5 }}
@@ -451,7 +451,7 @@ export default function SubcategoryPage({ params }: Props) {
             ))}
             {prompts.length === 0 && (
               <motion.div 
-                className="col-span-full text-center text-white/70 py-12 bg-black/60 backdrop-blur-lg rounded-lg border border-[#00ffff]/20"
+                className="col-span-full text-center text-white/70 py-12 bg-black/60 backdrop-blur-lg rounded-lg border border-[#8B5CF6]/20"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4 }}

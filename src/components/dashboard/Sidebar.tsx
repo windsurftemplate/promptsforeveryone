@@ -94,7 +94,7 @@ export default function Sidebar() {
 
   const handleCategoryClick = (categoryId: string, isPrivate: boolean = false) => {
     const category = { id: categoryId, isPrivate };
-    
+
     if (selectedCategory?.id === categoryId) {
       setSelectedCategory(null);
       setSelectedSubcategory(null);
@@ -108,7 +108,7 @@ export default function Sidebar() {
     if (isPrivate && !isPaidUser) {
       return;
     }
-    
+
     setSelectedCategory({ id: categoryId, isPrivate });
     setSelectedSubcategory({ id: subcategoryId, name: subcategoryName });
   };
@@ -120,9 +120,9 @@ export default function Sidebar() {
     await push(categoriesRef, {
       name: newCategoryName,
       items: {},
-      isPrivate: true // All user-created categories are private
+      isPrivate: true
     });
-    
+
     setNewCategoryName('');
     setAddingCategory(false);
   };
@@ -134,45 +134,45 @@ export default function Sidebar() {
     await push(subcategoriesRef, {
       name: newSubcategoryName,
     });
-    
+
     setNewSubcategoryName('');
     setAddingSubcategory(null);
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
     if (!user) return;
-    
+
     const categoryRef = ref(db, `users/${user.uid}/categories/${categoryId}`);
     await remove(categoryRef);
   };
 
   const handleDeleteSubcategory = async (categoryId: string, subcategoryId: string) => {
     if (!user) return;
-    
+
     const subcategoryRef = ref(db, `users/${user.uid}/categories/${categoryId}/subcategories/${subcategoryId}`);
     await remove(subcategoryRef);
   };
 
   const handleUpdateCategory = async (categoryId: string) => {
     if (!user || !newCategoryName.trim()) return;
-    
+
     const categoryRef = ref(db, `users/${user.uid}/categories/${categoryId}`);
     await update(categoryRef, {
       name: newCategoryName,
     });
-    
+
     setNewCategoryName('');
     setEditingCategory(null);
   };
 
   const handleUpdateSubcategory = async (categoryId: string, itemId: string) => {
     if (!user || !newSubcategoryName.trim()) return;
-    
+
     const itemRef = ref(db, `users/${user.uid}/categories/${categoryId}/items/${itemId}`);
     await update(itemRef, {
       name: newSubcategoryName,
     });
-    
+
     setNewSubcategoryName('');
     setEditingSubcategory(null);
   };
@@ -184,7 +184,7 @@ export default function Sidebar() {
 
   const toggleCategory = (categoryId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setExpandedCategories(prev => 
+    setExpandedCategories(prev =>
       prev.includes(categoryId)
         ? prev.filter(id => id !== categoryId)
         : [...prev, categoryId]
@@ -202,7 +202,7 @@ export default function Sidebar() {
 
   const handleDeleteSubcategoryFromItem = async (categoryId: string, itemId: string, subcategoryId: string) => {
     if (!user) return;
-    
+
     const subcategoryRef = ref(db, `users/${user.uid}/categories/${categoryId}/items/${itemId}/subcategories/${subcategoryId}`);
     await remove(subcategoryRef);
   };
@@ -218,38 +218,38 @@ export default function Sidebar() {
 
   return (
     <div className={`relative h-full transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'w-16' : 'w-80'}`}>
-      {/* Collapse button - positioned outside the scrollable area */}
+      {/* Collapse button */}
       <button
         onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-        className="absolute -right-3 top-6 p-1 bg-black border border-[#00ffff]/20 rounded-full hover:border-[#00ffff]/40 transition-colors z-50"
+        className="absolute -right-3 top-6 p-1 bg-background-base border border-white/10 rounded-full hover:border-violet/30 transition-colors z-50"
       >
         {isSidebarCollapsed ? (
-          <ChevronRightIcon className="h-4 w-4 text-[#00ffff]" />
+          <ChevronRightIcon className="h-4 w-4 text-violet-400" />
         ) : (
-          <ChevronLeftIcon className="h-4 w-4 text-[#00ffff]" />
+          <ChevronLeftIcon className="h-4 w-4 text-violet-400" />
         )}
       </button>
 
-      <div className="h-full bg-black/90 backdrop-blur-xl text-white p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-black/40 border-r border-[#00ffff]/10">
+      <div className="h-full bg-background-base/90 backdrop-blur-xl text-white p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-violet/20 scrollbar-track-black/40 border-r border-white/8">
         {!isSidebarCollapsed && (
           <div className="space-y-8 pb-44">
             {/* User Navigation */}
             <div className="space-y-1">
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors text-white/60 hover:text-red-500 hover:bg-red-500/5"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors text-white/60 hover:text-red-400 hover:bg-red-500/5"
               >
                 <ArrowLeftOnRectangleIcon className="h-4 w-4" />
                 Logout
               </button>
             </div>
 
-            <div className="border-t border-[#00ffff]/10" />
+            <div className="border-t border-white/8" />
 
             <Link href="/submit">
-              <button className="w-full px-4 py-3 rounded-lg text-left transition-all duration-200 flex items-center gap-3 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 group hover:shadow-[0_0_15px_rgba(0,255,255,0.2)]">
-                <PlusIcon className="h-5 w-5 text-[#00ffff] group-hover:scale-110 transition-transform duration-200" />
-                <span className="text-[#00ffff]">Create New Prompt</span>
+              <button className="w-full px-4 py-3 rounded-lg text-left transition-all duration-200 flex items-center gap-3 bg-violet/10 hover:bg-violet/20 group hover:shadow-glow-sm">
+                <PlusIcon className="h-5 w-5 text-violet-400 group-hover:scale-110 transition-transform duration-200" />
+                <span className="text-violet-400">Create New Prompt</span>
               </button>
             </Link>
 
@@ -258,7 +258,7 @@ export default function Sidebar() {
                 onClick={() => handleCategoryClick('all-prompts')}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                   selectedCategory?.id === 'all-prompts'
-                    ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                    ? 'bg-violet/15 text-violet-400 border-l-2 border-violet'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -270,7 +270,7 @@ export default function Sidebar() {
                 onClick={() => handleCategoryClick('my-prompts')}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors ${
                   selectedCategory?.id === 'my-prompts'
-                    ? 'bg-[#00ffff]/10 text-[#00ffff]'
+                    ? 'bg-violet/15 text-violet-400 border-l-2 border-violet'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -284,17 +284,17 @@ export default function Sidebar() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-[#00ffff]">Private Categories</h2>
+                    <h2 className="text-sm font-semibold text-violet-400 uppercase tracking-wider">Private Categories</h2>
                     {!isSidebarCollapsed && (
                       <button
                         onClick={() => setIsEditMode(!isEditMode)}
-                        className="p-1.5 hover:bg-[#00ffff]/10 rounded-lg transition-all duration-200"
+                        className="p-1.5 hover:bg-violet/10 rounded-lg transition-all duration-200"
                         title={isEditMode ? "Exit edit mode" : "Enter edit mode"}
                       >
                         {isEditMode ? (
-                          <XMarkIcon className="h-4 w-4 text-[#00ffff]" />
+                          <XMarkIcon className="h-4 w-4 text-violet-400" />
                         ) : (
-                          <PencilIcon className="h-4 w-4 text-[#00ffff]" />
+                          <PencilIcon className="h-4 w-4 text-violet-400" />
                         )}
                       </button>
                     )}
@@ -302,10 +302,10 @@ export default function Sidebar() {
                   {isEditMode && (
                     <button
                       onClick={() => setAddingCategory(true)}
-                      className="p-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded-full transition-all duration-200 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
+                      className="p-2 bg-violet/10 hover:bg-violet/20 rounded-full transition-all duration-200 hover:shadow-glow-sm"
                       title="Add new category"
                     >
-                      <PlusIcon className="h-5 w-5 text-[#00ffff]" />
+                      <PlusIcon className="h-5 w-5 text-violet-400" />
                     </button>
                   )}
                 </div>
@@ -323,13 +323,13 @@ export default function Sidebar() {
                             }}
                             className={`flex-1 text-left px-3 py-2 rounded-lg transition-all duration-200 ${
                               selectedCategory?.id === category.id
-                                ? 'bg-[#00ffff]/30 text-white'
-                                : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
+                                ? 'bg-violet/20 text-white border-l-2 border-violet'
+                                : 'bg-white/4 hover:bg-white/8 text-zinc-400 hover:text-white'
                             }`}
                           >
                             <div className="flex items-center gap-2">
                               <ChevronDownIcon
-                                className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                                className={`h-4 w-4 text-violet-400 transition-transform ${
                                   expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
                                 }`}
                               />
@@ -338,7 +338,7 @@ export default function Sidebar() {
                                   type="text"
                                   value={newCategoryName}
                                   onChange={(e) => setNewCategoryName(e.target.value)}
-                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
+                                  className="w-full bg-black/60 text-white px-2 py-1 rounded border border-violet/20 focus:border-violet/40 focus:outline-none"
                                   onClick={(e) => e.stopPropagation()}
                                 />
                               ) : (
@@ -353,18 +353,18 @@ export default function Sidebar() {
                               <>
                                 <button
                                   onClick={() => handleUpdateCategory(category.id)}
-                                  className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                  className="p-1 hover:bg-violet/10 rounded transition-colors"
                                 >
-                                  <CheckIcon className="h-4 w-4 text-[#00ffff]" />
+                                  <CheckIcon className="h-4 w-4 text-violet-400" />
                                 </button>
                                 <button
                                   onClick={() => {
                                     setEditingCategory(null);
                                     setNewCategoryName('');
                                   }}
-                                  className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                  className="p-1 hover:bg-violet/10 rounded transition-colors"
                                 >
-                                  <XMarkIcon className="h-4 w-4 text-[#00ffff]" />
+                                  <XMarkIcon className="h-4 w-4 text-violet-400" />
                                 </button>
                               </>
                             ) : (
@@ -374,15 +374,15 @@ export default function Sidebar() {
                                     setEditingCategory(category.id);
                                     setNewCategoryName(category.name);
                                   }}
-                                  className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                  className="p-1 hover:bg-violet/10 rounded transition-colors"
                                 >
-                                  <PencilIcon className="h-4 w-4 text-[#00ffff]" />
+                                  <PencilIcon className="h-4 w-4 text-violet-400" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteCategory(category.id)}
-                                  className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                  className="p-1 hover:bg-violet/10 rounded transition-colors"
                                 >
-                                  <TrashIcon className="h-4 w-4 text-[#00ffff]" />
+                                  <TrashIcon className="h-4 w-4 text-violet-400" />
                                 </button>
                               </>
                             )}
@@ -399,8 +399,8 @@ export default function Sidebar() {
                                 onClick={() => handleSubcategoryClick(category.id, subcategoryId, subcategory.name, true)}
                                 className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-all duration-200 ${
                                   selectedCategory?.id === category.id && selectedSubcategory?.id === subcategoryId
-                                    ? 'bg-[#00ffff]/30 text-white'
-                                    : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
+                                    ? 'bg-violet/15 text-violet-300'
+                                    : 'bg-white/3 hover:bg-white/6 text-zinc-500 hover:text-zinc-300'
                                 }`}
                               >
                                 {editingSubcategory?.categoryId === category.id && editingSubcategory?.itemId === subcategoryId ? (
@@ -408,7 +408,7 @@ export default function Sidebar() {
                                     type="text"
                                     value={newSubcategoryName}
                                     onChange={(e) => setNewSubcategoryName(e.target.value)}
-                                    className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none"
+                                    className="w-full bg-black/60 text-white px-2 py-1 rounded border border-violet/20 focus:border-violet/40 focus:outline-none"
                                     onClick={(e) => e.stopPropagation()}
                                   />
                                 ) : (
@@ -421,18 +421,18 @@ export default function Sidebar() {
                                     <>
                                       <button
                                         onClick={() => handleUpdateSubcategory(category.id, subcategoryId)}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        className="p-1 hover:bg-violet/10 rounded transition-colors"
                                       >
-                                        <CheckIcon className="h-4 w-4 text-[#00ffff]" />
+                                        <CheckIcon className="h-4 w-4 text-violet-400" />
                                       </button>
                                       <button
                                         onClick={() => {
                                           setEditingSubcategory(null);
                                           setNewSubcategoryName('');
                                         }}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        className="p-1 hover:bg-violet/10 rounded transition-colors"
                                       >
-                                        <XMarkIcon className="h-4 w-4 text-[#00ffff]" />
+                                        <XMarkIcon className="h-4 w-4 text-violet-400" />
                                       </button>
                                     </>
                                   ) : (
@@ -442,15 +442,15 @@ export default function Sidebar() {
                                           setEditingSubcategory({ categoryId: category.id, itemId: subcategoryId });
                                           setNewSubcategoryName(subcategory.name);
                                         }}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        className="p-1 hover:bg-violet/10 rounded transition-colors"
                                       >
-                                        <PencilIcon className="h-4 w-4 text-[#00ffff]" />
+                                        <PencilIcon className="h-4 w-4 text-violet-400" />
                                       </button>
                                       <button
                                         onClick={() => handleDeleteSubcategory(category.id, subcategoryId)}
-                                        className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                                        className="p-1 hover:bg-violet/10 rounded transition-colors"
                                       >
-                                        <TrashIcon className="h-4 w-4 text-[#00ffff]" />
+                                        <TrashIcon className="h-4 w-4 text-violet-400" />
                                       </button>
                                     </>
                                   )}
@@ -459,18 +459,18 @@ export default function Sidebar() {
                             </div>
                           ))}
                           {isEditMode && addingSubcategory === category.id && (
-                            <div className="pl-3 pr-2 py-2 bg-[#00ffff]/5 backdrop-blur-xl rounded-lg border border-[#00ffff]/20 shadow-[0_0_15px_rgba(0,255,255,0.1)]">
+                            <div className="pl-3 pr-2 py-2 bg-violet/5 rounded-lg border border-violet/20 shadow-glow-sm">
                               <input
                                 type="text"
                                 value={newSubcategoryName}
                                 onChange={(e) => setNewSubcategoryName(e.target.value)}
                                 placeholder="Subcategory name"
-                                className="w-full bg-black/60 text-white px-2 py-1 rounded border border-[#00ffff]/20 focus:border-[#00ffff]/40 focus:outline-none mb-2 transition-all duration-200 focus:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
+                                className="w-full bg-black/60 text-white px-2 py-1 rounded border border-violet/20 focus:border-violet/40 focus:outline-none mb-2 transition-all duration-200 focus:shadow-glow-sm"
                               />
                               <div className="flex justify-end space-x-2">
                                 <button
                                   onClick={() => handleAddSubcategory(category.id)}
-                                  className="px-2 py-1 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 rounded transition-all duration-200 text-[#00ffff] text-sm hover:shadow-[0_0_10px_rgba(0,255,255,0.2)]"
+                                  className="px-2 py-1 bg-violet/10 hover:bg-violet/20 rounded transition-all duration-200 text-violet-400 text-sm hover:shadow-glow-sm"
                                 >
                                   Add
                                 </button>
@@ -479,7 +479,7 @@ export default function Sidebar() {
                                     setNewSubcategoryName('');
                                     setAddingSubcategory(null);
                                   }}
-                                  className="px-2 py-1 bg-black/60 hover:bg-black/40 rounded transition-all duration-200 text-white/60 text-sm hover:shadow-[0_0_10px_rgba(0,0,0,0.2)]"
+                                  className="px-2 py-1 bg-black/60 hover:bg-black/40 rounded transition-all duration-200 text-white/60 text-sm"
                                 >
                                   Cancel
                                 </button>
@@ -489,7 +489,7 @@ export default function Sidebar() {
                           {isEditMode && addingSubcategory !== category.id && (
                             <button
                               onClick={() => setAddingSubcategory(category.id)}
-                              className="w-full px-3 py-1.5 text-left text-white/40 hover:text-white/60 hover:bg-[#00ffff]/10 rounded-lg transition-all duration-200 hover:shadow-[0_0_10px_rgba(0,255,255,0.2)] text-sm flex items-center gap-2"
+                              className="w-full px-3 py-1.5 text-left text-white/40 hover:text-white/60 hover:bg-violet/10 rounded-lg transition-all duration-200 hover:shadow-glow-sm text-sm flex items-center gap-2"
                             >
                               <PlusIcon className="h-4 w-4" />
                               Add subcategory
@@ -506,7 +506,7 @@ export default function Sidebar() {
             {/* Public Categories Section */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-[#00ffff]">Public Categories</h2>
+                <h2 className="text-sm font-semibold text-violet-400 uppercase tracking-wider">Public Categories</h2>
               </div>
 
               <div className="space-y-4">
@@ -520,13 +520,13 @@ export default function Sidebar() {
                         }}
                         className={`flex-1 text-left px-3 py-2 rounded-lg transition-colors ${
                           selectedCategory?.id === category.id
-                            ? 'bg-[#00ffff]/30 text-white'
-                            : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
+                            ? 'bg-violet/20 text-white border-l-2 border-violet'
+                            : 'bg-white/4 hover:bg-white/8 text-zinc-400 hover:text-white'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           <ChevronDownIcon
-                            className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                            className={`h-4 w-4 text-violet-400 transition-transform ${
                               expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
                             }`}
                           />
@@ -544,8 +544,8 @@ export default function Sidebar() {
                               onClick={() => handleSubcategoryClick(category.id, subcategoryId, subcategory.name, category.isPrivate)}
                               className={`flex-1 text-left px-3 py-1.5 rounded-lg transition-all duration-200 ${
                                 selectedCategory?.id === category.id && selectedSubcategory?.id === subcategoryId
-                                  ? 'bg-[#00ffff]/30 text-white'
-                                  : 'bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]'
+                                  ? 'bg-violet/15 text-violet-300'
+                                  : 'bg-white/3 hover:bg-white/6 text-zinc-500 hover:text-zinc-300'
                               }`}
                             >
                               {subcategory.name}
@@ -563,4 +563,4 @@ export default function Sidebar() {
       </div>
     </div>
   );
-} 
+}

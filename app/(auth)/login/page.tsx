@@ -29,8 +29,8 @@ export default function LoginPage() {
 
   if (user === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="w-8 h-8 border-2 border-emerald border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-background-base">
+        <div className="w-8 h-8 border-2 border-violet border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -131,13 +131,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background-base py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
-            <div className="w-12 h-12 rounded-xl bg-emerald/10 border border-emerald/20 flex items-center justify-center">
-              <SparklesIcon className="w-6 h-6 text-emerald" />
+            <div className="w-12 h-12 rounded-xl bg-violet/10 border border-violet/20 flex items-center justify-center">
+              <SparklesIcon className="w-6 h-6 text-violet-400" />
             </div>
           </div>
           <h2 className="text-3xl font-medium text-white tracking-tight font-display">
@@ -184,7 +184,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-black text-neutral-500">or continue with email</span>
+              <span className="px-3 bg-background-base text-neutral-500">or continue with email</span>
             </div>
           </div>
 
@@ -210,7 +210,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-emerald/50 focus:ring-1 focus:ring-emerald/30 transition-all"
+                className="w-full px-4 py-3 bg-background-base/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-violet/50 focus:ring-1 focus:ring-violet/30 transition-all"
                 placeholder="you@example.com"
               />
             </div>
@@ -228,7 +228,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-emerald/50 focus:ring-1 focus:ring-emerald/30 transition-all"
+                className="w-full px-4 py-3 bg-background-base/40 border border-white/10 rounded-lg text-white placeholder-neutral-600 focus:outline-none focus:border-violet/50 focus:ring-1 focus:ring-violet/30 transition-all"
                 placeholder="Enter your password"
               />
             </div>
@@ -246,7 +246,7 @@ export default function LoginPage() {
           {/* Footer */}
           <p className="mt-6 text-center text-sm text-neutral-500">
             Don't have an account?{' '}
-            <Link href="/register" className="text-emerald hover:text-emerald-light transition-colors">
+            <Link href="/register" className="text-violet-400 hover:text-violet-400-300 transition-colors">
               Create one
             </Link>
           </p>

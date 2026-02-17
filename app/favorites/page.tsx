@@ -113,7 +113,7 @@ export default function FavoritesPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00ffff]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#8B5CF6]"></div>
       </div>
     );
   }
@@ -122,18 +122,18 @@ export default function FavoritesPage() {
     <div className="min-h-screen bg-black py-12">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-3 mb-8">
-          <StarIcon className="h-8 w-8 text-[#00ffff]" />
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+          <StarIcon className="h-8 w-8 text-[#8B5CF6]" />
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6] bg-clip-text text-transparent">
             Favorite Prompts
           </h1>
         </div>
 
         {favorites.length === 0 ? (
-          <div className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6">
             <p className="text-white/60">You haven't favorited any prompts yet.</p>
             <Link
               href="/explore"
-              className="inline-block mt-4 text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+              className="inline-block mt-4 text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors"
             >
               Explore Prompts →
             </Link>
@@ -144,7 +144,7 @@ export default function FavoritesPage() {
               <Link
                 key={prompt.id}
                 href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id}`}
-                className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/40 transition-all duration-300"
+                className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/40 transition-all duration-300"
               >
                 <h2 className="text-xl font-semibold text-white mb-2">{prompt.title}</h2>
                 <p className="text-white/60 mb-4">{prompt.description}</p>

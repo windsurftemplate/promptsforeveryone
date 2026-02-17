@@ -4,26 +4,26 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet/50 focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-emerald text-white hover:bg-emerald-light shadow-glow-sm hover:shadow-glow",
+          "bg-violet text-white hover:bg-violet-dark shadow-glow-sm hover:shadow-glow",
         primary:
           "btn-liquid text-white font-semibold",
         destructive:
           "bg-red-500/90 text-white hover:bg-red-500 shadow-[0_4px_12px_rgba(239,68,68,0.3)]",
         outline:
-          "border border-white/10 bg-transparent hover:bg-white/5 hover:border-emerald/50 text-neutral-300 hover:text-white",
+          "border border-white/10 bg-transparent hover:bg-white/5 hover:border-violet/50 text-neutral-300 hover:text-white",
         secondary:
           "bg-white/5 text-neutral-300 hover:bg-white/10 hover:text-white border border-white/5",
         ghost:
           "hover:bg-white/5 hover:text-white text-neutral-400",
         link:
-          "text-emerald underline-offset-4 hover:underline hover:text-emerald-light",
-        emerald:
-          "bg-emerald/10 text-emerald border border-emerald/20 hover:bg-emerald/20 hover:border-emerald/40",
+          "text-violet-400 underline-offset-4 hover:underline hover:text-violet-300",
+        violet:
+          "bg-violet/10 text-violet-400 border border-violet/20 hover:bg-violet/20 hover:border-violet/40",
         glass:
           "glass-panel text-neutral-300 hover:text-white hover:border-white/20",
       },

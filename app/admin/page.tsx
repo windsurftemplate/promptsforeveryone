@@ -708,14 +708,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="border-b border-[#00ffff]/20">
+      <div className="border-b border-[#8B5CF6]/20">
         <div className="container mx-auto px-4">
           <div className="flex overflow-x-auto">
             <button
               onClick={() => setActiveTab('users')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === 'users'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -725,7 +725,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('blog')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === 'blog'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -735,7 +735,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('categories')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === 'categories'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -745,7 +745,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('prompts')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === 'prompts'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -755,7 +755,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('generator')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === 'generator'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -765,7 +765,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab('ads')}
               className={`px-6 py-3 font-medium text-sm transition-colors ${
                 activeTab === 'ads'
-                  ? 'text-[#00ffff] border-b-2 border-[#00ffff]'
+                  ? 'text-[#8B5CF6] border-b-2 border-[#8B5CF6]'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -778,46 +778,46 @@ export default function AdminDashboard() {
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
           </div>
         ) : (
           <>
             {activeTab === 'users' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Total Users</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Total Users</h3>
                     <p className="text-2xl font-semibold text-white">{users.length}</p>
                   </div>
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Admin Users</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Admin Users</h3>
                     <p className="text-2xl font-semibold text-white">
                       {users.filter(user => user.role === 'admin').length}
                     </p>
                   </div>
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">PWA Installs</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">PWA Installs</h3>
                     <p className="text-2xl font-semibold text-white">{pwaStats.installs}</p>
                   </div>
                 </div>
-                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg overflow-hidden">
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-[#00ffff]/20">
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Email</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Role</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Plan</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Prompts</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Created At</th>
-                          <th className="px-6 py-4 text-left text-[#00ffff]">Last Login</th>
+                        <tr className="border-b border-[#8B5CF6]/20">
+                          <th className="px-6 py-4 text-left text-[#8B5CF6]">Email</th>
+                          <th className="px-6 py-4 text-left text-[#8B5CF6]">Role</th>
+                          <th className="px-6 py-4 text-left text-[#8B5CF6]">Plan</th>
+                          <th className="px-6 py-4 text-left text-[#8B5CF6]">Prompts</th>
+                          <th className="px-6 py-4 text-left text-[#8B5CF6]">Created At</th>
+                          <th className="px-6 py-4 text-left text-[#8B5CF6]">Last Login</th>
                         </tr>
                       </thead>
                       <tbody>
                         {users.map((user) => (
                           <tr 
                             key={user.uid}
-                            className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
+                            className="border-b border-[#8B5CF6]/10 hover:bg-[#8B5CF6]/5 transition-colors"
                           >
                             <td className="px-6 py-4 text-white">{user.email}</td>
                             <td className="px-6 py-4">
@@ -831,7 +831,7 @@ export default function AdminDashboard() {
                                 </span>
                                 <button
                                   onClick={() => handleUpdateUser(user.uid, 'role', user.role === 'admin' ? 'user' : 'admin')}
-                                  className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
+                                  className="text-[#8B5CF6] hover:text-[#8B5CF6]/80 text-sm"
                                 >
                                   <PencilIcon className="h-4 w-4" />
                                 </button>
@@ -848,7 +848,7 @@ export default function AdminDashboard() {
                                 </span>
                                 <button
                                   onClick={() => handleUpdateUser(user.uid, 'plan', user.plan === 'paid' ? 'free' : 'paid')}
-                                  className="text-[#00ffff] hover:text-[#00ffff]/80 text-sm"
+                                  className="text-[#8B5CF6] hover:text-[#8B5CF6]/80 text-sm"
                                 >
                                   <PencilIcon className="h-4 w-4" />
                                 </button>
@@ -898,54 +898,54 @@ export default function AdminDashboard() {
 
                 <div className="grid gap-6">
                   {editingPost && (
-                    <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
+                    <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 space-y-6">
                       <div>
-                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                        <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
                           Title
                         </label>
                         <input
                           type="text"
                           value={editingPost.title}
                           onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                          className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+                          className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8B5CF6]/40"
                           placeholder="Enter post title"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                        <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
                           Summary
                         </label>
                         <textarea
                           value={editingPost.summary}
                           onChange={(e) => setEditingPost({ ...editingPost, summary: e.target.value })}
-                          className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40 h-24"
+                          className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8B5CF6]/40 h-24"
                           placeholder="Enter post summary"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                        <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
                           Read Time
                         </label>
                         <input
                           type="text"
                           value={editingPost.readTime}
                           onChange={(e) => setEditingPost({ ...editingPost, readTime: e.target.value })}
-                          className="w-full bg-black/50 border border-[#00ffff]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#00ffff]/40"
+                          className="w-full bg-black/50 border border-[#8B5CF6]/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#8B5CF6]/40"
                           placeholder="e.g., 5 min read"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-[#00ffff] mb-2">
+                        <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
                           Content (HTML)
                         </label>
-                        <div className="border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                        <div className="border border-[#8B5CF6]/20 rounded-lg overflow-hidden">
                           <textarea
                             value={editingPost.content}
                             onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
-                            className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#00ffff]/40"
+                            className="w-full h-[70vh] bg-black/50 border-none px-4 py-2 text-white font-mono resize-none focus:outline-none focus:ring-1 focus:ring-[#8B5CF6]/40"
                             placeholder="Enter blog content in HTML format"
                           />
                         </div>
@@ -970,22 +970,22 @@ export default function AdminDashboard() {
                   )}
 
                   {!editingPost && (
-                    <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden">
+                    <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg overflow-hidden">
                       <div className="overflow-x-auto">
                         <table className="w-full">
                           <thead>
-                            <tr className="border-b border-[#00ffff]/20">
-                              <th className="px-6 py-4 text-left text-[#00ffff]">Title</th>
-                              <th className="px-6 py-4 text-left text-[#00ffff]">Date</th>
-                              <th className="px-6 py-4 text-left text-[#00ffff]">Read Time</th>
-                              <th className="px-6 py-4 text-left text-[#00ffff]">Actions</th>
+                            <tr className="border-b border-[#8B5CF6]/20">
+                              <th className="px-6 py-4 text-left text-[#8B5CF6]">Title</th>
+                              <th className="px-6 py-4 text-left text-[#8B5CF6]">Date</th>
+                              <th className="px-6 py-4 text-left text-[#8B5CF6]">Read Time</th>
+                              <th className="px-6 py-4 text-left text-[#8B5CF6]">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
                             {blogPosts.map((post) => (
                               <tr 
                                 key={post.id}
-                                className="border-b border-[#00ffff]/10 hover:bg-[#00ffff]/5 transition-colors"
+                                className="border-b border-[#8B5CF6]/10 hover:bg-[#8B5CF6]/5 transition-colors"
                               >
                                 <td className="px-6 py-4 text-white">{post.title}</td>
                                 <td className="px-6 py-4 text-white/60">
@@ -1024,20 +1024,20 @@ export default function AdminDashboard() {
             {activeTab === 'categories' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Total Categories</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Total Categories</h3>
                     <p className="text-2xl font-semibold text-white">{categories.length}</p>
                   </div>
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Total Subcategories</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Total Subcategories</h3>
                     <p className="text-2xl font-semibold text-white">
                       {categories.reduce((total, category) => 
                         total + (category.subcategories ? Object.keys(category.subcategories).length : 0), 
                       0)}
                     </p>
                   </div>
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Total Pages</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Total Pages</h3>
                     <p className="text-2xl font-semibold text-white">
                       {(() => {
                         // Count static pages
@@ -1065,7 +1065,7 @@ export default function AdminDashboard() {
                   <h2 className="text-xl font-semibold text-white">Categories</h2>
                   <Button
                     onClick={() => setIsAddingCategory(true)}
-                    className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
+                    className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black px-4 py-2 rounded-lg transition-colors"
                   >
                     Add Category
                   </Button>
@@ -1078,18 +1078,18 @@ export default function AdminDashboard() {
                 )}
 
                 {isAddingCategory && (
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
                     <input
                       type="text"
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
                       placeholder="Category name"
-                      className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none mb-4"
+                      className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-2 focus:border-[#8B5CF6]/40 focus:outline-none mb-4"
                     />
                     <div className="flex gap-2">
                       <Button
                         onClick={handleAddCategory}
-                        className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
+                        className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black px-4 py-2 rounded-lg transition-colors"
                       >
                         Add Category
                       </Button>
@@ -1098,7 +1098,7 @@ export default function AdminDashboard() {
                           setIsAddingCategory(false);
                           setNewCategoryName('');
                         }}
-                        className="bg-black/50 text-white border border-[#00ffff]/20 px-4 py-2 rounded-lg hover:border-[#00ffff]/40 transition-colors"
+                        className="bg-black/50 text-white border border-[#8B5CF6]/20 px-4 py-2 rounded-lg hover:border-[#8B5CF6]/40 transition-colors"
                       >
                         Cancel
                       </Button>
@@ -1108,7 +1108,7 @@ export default function AdminDashboard() {
 
                 <div className="space-y-4">
                   {categories.map((category) => (
-                    <div key={category.id} className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+                    <div key={category.id} className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
                       <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-medium text-white">{category.name}</h3>
                         <div className="flex gap-2">
@@ -1117,7 +1117,7 @@ export default function AdminDashboard() {
                               setSelectedCategory(category.id);
                               setIsAddingSubcategory(true);
                             }}
-                            className="text-[#00ffff] hover:text-[#00ffff]/80 transition-colors"
+                            className="text-[#8B5CF6] hover:text-[#8B5CF6]/80 transition-colors"
                           >
                             Add Subcategory
                           </Button>
@@ -1131,18 +1131,18 @@ export default function AdminDashboard() {
                       </div>
 
                       {selectedCategory === category.id && isAddingSubcategory && (
-                        <div className="mb-4 bg-black/20 border border-[#00ffff]/10 rounded-lg p-4">
+                        <div className="mb-4 bg-black/20 border border-[#8B5CF6]/10 rounded-lg p-4">
                           <input
                             type="text"
                             value={newSubcategoryName}
                             onChange={(e) => setNewSubcategoryName(e.target.value)}
                             placeholder="Subcategory name"
-                            className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none mb-4"
+                            className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-2 focus:border-[#8B5CF6]/40 focus:outline-none mb-4"
                           />
                           <div className="flex gap-2">
                             <Button
                               onClick={() => handleAddSubcategory(category.id)}
-                              className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black px-4 py-2 rounded-lg transition-colors"
+                              className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black px-4 py-2 rounded-lg transition-colors"
                             >
                               Add Subcategory
                             </Button>
@@ -1152,7 +1152,7 @@ export default function AdminDashboard() {
                                 setNewSubcategoryName('');
                                 setSelectedCategory(null);
                               }}
-                              className="bg-black/50 text-white border border-[#00ffff]/20 px-4 py-2 rounded-lg hover:border-[#00ffff]/40 transition-colors"
+                              className="bg-black/50 text-white border border-[#8B5CF6]/20 px-4 py-2 rounded-lg hover:border-[#8B5CF6]/40 transition-colors"
                             >
                               Cancel
                             </Button>
@@ -1167,7 +1167,7 @@ export default function AdminDashboard() {
                             {Object.entries(category.subcategories).map(([id, subcategory]) => (
                               <div
                                 key={id}
-                                className="flex justify-between items-center bg-black/20 border border-[#00ffff]/10 rounded-lg p-2"
+                                className="flex justify-between items-center bg-black/20 border border-[#8B5CF6]/10 rounded-lg p-2"
                               >
                                 <span className="text-white">{subcategory.name}</span>
                                 <Button
@@ -1190,12 +1190,12 @@ export default function AdminDashboard() {
             {activeTab === 'prompts' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Total Prompts</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Total Prompts</h3>
                     <p className="text-2xl font-semibold text-white">{prompts.length}</p>
                   </div>
-                  <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
-                    <h3 className="text-[#00ffff] text-sm mb-1">Public Prompts</h3>
+                  <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
+                    <h3 className="text-[#8B5CF6] text-sm mb-1">Public Prompts</h3>
                     <p className="text-2xl font-semibold text-white">
                       {prompts.filter(prompt => !prompt.isPrivate).length}
                     </p>
@@ -1211,11 +1211,11 @@ export default function AdminDashboard() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={handleSearchKeyDown}
                         placeholder="Search prompts..."
-                        className="w-64 bg-black/50 text-white border border-[#00ffff]/20 rounded-lg px-4 py-2 focus:border-[#00ffff]/40 focus:outline-none"
+                        className="w-64 bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg px-4 py-2 focus:border-[#8B5CF6]/40 focus:outline-none"
                       />
                       <button
                         onClick={handleSearch}
-                        className="px-4 py-2 bg-[#00ffff] text-black rounded-lg hover:bg-[#00ffff]/80 transition-colors"
+                        className="px-4 py-2 bg-[#8B5CF6] text-black rounded-lg hover:bg-[#8B5CF6]/80 transition-colors"
                       >
                         Search
                       </button>
@@ -1233,7 +1233,7 @@ export default function AdminDashboard() {
                     <select
                       value={selectedUser}
                       onChange={(e) => setSelectedUser(e.target.value)}
-                      className="bg-black/50 text-white border border-[#00ffff]/20 rounded-lg px-4 py-2"
+                      className="bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg px-4 py-2"
                     >
                       <option value="all">All Users</option>
                       {users.map((user) => (
@@ -1243,7 +1243,7 @@ export default function AdminDashboard() {
                     <select
                       value={dateFilter}
                       onChange={(e) => setDateFilter(e.target.value as 'all' | 'today' | 'week' | 'month')}
-                      className="bg-black/50 text-white border border-[#00ffff]/20 rounded-lg px-4 py-2"
+                      className="bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg px-4 py-2"
                     >
                       <option value="all">All Time</option>
                       <option value="today">Today</option>
@@ -1252,7 +1252,7 @@ export default function AdminDashboard() {
                     </select>
                   </div>
                   <Link href="/prompt/new">
-                    <Button variant="default" className="bg-[#00ffff] hover:bg-[#00ffff]/80 text-black">
+                    <Button variant="default" className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black">
                       Create New Prompt
                     </Button>
                   </Link>
@@ -1262,7 +1262,7 @@ export default function AdminDashboard() {
                   {filteredPrompts.map((prompt) => (
                     <div
                       key={prompt.id}
-                      className="bg-black/50 border border-[#00ffff]/20 rounded-lg p-6 space-y-4"
+                      className="bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-6 space-y-4"
                     >
                       <div className="flex justify-between items-start">
                         <div>
@@ -1280,17 +1280,17 @@ export default function AdminDashboard() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleCopy(prompt.content)}
-                            className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+                            className="p-2 hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
                             title="Copy prompt"
                           >
-                            <ClipboardDocumentIcon className="h-5 w-5 text-[#00ffff]" />
+                            <ClipboardDocumentIcon className="h-5 w-5 text-[#8B5CF6]" />
                           </button>
                           <Link
                             href={`/prompt/edit/${prompt.id}`}
-                            className="p-2 hover:bg-[#00ffff]/10 rounded-lg transition-colors"
+                            className="p-2 hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
                             title="Edit prompt"
                           >
-                            <PencilIcon className="h-5 w-5 text-[#00ffff]" />
+                            <PencilIcon className="h-5 w-5 text-[#8B5CF6]" />
                           </Link>
                           <button
                             onClick={() => handleDeletePrompt(prompt)}
@@ -1303,11 +1303,11 @@ export default function AdminDashboard() {
                       </div>
                       <p className="text-white/80">{prompt.content}</p>
                       <div className="flex gap-2">
-                        <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
+                        <span className="px-3 py-1 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-lg text-sm">
                           {prompt.category}
                         </span>
                         {prompt.subcategory && (
-                          <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
+                          <span className="px-3 py-1 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-lg text-sm">
                             {prompt.subcategory}
                           </span>
                         )}
@@ -1320,7 +1320,7 @@ export default function AdminDashboard() {
 
             {activeTab === 'generator' && (
               <div className="space-y-6">
-                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg overflow-hidden p-6">
+                <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg overflow-hidden p-6">
                   <AdminPromptGenerator />
                 </div>
               </div>

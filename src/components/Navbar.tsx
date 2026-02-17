@@ -76,7 +76,7 @@ export default function Navbar() {
     <header
       className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
         isScrolled
-          ? 'bg-black/60 backdrop-blur-xl border-b border-white/5'
+          ? 'bg-[#0A0A0F]/80 backdrop-blur-xl border-b border-white/6'
           : 'bg-transparent'
       }`}
     >
@@ -85,7 +85,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <div className="relative flex items-center justify-center w-6 h-6">
-              <SparklesIcon className="w-6 h-6 text-emerald transition-transform duration-300 group-hover:scale-110" />
+              <SparklesIcon className="w-6 h-6 text-violet transition-transform duration-300 group-hover:scale-110" />
             </div>
             <span className="font-semibold tracking-tight text-white text-sm uppercase">
               <span className="hidden md:inline">Prompts For Everyone</span>

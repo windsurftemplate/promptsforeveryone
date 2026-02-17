@@ -58,7 +58,7 @@ export default function CategoryPage({ params }: Props) {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
       </div>
     );
   }
@@ -133,12 +133,12 @@ export default function CategoryPage({ params }: Props) {
           <div className="flex items-center gap-2 text-sm text-white/60">
             <Link 
               href="/categories"
-              className="hover:text-[#00ffff] transition-colors"
+              className="hover:text-[#8B5CF6] transition-colors"
             >
               Categories
             </Link>
             <span>/</span>
-            <span className="text-[#00ffff]">
+            <span className="text-[#8B5CF6]">
               {category.name}
             </span>
           </div>
@@ -159,7 +159,7 @@ export default function CategoryPage({ params }: Props) {
                   delay: Math.random() * 2,
                   ease: "linear"
                 }}
-                className="aspect-square bg-[#00ffff]"
+                className="aspect-square bg-[#8B5CF6]"
               />
             ))}
           </div>
@@ -172,7 +172,7 @@ export default function CategoryPage({ params }: Props) {
               transition={{ duration: 0.6 }}
               className="max-w-3xl"
             >
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-[#00ffff] via-white to-[#00ffff] bg-clip-text text-transparent mb-6">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-[#8B5CF6] via-white to-[#8B5CF6] bg-clip-text text-transparent mb-6">
                 {category.name}
               </h1>
               <p className="text-xl text-white/70 mb-12">
@@ -183,15 +183,15 @@ export default function CategoryPage({ params }: Props) {
 
           {/* Decorative elements */}
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent" />
-          <div className="absolute top-0 left-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-[#00ffff] opacity-[0.02] blur-3xl" />
+          <div className="absolute top-0 left-0 w-1/3 h-full bg-[#8B5CF6] opacity-[0.02] blur-3xl" />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-[#8B5CF6] opacity-[0.02] blur-3xl" />
         </div>
 
         {/* Subcategories Grid */}
         <div className="container mx-auto px-4 py-24">
           {category.subcategories && Object.keys(category.subcategories).length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-[#00ffff] mb-6">Subcategories</h2>
+              <h2 className="text-2xl font-bold text-[#8B5CF6] mb-6">Subcategories</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Object.entries(category.subcategories).map(([id, subcategory], index) => (
                   <motion.div
@@ -205,9 +205,9 @@ export default function CategoryPage({ params }: Props) {
                       className="group block h-full"
                     >
                       <div 
-                        className="bg-black/60 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 group-hover:border-[#00ffff]/40 transition-all duration-300 h-full"
+                        className="bg-black/60 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 group-hover:border-[#8B5CF6]/40 transition-all duration-300 h-full"
                       >
-                        <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-[#00ffff] transition-colors">{subcategory.name}</h3>
+                        <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-[#8B5CF6] transition-colors">{subcategory.name}</h3>
                         <p className="text-white/60">
                           {subcategory.description || `Explore ${subcategory.name.toLowerCase()} prompts in the ${category.name.toLowerCase()} category`}
                         </p>

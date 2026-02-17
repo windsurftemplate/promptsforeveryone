@@ -68,7 +68,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
       onClick={onCloseAction}
     >
       <div 
-        className="bg-black/90 border border-[#00ffff]/20 rounded-lg p-8 max-w-4xl w-full mx-4 shadow-[0_0_50px_rgba(0,255,255,0.1)] max-h-[90vh] overflow-y-auto"
+        className="bg-black/90 border border-[#8B5CF6]/20 rounded-lg p-8 max-w-4xl w-full mx-4 shadow-[0_0_50px_rgba(0,255,255,0.1)] max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-6">
@@ -76,14 +76,14 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
             type="text"
             value={editedPrompt.title}
             onChange={(e) => isCreator && isEditing && setEditedPrompt({ ...editedPrompt, title: e.target.value })}
-            className="text-2xl font-bold bg-black/50 text-[#00ffff] border border-[#00ffff]/20 rounded px-2 py-1 w-full mr-4"
+            className="text-2xl font-bold bg-black/50 text-[#8B5CF6] border border-[#8B5CF6]/20 rounded px-2 py-1 w-full mr-4"
             placeholder="Prompt Title"
             readOnly={!isCreator || !isEditing}
           />
           <div className="flex gap-3">
             <button
               onClick={() => handleCopy(prompt.content)}
-              className="text-white/60 hover:text-[#00ffff] transition-colors"
+              className="text-white/60 hover:text-[#8B5CF6] transition-colors"
               title="Copy prompt"
               type="button"
             >
@@ -92,7 +92,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
             {isCreator && (
               <button
                 onClick={() => onDeleteAction(prompt.id || '')}
-                className="text-white/60 hover:text-[#00ffff] transition-colors"
+                className="text-white/60 hover:text-[#8B5CF6] transition-colors"
                 title="Delete prompt"
                 type="button"
               >
@@ -101,7 +101,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
             )}
             <button
               onClick={onCloseAction}
-              className="text-white/60 hover:text-[#00ffff] transition-colors"
+              className="text-white/60 hover:text-[#8B5CF6] transition-colors"
               title="Close"
               type="button"
             >
@@ -112,11 +112,11 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
 
         <div className="space-y-6">
           <div>
-            <h3 className="text-[#00ffff] font-medium mb-2">Prompt Content</h3>
+            <h3 className="text-[#8B5CF6] font-medium mb-2">Prompt Content</h3>
             <textarea
               value={editedPrompt.content}
               onChange={(e) => isCreator && isEditing && setEditedPrompt({ ...editedPrompt, content: e.target.value })}
-              className="w-full h-[500px] bg-black/50 text-white/80 border border-[#00ffff]/20 rounded p-2 font-mono"
+              className="w-full h-[500px] bg-black/50 text-white/80 border border-[#8B5CF6]/20 rounded p-2 font-mono"
               placeholder="Enter your prompt content here"
               readOnly={!isCreator || !isEditing}
             />
@@ -125,13 +125,13 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
           {!isReadOnly && (
             <div className="flex justify-between items-center text-white/60">
               <div className="flex items-center gap-2">
-                <span className="text-[#00ffff]">Category:</span>
+                <span className="text-[#8B5CF6]">Category:</span>
                 {isCreator && isEditingCategory && isEditing ? (
                   <div className="flex flex-col gap-2">
                     <select
                       value={editedPrompt.category}
                       onChange={(e) => handleCategoryChange(e.target.value as PromptCategory)}
-                      className="w-full p-2 rounded bg-black/50 border border-[#00ffff]/20"
+                      className="w-full p-2 rounded bg-black/50 border border-[#8B5CF6]/20"
                     >
                       <option value="">Select a category</option>
                       {['General', 'Development', 'Design', 'Writing', 'Business', 'Education', 'Other'].map((category) => (
@@ -142,7 +142,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                     </select>
                     <Button
                       onClick={() => setIsEditingCategory(false)}
-                      className="bg-[#00ffff]/20 hover:bg-[#00ffff]/30 text-[#00ffff] px-3 py-1 rounded text-sm"
+                      className="bg-[#8B5CF6]/20 hover:bg-[#8B5CF6]/30 text-[#8B5CF6] px-3 py-1 rounded text-sm"
                       type="button"
                     >
                       Done
@@ -150,13 +150,13 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="text-white/80 px-2 py-1 rounded bg-[#00ffff]/10 border border-[#00ffff]/20">
+                    <span className="text-white/80 px-2 py-1 rounded bg-[#8B5CF6]/10 border border-[#8B5CF6]/20">
                       {editedPrompt.category}
                     </span>
                     {isCreator && isEditing && (
                       <button
                         onClick={() => setIsEditingCategory(true)}
-                        className="text-white/60 hover:text-[#00ffff] transition-colors"
+                        className="text-white/60 hover:text-[#8B5CF6] transition-colors"
                         type="button"
                       >
                         <PencilIcon className="w-4 h-4" />
@@ -177,14 +177,14 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
                       setIsEditing(false);
                       setEditedPrompt(prompt);
                     }}
-                    className="bg-black/50 text-white/60 hover:text-white border border-[#00ffff]/20 hover:bg-[#00ffff]/10 px-4 py-2 rounded-md"
+                    className="bg-black/50 text-white/60 hover:text-white border border-[#8B5CF6]/20 hover:bg-[#8B5CF6]/10 px-4 py-2 rounded-md"
                     type="button"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSave}
-                    className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                    className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] px-4 py-2 rounded-md"
                     type="button"
                   >
                     Save
@@ -193,7 +193,7 @@ export default function PromptModal({ prompt, onCloseAction, onEditAction, onDel
               ) : (
                 <Button
                   onClick={() => setIsEditing(true)}
-                  className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                  className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] px-4 py-2 rounded-md"
                   type="button"
                 >
                   Edit Prompt

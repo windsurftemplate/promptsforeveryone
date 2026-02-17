@@ -116,7 +116,7 @@ function ChatContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
       </div>
     );
   }
@@ -127,7 +127,7 @@ function ChatContent() {
         <div className="flex gap-6">
           {/* Left Sidebar - Common Prompts */}
           <div className="w-80 space-y-4">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6] bg-clip-text text-transparent">
               Prompt Templates
             </h2>
             <div className="space-y-2">
@@ -135,7 +135,7 @@ function ChatContent() {
                 <div
                   key={index}
                   onClick={() => handlePromptClick(prompt.description)}
-                  className="p-3 bg-black/50 border border-[#00ffff]/20 rounded-lg hover:border-[#00ffff]/40 cursor-pointer transition-all duration-300"
+                  className="p-3 bg-black/50 border border-[#8B5CF6]/20 rounded-lg hover:border-[#8B5CF6]/40 cursor-pointer transition-all duration-300"
                 >
                   <h3 className="text-white font-medium mb-1">{prompt.title}</h3>
                   <p className="text-white/60 text-sm">{prompt.description}</p>
@@ -151,24 +151,24 @@ function ChatContent() {
 
           {/* Right Sidebar - Chat History */}
           <div className="w-80 space-y-4">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6] bg-clip-text text-transparent">
               Chat History
             </h2>
             <button
               onClick={handleNewChat}
-              className="w-full px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg transition-all duration-300 border border-[#00ffff]/30"
+              className="w-full px-4 py-2 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-lg transition-all duration-300 border border-[#8B5CF6]/30"
             >
               New Chat
             </button>
-            <div className="space-y-2 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#00ffff]/20 scrollbar-track-transparent">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#8B5CF6]/20 scrollbar-track-transparent">
               {chatHistory.map((chat) => (
                 <div
                   key={chat.id}
                   onClick={() => handleSelectChat(chat.id)}
                   className={`p-3 rounded-lg cursor-pointer transition-all duration-300 ${
                     selectedChat === chat.id
-                      ? 'bg-[#00ffff]/20 border border-[#00ffff]/40'
-                      : 'bg-black/50 border border-white/10 hover:border-[#00ffff]/30'
+                      ? 'bg-[#8B5CF6]/20 border border-[#8B5CF6]/40'
+                      : 'bg-black/50 border border-white/10 hover:border-[#8B5CF6]/30'
                   }`}
                 >
                   <div className="flex justify-between items-center">
@@ -177,7 +177,7 @@ function ChatContent() {
                     </h3>
                     <button
                       onClick={(e) => handleDeleteChat(chat.id, e)}
-                      className="text-white/40 hover:text-[#00ffff] transition-colors p-1"
+                      className="text-white/40 hover:text-[#8B5CF6] transition-colors p-1"
                     >
                       ×
                     </button>

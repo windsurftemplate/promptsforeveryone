@@ -117,7 +117,7 @@ export default function CheatSheets() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#00ffff] mb-2">Prompt Engineering Cheat Sheets</h2>
+        <h2 className="text-2xl font-bold text-[#8B5CF6] mb-2">Prompt Engineering Cheat Sheets</h2>
         <p className="text-gray-400">Quick reference guides for effective prompt engineering</p>
       </div>
 
@@ -127,18 +127,18 @@ export default function CheatSheets() {
           return (
             <div
               key={sheet.id}
-              className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg overflow-hidden"
+              className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg overflow-hidden"
             >
               <button
                 onClick={() => toggleSection(sheet.id)}
-                className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#00ffff]/5 transition-colors"
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-[#8B5CF6]/5 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <Icon className="h-6 w-6 text-[#00ffff]" />
+                  <Icon className="h-6 w-6 text-[#8B5CF6]" />
                   <span className="font-medium text-white">{sheet.name}</span>
                 </div>
                 <ChevronDownIcon
-                  className={`h-5 w-5 text-[#00ffff] transition-transform ${
+                  className={`h-5 w-5 text-[#8B5CF6] transition-transform ${
                     expandedSection === sheet.id ? 'transform rotate-180' : ''
                   }`}
                 />
@@ -151,12 +151,12 @@ export default function CheatSheets() {
                       key={section.title}
                       className={`${index > 0 ? 'mt-6' : 'mt-4'}`}
                     >
-                      <h4 className="text-[#00ffff] font-medium mb-3">{section.title}</h4>
+                      <h4 className="text-[#8B5CF6] font-medium mb-3">{section.title}</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {section.items.map((item) => (
                           <div
                             key={item.label}
-                            className="bg-black/30 border border-[#00ffff]/10 rounded-lg p-4"
+                            className="bg-black/30 border border-[#8B5CF6]/10 rounded-lg p-4"
                           >
                             <div className="font-medium text-white mb-1">{item.label}</div>
                             <div className="text-sm text-gray-400">{item.description}</div>
@@ -173,10 +173,10 @@ export default function CheatSheets() {
       </div>
 
       {/* Quick Copy Templates */}
-      <div className="mt-8 bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+      <div className="mt-8 bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
         <h3 className="text-lg font-medium text-white mb-4">Quick Copy Templates</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-black/30 border border-[#00ffff]/10 rounded-lg p-4">
+          <div className="bg-black/30 border border-[#8B5CF6]/10 rounded-lg p-4">
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">
               {`Role: [Expert type]
 Goal: [Specific outcome]
@@ -190,13 +190,13 @@ Goal: [Specific outcome]
 Context: [Background info]
 Task: [Clear instruction]
 Format: [Output structure]`)}
-              className="mt-3 w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-medium"
+              className="mt-3 w-full bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-medium"
             >
               Copy Template
             </Button>
           </div>
 
-          <div className="bg-black/30 border border-[#00ffff]/10 rounded-lg p-4">
+          <div className="bg-black/30 border border-[#8B5CF6]/10 rounded-lg p-4">
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">
               {`I want you to act as [role]
 Context: [situation/background]
@@ -216,7 +216,7 @@ Requirements:
 2. [requirement 2]
 3. [requirement 3]
 Output format: [desired format]`)}
-              className="mt-3 w-full bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-medium"
+              className="mt-3 w-full bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-medium"
             >
               Copy Template
             </Button>

@@ -3,15 +3,15 @@ import { cn } from '@/lib/utils';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
-  variant?: 'default' | 'glass' | 'emerald';
+  variant?: 'default' | 'glass' | 'violet';
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, hover = true, variant = 'default', ...props }, ref) => {
     const variants = {
-      default: 'bg-black/80 border-white/5 hover:border-emerald/30',
+      default: 'bg-background-elevated border-white/6 hover:border-violet/25',
       glass: 'glass-panel',
-      emerald: 'glass-panel-emerald',
+      violet: 'glass-panel-violet',
     };
 
     return (

@@ -118,14 +118,14 @@ export default function InteractiveLearning() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#00ffff] mb-2">Interactive Learning Modes</h2>
+        <h2 className="text-2xl font-bold text-[#8B5CF6] mb-2">Interactive Learning Modes</h2>
         <p className="text-gray-400">Challenge yourself with hands-on prompt engineering exercises</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Learning Paths */}
         <div className="space-y-6">
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
             <h3 className="text-lg font-medium text-white mb-4">Learning Paths</h3>
             <div className="space-y-4">
               {learningPaths.map((path) => (
@@ -134,12 +134,12 @@ export default function InteractiveLearning() {
                   onClick={() => handlePathChange(path)}
                   className={`w-full p-4 rounded-lg border transition-all ${
                     selectedPath.id === path.id
-                      ? 'border-[#00ffff] bg-[#00ffff]/10'
-                      : 'border-[#00ffff]/20 hover:border-[#00ffff]/40'
+                      ? 'border-[#8B5CF6] bg-[#8B5CF6]/10'
+                      : 'border-[#8B5CF6]/20 hover:border-[#8B5CF6]/40'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <AcademicCapIcon className="h-5 w-5 text-[#00ffff]" />
+                    <AcademicCapIcon className="h-5 w-5 text-[#8B5CF6]" />
                     <div className="text-left">
                       <div className="font-medium text-white">{path.name}</div>
                       <div className="text-sm text-gray-400 mt-1">{path.description}</div>
@@ -153,7 +153,7 @@ export default function InteractiveLearning() {
 
         {/* Center Column - Challenge Mode */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium text-white">{currentChallenge.title}</h3>
               {score !== null && (
@@ -179,7 +179,7 @@ export default function InteractiveLearning() {
                 value={userPrompt}
                 onChange={(e) => setUserPrompt(e.target.value)}
                 rows={6}
-                className="w-full rounded-lg bg-black border border-[#00ffff]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#00ffff]/40"
+                className="w-full rounded-lg bg-black border border-[#8B5CF6]/20 px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-[#8B5CF6]/40"
                 placeholder="Write your improved version here..."
               />
             </div>
@@ -188,13 +188,13 @@ export default function InteractiveLearning() {
               <Button
                 onClick={handleChallengeSubmit}
                 disabled={loading}
-                className="flex-1 bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-medium py-3"
+                className="flex-1 bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-medium py-3"
               >
                 {loading ? 'Grading...' : 'Submit for Grading'}
               </Button>
               <Button
                 onClick={() => setShowHints(!showHints)}
-                className="bg-[#00ffff] hover:bg-[#00ffff]/90 text-black font-medium px-4"
+                className="bg-[#8B5CF6] hover:bg-[#8B5CF6]/90 text-black font-medium px-4"
               >
                 {showHints ? 'Hide Hints' : 'Show Hints'}
               </Button>
@@ -205,7 +205,7 @@ export default function InteractiveLearning() {
                 <div className="text-gray-300 font-medium">Hints:</div>
                 {currentChallenge.hints.map((hint, index) => (
                   <div key={index} className="flex items-start gap-3 text-gray-400">
-                    <CheckCircleIcon className="h-5 w-5 text-[#00ffff] shrink-0 mt-0.5" />
+                    <CheckCircleIcon className="h-5 w-5 text-[#8B5CF6] shrink-0 mt-0.5" />
                     <span>{hint}</span>
                   </div>
                 ))}
@@ -214,18 +214,18 @@ export default function InteractiveLearning() {
           </div>
 
           {feedback && (
-            <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-6">
+            <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4">AI Feedback</h3>
               <div className="space-y-4">
                 {Object.entries(feedback).map(([criterion, score]: [string, any]) => (
-                  <div key={criterion} className="border-b border-[#00ffff]/10 last:border-0 pb-4 last:pb-0">
+                  <div key={criterion} className="border-b border-[#8B5CF6]/10 last:border-0 pb-4 last:pb-0">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-gray-300">{criterion}</span>
-                      <span className="text-[#00ffff] font-medium">{score}/10</span>
+                      <span className="text-[#8B5CF6] font-medium">{score}/10</span>
                     </div>
-                    <div className="w-full bg-[#00ffff]/10 rounded-full h-2">
+                    <div className="w-full bg-[#8B5CF6]/10 rounded-full h-2">
                       <div
-                        className="bg-[#00ffff] h-2 rounded-full transition-all"
+                        className="bg-[#8B5CF6] h-2 rounded-full transition-all"
                         style={{ width: `${(score / 10) * 100}%` }}
                       />
                     </div>

@@ -54,13 +54,14 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
-        <meta name="msapplication-TileColor" content="#0A8F6A" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="msapplication-TileColor" content="#8B5CF6" />
+        <meta name="theme-color" content="#0A0A0F" />
       </head>
-      <body className={`${inter.className} bg-black text-neutral-300 overflow-x-hidden selection:bg-emerald selection:text-white`}>
-        {/* Ambient Background */}
+      <body className={`${inter.className} bg-background-base text-neutral-300 overflow-x-hidden selection:bg-violet selection:text-white`}>
+        {/* Background Effects */}
+        <div className="spotlight" />
+        <div className="grid-overlay" />
         <div className="ambient-light" />
-        <div className="noise-overlay" />
 
         <AuthProvider>
           <NavbarWrapper>

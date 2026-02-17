@@ -50,7 +50,7 @@ export default function ContactPage() {
     <div className="min-h-screen bg-black">
       <div className="max-w-7xl mx-auto px-4 py-12 pt-24">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent mb-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6] bg-clip-text text-transparent mb-4">
             Contact Us
           </h1>
           <p className="text-white/60 max-w-2xl mx-auto">
@@ -61,17 +61,17 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div className="space-y-8">
-            <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8">
+            <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8">
               <h2 className="text-2xl font-semibold text-white mb-6">Get in Touch</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start space-x-4">
-                  <EnvelopeIcon className="w-6 h-6 text-[#00ffff] mt-1" />
+                  <EnvelopeIcon className="w-6 h-6 text-[#8B5CF6] mt-1" />
                   <div>
                     <h3 className="text-white font-medium">Email</h3>
                     <a 
                       href="mailto:support@promptsforeveryone.com" 
-                      className="text-white/60 hover:text-[#00ffff] transition-colors"
+                      className="text-white/60 hover:text-[#8B5CF6] transition-colors"
                     >
                       support@promptsforeveryone.com
                     </a>
@@ -79,7 +79,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <MapPinIcon className="w-6 h-6 text-[#00ffff] mt-1" />
+                  <MapPinIcon className="w-6 h-6 text-[#8B5CF6] mt-1" />
                   <div>
                     <h3 className="text-white font-medium">Location</h3>
                     <p className="text-white/60">San Francisco, CA</p>
@@ -88,16 +88,16 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8">
+            <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8">
               <h2 className="text-2xl font-semibold text-white mb-6">Quick Links</h2>
               <div className="space-y-4">
-                <a href="/docs" className="block text-white/60 hover:text-[#00ffff] transition-colors">
+                <a href="/docs" className="block text-white/60 hover:text-[#8B5CF6] transition-colors">
                   Documentation
                 </a>
-                <a href="/guides" className="block text-white/60 hover:text-[#00ffff] transition-colors">
+                <a href="/guides" className="block text-white/60 hover:text-[#8B5CF6] transition-colors">
                   Guides
                 </a>
-                <a href="/blog" className="block text-white/60 hover:text-[#00ffff] transition-colors">
+                <a href="/blog" className="block text-white/60 hover:text-[#8B5CF6] transition-colors">
                   Blog
                 </a>
               </div>
@@ -105,7 +105,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-black/50 backdrop-blur-xl border border-[#00ffff]/20 rounded-lg p-8">
+          <div className="bg-black/50 backdrop-blur-xl border border-[#8B5CF6]/20 rounded-lg p-8">
             <h2 className="text-2xl font-semibold text-white mb-6">Send us a Message</h2>
             
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -120,7 +120,7 @@ export default function ContactPage() {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent"
                   placeholder="Your name"
                 />
               </div>
@@ -136,7 +136,7 @@ export default function ContactPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent"
                   placeholder="your@email.com"
                 />
               </div>
@@ -152,7 +152,7 @@ export default function ContactPage() {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent"
                   placeholder="How can we help?"
                 />
               </div>
@@ -168,7 +168,7 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2 bg-black/50 border border-[#00ffff]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#00ffff]/50 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 bg-black/50 border border-[#8B5CF6]/20 rounded-md text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/50 focus:border-transparent resize-none"
                   placeholder="Your message..."
                 />
               </div>
@@ -188,7 +188,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full px-8 py-3 bg-[#00ffff] hover:bg-[#00ffff]/80 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-8 py-3 bg-[#8B5CF6] hover:bg-[#8B5CF6]/80 text-black font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Sending...' : 'Send Message'}
               </button>

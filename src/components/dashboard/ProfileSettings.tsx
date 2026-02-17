@@ -151,7 +151,7 @@ export default function ProfileSettings() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-[#00ffff] bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#8B5CF6] to-[#8B5CF6] bg-clip-text text-transparent">
           Profile Settings
         </h2>
         {isEditing ? (
@@ -160,7 +160,7 @@ export default function ProfileSettings() {
               onClick={() => setIsEditing(false)}
               variant="secondary"
               disabled={isSaving}
-              className="bg-black/50 text-white border border-[#00ffff]/20 hover:bg-[#00ffff]/10"
+              className="bg-black/50 text-white border border-[#8B5CF6]/20 hover:bg-[#8B5CF6]/10"
             >
               Cancel
             </Button>
@@ -168,7 +168,7 @@ export default function ProfileSettings() {
               onClick={handleSave}
               variant="primary"
               disabled={isSaving}
-              className="bg-[#00ffff] text-black hover:bg-[#00ffff]/80"
+              className="bg-[#8B5CF6] text-black hover:bg-[#8B5CF6]/80"
             >
               {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>
@@ -177,7 +177,7 @@ export default function ProfileSettings() {
           <Button
             onClick={() => setIsEditing(true)}
             variant="primary"
-            className="bg-[#00ffff] text-black hover:bg-[#00ffff]/80"
+            className="bg-[#8B5CF6] text-black hover:bg-[#8B5CF6]/80"
           >
             Edit Profile
           </Button>
@@ -198,11 +198,11 @@ export default function ProfileSettings() {
 
       <div className="space-y-6">
         {/* Profile Information */}
-        <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
-          <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Profile Information</h3>
+        <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 space-y-6">
+          <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Profile Information</h3>
           
           <div>
-            <label className="block text-sm font-medium text-[#00ffff] mb-2">
+            <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
               Display Name
             </label>
             {isEditing ? (
@@ -210,7 +210,7 @@ export default function ProfileSettings() {
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none"
+                className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-2 focus:border-[#8B5CF6]/40 focus:outline-none"
               />
             ) : (
               <p className="text-white/80 p-2">{displayName}</p>
@@ -218,7 +218,7 @@ export default function ProfileSettings() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#00ffff] mb-2">
+            <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
               Email
             </label>
             <p className="text-white/80 p-2">{email}</p>
@@ -226,8 +226,8 @@ export default function ProfileSettings() {
         </div>
 
         {/* User Settings */}
-        <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
-          <h3 className="text-xl font-semibold text-[#00ffff] mb-4">User Settings</h3>
+        <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 space-y-6">
+          <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">User Settings</h3>
           
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -237,7 +237,7 @@ export default function ProfileSettings() {
               <button
                 onClick={() => setSettings(prev => ({ ...prev, emailNotifications: !prev.emailNotifications }))}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  settings.emailNotifications ? 'bg-[#00ffff]' : 'bg-gray-600'
+                  settings.emailNotifications ? 'bg-[#8B5CF6]' : 'bg-gray-600'
                 }`}
               >
                 <span
@@ -255,10 +255,10 @@ export default function ProfileSettings() {
               <select
                 value={settings.timezone}
                 onChange={(e) => setSettings(prev => ({ ...prev, timezone: e.target.value }))}
-                className="w-full bg-black/50 text-white border border-[#00ffff]/20 rounded-lg p-2 focus:border-[#00ffff]/40 focus:outline-none [&>option]:bg-black/90 hover:border-[#00ffff]/40 transition-colors"
+                className="w-full bg-black/50 text-white border border-[#8B5CF6]/20 rounded-lg p-2 focus:border-[#8B5CF6]/40 focus:outline-none [&>option]:bg-black/90 hover:border-[#8B5CF6]/40 transition-colors"
               >
                 {Intl.supportedValuesOf('timeZone').map((timezone) => (
-                  <option key={timezone} value={timezone} className="bg-black/90 text-white hover:bg-[#00ffff]/10">
+                  <option key={timezone} value={timezone} className="bg-black/90 text-white hover:bg-[#8B5CF6]/10">
                     {timezone}
                   </option>
                 ))}
@@ -268,12 +268,12 @@ export default function ProfileSettings() {
         </div>
 
         {/* Subscription Management */}
-        <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 space-y-6">
-          <h3 className="text-xl font-semibold text-[#00ffff] mb-4">Subscription</h3>
+        <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 space-y-6">
+          <h3 className="text-xl font-semibold text-[#8B5CF6] mb-4">Subscription</h3>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#00ffff] mb-2">
+              <label className="block text-sm font-medium text-[#8B5CF6] mb-2">
                 Current Plan
               </label>
               <div className="flex items-center justify-between p-2">
@@ -296,7 +296,7 @@ export default function ProfileSettings() {
                   <Link href="/price">
                     <Button
                       variant="primary"
-                      className="bg-[#00ffff] text-black hover:bg-[#00ffff]/80"
+                      className="bg-[#8B5CF6] text-black hover:bg-[#8B5CF6]/80"
                     >
                       Upgrade to Pro
                     </Button>
@@ -316,7 +316,7 @@ export default function ProfileSettings() {
                       <Button
                         onClick={handleCancelSubscription}
                         variant="secondary"
-                        className="bg-black/50 text-white border border-[#00ffff]/20 hover:bg-[#00ffff]/10"
+                        className="bg-black/50 text-white border border-[#8B5CF6]/20 hover:bg-[#8B5CF6]/10"
                       >
                         Cancel Subscription
                       </Button>

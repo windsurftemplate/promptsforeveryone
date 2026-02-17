@@ -57,11 +57,11 @@ export default function AdDisplay({ ad }: AdDisplayProps) {
     <div 
       className={`relative ${
         ad.type === 'banner' 
-          ? 'col-span-full bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4'
-          : 'bg-black/40 backdrop-blur-sm border border-[#00ffff]/10 rounded-lg p-4'
+          ? 'col-span-full bg-black/40 backdrop-blur-sm border border-[#8B5CF6]/10 rounded-lg p-4'
+          : 'bg-black/40 backdrop-blur-sm border border-[#8B5CF6]/10 rounded-lg p-4'
       }`}
     >
-      <div className="absolute top-2 right-2 text-xs text-[#00ffff]/40">Ad</div>
+      <div className="absolute top-2 right-2 text-xs text-[#8B5CF6]/40">Ad</div>
       <div 
         className="prose prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: ad.content }}

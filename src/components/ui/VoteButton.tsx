@@ -98,8 +98,8 @@ export default function VoteButton({ promptId, initialVotes = 0, onVoteChange }:
       title={!user ? 'Log in to vote' : hasVoted ? 'Remove vote' : 'Vote for this prompt'}
       className={`flex items-center gap-1 px-3 py-1.5 rounded-lg transition-all duration-200 ${
         hasVoted
-          ? 'bg-[#00ffff] text-black'
-          : 'bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20'
+          ? 'bg-[#8B5CF6] text-black'
+          : 'bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20'
       } ${isLoading ? 'opacity-50 cursor-not-allowed' : !user ? 'cursor-pointer opacity-75 hover:opacity-100' : ''}`}
     >
       {hasVoted ? (

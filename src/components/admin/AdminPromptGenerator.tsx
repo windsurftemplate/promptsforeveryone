@@ -231,10 +231,10 @@ export default function AdminPromptGenerator() {
   return (
     <div className="space-y-6">
       {/* Title Section */}
-      <div className="flex items-center justify-between pb-6 border-b border-[#00ffff]/20">
+      <div className="flex items-center justify-between pb-6 border-b border-[#8B5CF6]/20">
         <div>
           <h1 className="text-2xl font-bold text-white">Prompt Generator</h1>
-          <p className="text-[#00ffff]/60">Generate and manage AI prompts across different categories</p>
+          <p className="text-[#8B5CF6]/60">Generate and manage AI prompts across different categories</p>
         </div>
       </div>
 
@@ -248,8 +248,8 @@ export default function AdminPromptGenerator() {
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 rounded-lg border transition-all duration-300 text-left ${
                 selectedCategory === 'all'
-                  ? 'bg-[#00ffff]/20 border-[#00ffff] text-[#00ffff]'
-                  : 'border-[#00ffff]/20 text-white/60 hover:border-[#00ffff]/40 hover:text-white'
+                  ? 'bg-[#8B5CF6]/20 border-[#8B5CF6] text-[#8B5CF6]'
+                  : 'border-[#8B5CF6]/20 text-white/60 hover:border-[#8B5CF6]/40 hover:text-white'
               }`}
             >
               All Categories
@@ -260,22 +260,22 @@ export default function AdminPromptGenerator() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`w-full px-4 py-2 rounded-lg border transition-all duration-300 text-left ${
                     selectedCategory === category.id
-                      ? 'bg-[#00ffff]/20 border-[#00ffff] text-[#00ffff]'
-                      : 'border-[#00ffff]/20 text-white/60 hover:border-[#00ffff]/40 hover:text-white'
+                      ? 'bg-[#8B5CF6]/20 border-[#8B5CF6] text-[#8B5CF6]'
+                      : 'border-[#8B5CF6]/20 text-white/60 hover:border-[#8B5CF6]/40 hover:text-white'
                   }`}
                 >
                   {category.name}
                 </button>
                 {selectedCategory === category.id && category.subcategories && (
-                  <div className="ml-4 pl-4 border-l border-[#00ffff]/20">
+                  <div className="ml-4 pl-4 border-l border-[#8B5CF6]/20">
                     {Object.entries(category.subcategories).map(([subId, sub]) => (
                       <button
                         key={subId}
                         onClick={() => setSelectedSubcategory(subId)}
                         className={`w-full px-4 py-2 mb-2 rounded-lg border transition-all duration-300 text-left ${
                           selectedSubcategory === subId
-                            ? 'bg-[#00ffff]/20 border-[#00ffff] text-[#00ffff]'
-                            : 'border-[#00ffff]/20 text-white/40 hover:border-[#00ffff]/40 hover:text-white'
+                            ? 'bg-[#8B5CF6]/20 border-[#8B5CF6] text-[#8B5CF6]'
+                            : 'border-[#8B5CF6]/20 text-white/40 hover:border-[#8B5CF6]/40 hover:text-white'
                         }`}
                       >
                         {sub.name}
@@ -294,7 +294,7 @@ export default function AdminPromptGenerator() {
           <button
             onClick={generatePrompt}
             disabled={isGenerating}
-            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-lg border border-[#8B5CF6]/20 transition-all duration-300 hover:border-[#8B5CF6]/40 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <>
@@ -314,11 +314,11 @@ export default function AdminPromptGenerator() {
             <div className="space-y-6">
               {/* Title Section */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[#00ffff]">
+                <div className="flex items-center gap-2 text-[#8B5CF6]">
                   <Sparkles className="w-5 h-5" />
                   <h2 className="text-lg font-semibold">Prompt Title</h2>
                 </div>
-                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4">
+                <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-4">
                   <input
                     type="text"
                     value={currentTitle}
@@ -331,11 +331,11 @@ export default function AdminPromptGenerator() {
 
               {/* Prompt Section */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[#00ffff]">
+                <div className="flex items-center gap-2 text-[#8B5CF6]">
                   <Sparkles className="w-5 h-5" />
                   <h2 className="text-lg font-semibold">Prompt Content</h2>
                 </div>
-                <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6">
+                <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6">
                   <div className="flex justify-between items-start gap-4">
                     <textarea
                       value={currentPrompt}
@@ -348,7 +348,7 @@ export default function AdminPromptGenerator() {
                         variant="ghost"
                         size="sm"
                         onClick={() => copyToClipboard(`${currentTitle}\n\n${currentPrompt}`)}
-                        className="text-[#00ffff] hover:text-[#00ffff]/80"
+                        className="text-[#8B5CF6] hover:text-[#8B5CF6]/80"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -356,7 +356,7 @@ export default function AdminPromptGenerator() {
                         variant="ghost"
                         size="sm"
                         onClick={() => sharePrompt(`${currentTitle}\n\n${currentPrompt}`)}
-                        className="text-[#00ffff] hover:text-[#00ffff]/80"
+                        className="text-[#8B5CF6] hover:text-[#8B5CF6]/80"
                       >
                         <Share2 className="h-4 w-4" />
                       </Button>
@@ -365,7 +365,7 @@ export default function AdminPromptGenerator() {
                         size="sm"
                         onClick={() => savePrompt(currentPrompt, currentTitle)}
                         disabled={isSaving}
-                        className="text-[#00ffff] hover:text-[#00ffff]/80"
+                        className="text-[#8B5CF6] hover:text-[#8B5CF6]/80"
                       >
                         {isSaving ? (
                           <RefreshCw className="h-4 w-4 animate-spin" />
@@ -384,7 +384,7 @@ export default function AdminPromptGenerator() {
                   <button
                     onClick={enhanceWithAI}
                     disabled={isEnhancing}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] rounded-lg border border-[#00ffff]/20 transition-all duration-300 hover:border-[#00ffff]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-lg border border-[#8B5CF6]/20 transition-all duration-300 hover:border-[#8B5CF6]/40 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isEnhancing ? (
                       <>
@@ -404,11 +404,11 @@ export default function AdminPromptGenerator() {
                   <div className="space-y-4">
                     {/* Enhanced Title Section */}
                     <div>
-                      <div className="flex items-center gap-2 mb-2 text-[#00ffff]">
+                      <div className="flex items-center gap-2 mb-2 text-[#8B5CF6]">
                         <Wand2 className="w-4 h-4" />
                         <span className="text-sm font-medium">Enhanced Title</span>
                       </div>
-                      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4">
+                      <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-4">
                         <input
                           type="text"
                           value={enhancedTitle}
@@ -421,11 +421,11 @@ export default function AdminPromptGenerator() {
 
                     {/* Enhanced Prompt Section */}
                     <div>
-                      <div className="flex items-center gap-2 mb-2 text-[#00ffff]">
+                      <div className="flex items-center gap-2 mb-2 text-[#8B5CF6]">
                         <Wand2 className="w-4 h-4" />
                         <span className="text-sm font-medium">Enhanced Content</span>
                       </div>
-                      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6">
+                      <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6">
                         <div className="flex justify-between items-start gap-4">
                           <textarea
                             value={enhancedPrompt}
@@ -438,7 +438,7 @@ export default function AdminPromptGenerator() {
                               variant="ghost"
                               size="sm"
                               onClick={() => copyToClipboard(`${enhancedTitle}\n\n${enhancedPrompt}`)}
-                              className="text-[#00ffff] hover:text-[#00ffff]/80"
+                              className="text-[#8B5CF6] hover:text-[#8B5CF6]/80"
                             >
                               <Copy className="h-4 w-4" />
                             </Button>
@@ -446,7 +446,7 @@ export default function AdminPromptGenerator() {
                               variant="ghost"
                               size="sm"
                               onClick={() => sharePrompt(`${enhancedTitle}\n\n${enhancedPrompt}`)}
-                              className="text-[#00ffff] hover:text-[#00ffff]/80"
+                              className="text-[#8B5CF6] hover:text-[#8B5CF6]/80"
                             >
                               <Share2 className="h-4 w-4" />
                             </Button>
@@ -455,7 +455,7 @@ export default function AdminPromptGenerator() {
                               size="sm"
                               onClick={() => savePrompt(enhancedPrompt, enhancedTitle)}
                               disabled={isSaving}
-                              className="text-[#00ffff] hover:text-[#00ffff]/80"
+                              className="text-[#8B5CF6] hover:text-[#8B5CF6]/80"
                             >
                               {isSaving ? (
                                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -482,7 +482,7 @@ export default function AdminPromptGenerator() {
       )}
 
       {successMessage && (
-        <div className="fixed bottom-4 right-4 bg-emerald-500/90 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+        <div className="fixed bottom-4 right-4 bg-violet-500/90 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
           {successMessage}
         </div>

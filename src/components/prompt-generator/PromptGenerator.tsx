@@ -457,8 +457,8 @@ export default function PromptGenerator() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <h2 className="text-xl font-semibold text-[#00ffff]">Please log in to use the Prompt Generator</h2>
-        <Button onClick={() => router.push('/login')} className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff]">
+        <h2 className="text-xl font-semibold text-[#8B5CF6]">Please log in to use the Prompt Generator</h2>
+        <Button onClick={() => router.push('/login')} className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6]">
           Log In
         </Button>
       </div>
@@ -574,8 +574,8 @@ export default function PromptGenerator() {
   return (
     <div className="space-y-8 w-1/2 mx-auto">
       {/* Category Selection */}
-      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-        <h2 className="text-lg font-semibold text-[#00ffff] mb-4">Select Category</h2>
+      <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/30 transition-all duration-300">
+        <h2 className="text-lg font-semibold text-[#8B5CF6] mb-4">Select Category</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {CATEGORIES.map((category) => (
             <button
@@ -583,8 +583,8 @@ export default function PromptGenerator() {
               onClick={() => setSelectedCategory(category.id as Category)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 selectedCategory === category.id
-                  ? 'bg-[#00ffff]/20 text-[#00ffff] border-2 border-[#00ffff]/40'
-                  : 'bg-black/50 text-white/70 border border-[#00ffff]/10 hover:border-[#00ffff]/30 hover:text-white'
+                  ? 'bg-[#8B5CF6]/20 text-[#8B5CF6] border-2 border-[#8B5CF6]/40'
+                  : 'bg-black/50 text-white/70 border border-[#8B5CF6]/10 hover:border-[#8B5CF6]/30 hover:text-white'
               }`}
             >
               {category.name}
@@ -594,12 +594,12 @@ export default function PromptGenerator() {
       </div>
 
       {/* Generated Prompt */}
-      <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
+      <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/30 transition-all duration-300">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-[#00ffff]">Generated Prompt</h2>
+          <h2 className="text-lg font-semibold text-[#8B5CF6]">Generated Prompt</h2>
           <Button
             onClick={generatePrompt}
-            className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2"
+            className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
             Generate New
@@ -611,13 +611,13 @@ export default function PromptGenerator() {
             <textarea
               value={currentPrompt}
               onChange={(e) => setCurrentPrompt(e.target.value)}
-              className="w-full min-h-[100px] text-white/90 text-lg bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none"
+              className="w-full min-h-[100px] text-white/90 text-lg bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-4 focus:border-[#8B5CF6]/40 focus:outline-none hover:border-[#8B5CF6]/40 transition-colors resize-none"
               placeholder="Your prompt will appear here..."
             />
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={() => copyToClipboard(currentPrompt)}
-                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2"
+                className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2"
               >
                 <Copy className="w-4 h-4" />
                 {copied ? 'Copied!' : 'Copy'}
@@ -626,7 +626,7 @@ export default function PromptGenerator() {
               <Button
                 onClick={() => enhanceWithAI()}
                 disabled={isEnhancing}
-                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+                className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2 disabled:opacity-50"
               >
                 {isEnhancing ? (
                   <>
@@ -643,7 +643,7 @@ export default function PromptGenerator() {
 
               <Button
                 onClick={() => sharePrompt(currentPrompt)}
-                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2"
+                className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2"
               >
                 <Share2 className="w-4 h-4" />
                 Share
@@ -652,7 +652,7 @@ export default function PromptGenerator() {
               <Button
                 onClick={() => savePrompt(currentPrompt)}
                 disabled={isSaving}
-                className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+                className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2 disabled:opacity-50"
               >
                 {isSaving ? (
                   <>
@@ -677,11 +677,11 @@ export default function PromptGenerator() {
 
       {/* Enhanced Prompt */}
       {(isEnhancing || enhancedPrompt || error) && (
-        <div className="bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/30 transition-all duration-300">
-          <h2 className="text-lg font-semibold text-[#00ffff] mb-4">AI-Enhanced Version</h2>
+        <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/30 transition-all duration-300">
+          <h2 className="text-lg font-semibold text-[#8B5CF6] mb-4">AI-Enhanced Version</h2>
           {isEnhancing ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00ffff]" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6]" />
             </div>
           ) : error ? (
             <div className="text-red-500 text-sm">{error}</div>
@@ -690,13 +690,13 @@ export default function PromptGenerator() {
               <textarea
                 value={enhancedPrompt}
                 onChange={(e) => setEnhancedPrompt(e.target.value)}
-                className="w-full min-h-[600px] text-white/90 text-lg bg-black/50 border border-[#00ffff]/20 rounded-lg p-4 focus:border-[#00ffff]/40 focus:outline-none hover:border-[#00ffff]/40 transition-colors resize-none"
+                className="w-full min-h-[600px] text-white/90 text-lg bg-black/50 border border-[#8B5CF6]/20 rounded-lg p-4 focus:border-[#8B5CF6]/40 focus:outline-none hover:border-[#8B5CF6]/40 transition-colors resize-none"
                 placeholder="Edit the enhanced prompt here..."
               />
               <div className="flex flex-wrap gap-2">
                 <Button
                   onClick={() => copyToClipboard(enhancedPrompt)}
-                  className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2"
+                  className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2"
                 >
                   <Copy className="w-4 h-4" />
                   {copied ? 'Copied!' : 'Copy'}
@@ -704,7 +704,7 @@ export default function PromptGenerator() {
                 
                 <Button
                   onClick={() => sharePrompt(enhancedPrompt)}
-                  className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2"
+                  className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
                   Share
@@ -713,7 +713,7 @@ export default function PromptGenerator() {
                 <Button
                   onClick={() => savePrompt(enhancedPrompt)}
                   disabled={isSaving}
-                  className="bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] flex items-center gap-2 disabled:opacity-50"
+                  className="bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] flex items-center gap-2 disabled:opacity-50"
                 >
                   {isSaving ? (
                     <>

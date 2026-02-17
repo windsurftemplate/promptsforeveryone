@@ -76,8 +76,8 @@ export default function HomePage() {
         <div className="relative z-10 flex flex-col items-center max-w-5xl mx-auto">
           {/* Decorative Icon */}
           <div className="mb-8 opacity-60">
-            <div className="w-16 h-16 rounded-2xl bg-emerald/10 border border-emerald/20 flex items-center justify-center">
-              <SparklesIcon className="w-8 h-8 text-emerald" />
+            <div className="w-16 h-16 rounded-2xl bg-violet/10 border border-violet/20 flex items-center justify-center">
+              <SparklesIcon className="w-8 h-8 text-violet" />
             </div>
           </div>
 
@@ -106,7 +106,7 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-[conic-gradient(from_270deg,transparent_0,rgba(255,255,255,0.6)_90deg,transparent_90deg)]" />
                 </div>
               </div>
-              <div className="absolute inset-[1px] rounded-full bg-emerald/90 backdrop-blur" />
+              <div className="absolute inset-[1px] rounded-full bg-violet-600/90 backdrop-blur" />
               <span className="relative z-10 flex items-center gap-2 py-3.5 px-8 text-xs uppercase font-semibold tracking-wider text-white whitespace-nowrap">
                 Browse Prompts
               </span>
@@ -127,15 +127,15 @@ export default function HomePage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-24 px-6 border-y border-white/5 relative bg-black/20">
+      <section className="py-24 px-6 border-y border-white/5 relative bg-background-elevated/20">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <Reveal>
-              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
-                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-violet/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-violet transition-colors">
                   1000+
                 </div>
-                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-violet/50 transition-colors" />
                 <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Prompts</p>
                 <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
                   Curated prompts across multiple categories ready to use.
@@ -144,11 +144,11 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-75">
-              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
-                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-violet/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-violet transition-colors">
                   50+
                 </div>
-                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-violet/50 transition-colors" />
                 <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Categories</p>
                 <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
                   From coding to creative writing, find your niche.
@@ -157,11 +157,11 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-150">
-              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
-                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-violet/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-violet transition-colors">
                   Free
                 </div>
-                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-violet/50 transition-colors" />
                 <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Access</p>
                 <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
                   Start using community prompts at no cost.
@@ -170,11 +170,11 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-200">
-              <div className="glass-panel p-8 rounded-xl text-center group hover:border-emerald/30 transition-all duration-500">
-                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-emerald transition-colors">
+              <div className="glass-panel p-8 rounded-xl text-center group hover:border-violet/30 transition-all duration-500">
+                <div className="text-4xl font-semibold text-white mb-3 tracking-tighter group-hover:text-violet transition-colors">
                   AI+
                 </div>
-                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-emerald/50 transition-colors" />
+                <div className="h-px w-8 bg-white/10 mx-auto my-4 group-hover:bg-violet/50 transition-colors" />
                 <p className="text-xs text-neutral-400 uppercase tracking-widest font-medium mb-2">Tools</p>
                 <p className="text-[10px] text-neutral-500 leading-relaxed max-w-[180px] mx-auto">
                   Prompt coach, generator, and learning modules.
@@ -204,7 +204,7 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-start gap-5 group">
-                <div className="w-0.5 h-12 bg-emerald shadow-glow mt-1" />
+                <div className="w-0.5 h-12 bg-violet shadow-glow mt-1" />
                 <div>
                   <h4 className="text-white text-sm font-medium mb-2">The Community Solution</h4>
                   <p className="text-neutral-400 text-sm font-light leading-relaxed">
@@ -218,7 +218,7 @@ export default function HomePage() {
 
           <Reveal delay="delay-100">
             <div className="glass-panel p-10 rounded-2xl relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-emerald/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-violet/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               <div className="absolute top-0 right-0 p-6 opacity-10">
                 <CpuChipIcon className="w-16 h-16 text-white" />
               </div>
@@ -227,8 +227,8 @@ export default function HomePage() {
                 possibilities you never knew existed."
               </p>
               <div className="flex items-center gap-3 relative z-10">
-                <div className="w-6 h-px bg-emerald" />
-                <span className="text-[10px] uppercase tracking-[0.2em] text-emerald font-semibold">
+                <div className="w-6 h-px bg-violet" />
+                <span className="text-[10px] uppercase tracking-[0.2em] text-violet-400 font-semibold">
                   Prompts For Everyone
                 </span>
               </div>
@@ -263,7 +263,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-75" className="flex flex-col md:items-center md:text-center">
-              <div className="w-12 h-12 bg-emerald rounded-full flex items-center justify-center text-sm font-bold text-white mb-6 z-10 shadow-glow ring-4 ring-black/50">
+              <div className="w-12 h-12 bg-violet rounded-full flex items-center justify-center text-sm font-bold text-white mb-6 z-10 shadow-glow ring-4 ring-[#0A0A0F]/50">
                 02
               </div>
               <h3 className="text-sm font-semibold text-white mb-2 uppercase tracking-wide">
@@ -295,7 +295,7 @@ export default function HomePage() {
           <Reveal>
             <div className="flex items-center gap-3 mb-10">
               <div className="p-2 rounded bg-white/5 border border-white/10">
-                <BoltIcon className="w-4 h-4 text-emerald" />
+                <BoltIcon className="w-4 h-4 text-violet" />
               </div>
               <h2 className="text-2xl font-medium text-white tracking-tight font-display">
                 Powerful Features
@@ -305,8 +305,8 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <Reveal>
-              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
-                <div className="w-10 h-10 rounded-lg bg-emerald/10 flex items-center justify-center mb-6 text-emerald group-hover:scale-110 transition-transform duration-500">
+              <div className="glass-panel p-8 rounded-xl hover:border-violet/30 group transition-all duration-500">
+                <div className="w-10 h-10 rounded-lg bg-violet/10 flex items-center justify-center mb-6 text-violet group-hover:scale-110 transition-transform duration-500">
                   <SparklesIcon className="w-5 h-5" />
                 </div>
                 <h3 className="text-white font-medium mb-2">AI Prompt Coach</h3>
@@ -317,7 +317,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-75">
-              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+              <div className="glass-panel p-8 rounded-xl hover:border-violet/30 group transition-all duration-500">
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   <LightBulbIcon className="w-5 h-5" />
                 </div>
@@ -329,7 +329,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-100">
-              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+              <div className="glass-panel p-8 rounded-xl hover:border-violet/30 group transition-all duration-500">
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   <ChatBubbleBottomCenterTextIcon className="w-5 h-5" />
                 </div>
@@ -341,7 +341,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-150">
-              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+              <div className="glass-panel p-8 rounded-xl hover:border-violet/30 group transition-all duration-500">
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   <ShieldCheckIcon className="w-5 h-5" />
                 </div>
@@ -353,7 +353,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-200">
-              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+              <div className="glass-panel p-8 rounded-xl hover:border-violet/30 group transition-all duration-500">
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   <ArrowPathIcon className="w-5 h-5" />
                 </div>
@@ -365,7 +365,7 @@ export default function HomePage() {
             </Reveal>
 
             <Reveal delay="delay-300">
-              <div className="glass-panel p-8 rounded-xl hover:border-emerald/30 group transition-all duration-500">
+              <div className="glass-panel p-8 rounded-xl hover:border-violet/30 group transition-all duration-500">
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-6 text-neutral-300 group-hover:text-white group-hover:scale-110 transition-all duration-500">
                   <RocketLaunchIcon className="w-5 h-5" />
                 </div>
@@ -403,15 +403,15 @@ export default function HomePage() {
 
                 <ul className="space-y-3 mb-8 text-left w-full">
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Access to Community Prompts</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Basic Prompt Creation</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>AI Prompt Coach</span>
                   </li>
                 </ul>
@@ -426,13 +426,13 @@ export default function HomePage() {
 
             {/* Pro Plan */}
             <Reveal delay="delay-75">
-              <div className="relative p-8 rounded-2xl bg-emerald/10 border border-emerald hover:bg-emerald/15 transition-all flex flex-col items-center overflow-hidden shadow-glow transform md:-translate-y-4">
-                <div className="absolute inset-0 bg-gradient-to-b from-emerald/10 to-transparent opacity-50" />
-                <div className="absolute top-0 px-4 py-1 bg-emerald text-white text-[10px] uppercase font-bold tracking-widest rounded-b-lg">
+              <div className="relative p-8 rounded-2xl bg-violet/10 border border-violet-500 hover:bg-violet/15 transition-all flex flex-col items-center overflow-hidden shadow-glow transform md:-translate-y-4">
+                <div className="absolute inset-0 bg-gradient-to-b from-violet/10 to-transparent opacity-50" />
+                <div className="absolute top-0 px-4 py-1 bg-violet-500 text-white text-[10px] uppercase font-bold tracking-widest rounded-b-lg">
                   Most Popular
                 </div>
 
-                <span className="text-xs text-emerald font-bold uppercase tracking-widest mb-4 mt-2 relative z-10">
+                <span className="text-xs text-violet-400 font-bold uppercase tracking-widest mb-4 mt-2 relative z-10">
                   Pro
                 </span>
                 <span className="text-3xl font-bold text-white mb-2 relative z-10">$9</span>
@@ -440,19 +440,19 @@ export default function HomePage() {
 
                 <ul className="space-y-3 mb-8 text-left w-full relative z-10">
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Everything in Free</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Unlimited Private Prompts</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Ad-Free Experience</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Priority Features</span>
                   </li>
                 </ul>
@@ -476,15 +476,15 @@ export default function HomePage() {
 
                 <ul className="space-y-3 mb-8 text-left w-full">
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Everything in Pro</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Custom Integrations</span>
                   </li>
                   <li className="flex items-center gap-3 text-sm text-neutral-300">
-                    <CheckIcon className="w-4 h-4 text-emerald shrink-0" />
+                    <CheckIcon className="w-4 h-4 text-violet-400 shrink-0" />
                     <span>Dedicated Support</span>
                   </li>
                 </ul>
@@ -502,7 +502,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-32 px-6 relative overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(10,143,106,0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(139,92,246,0.12),transparent_70%)]" />
         <Reveal>
           <div className="max-w-3xl mx-auto text-center relative z-10">
             <h2 className="text-4xl md:text-5xl font-medium text-white tracking-tighter mb-8 font-display">
@@ -528,7 +528,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 border-t border-white/5 text-center bg-black">
+      <footer className="py-16 border-t border-white/5 text-center bg-background-base">
         <p className="text-sm font-semibold text-white tracking-tight mb-2 font-display">
           PROMPTS FOR EVERYONE
         </p>

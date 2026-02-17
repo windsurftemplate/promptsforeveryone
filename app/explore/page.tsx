@@ -139,7 +139,7 @@ export default function ExplorePage() {
   return (
     <div className="min-h-screen bg-black pt-32 pb-16">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#00ffff] to-white bg-clip-text text-transparent mb-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[#8B5CF6] to-white bg-clip-text text-transparent mb-8">
           Admin Explore
         </h1>
         <p className="text-white/60 mb-8">Manage and explore all prompts in the system. Only accessible to administrators.</p>
@@ -147,7 +147,7 @@ export default function ExplorePage() {
         <div className="flex gap-8">
           {/* Sidebar */}
           <div className="w-64 shrink-0">
-            <div className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-4">
+            <div className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4">
               <h2 className="text-lg font-semibold text-white mb-4">Categories</h2>
               <div className="space-y-2">
                 {categories.map((category) => (
@@ -156,10 +156,10 @@ export default function ExplorePage() {
                       {category.subcategories && Object.keys(category.subcategories).length > 0 && (
                         <button
                           onClick={() => toggleCategory(category.id)}
-                          className="p-1 hover:bg-[#00ffff]/10 rounded transition-colors"
+                          className="p-1 hover:bg-[#8B5CF6]/10 rounded transition-colors"
                         >
                           <ChevronDownIcon
-                            className={`h-4 w-4 text-[#00ffff] transition-transform ${
+                            className={`h-4 w-4 text-[#8B5CF6] transition-transform ${
                               expandedCategories.includes(category.id) ? 'transform rotate-180' : ''
                             }`}
                           />
@@ -169,8 +169,8 @@ export default function ExplorePage() {
                         onClick={() => handleCategoryClick(category.id)}
                         className={`flex-1 px-2 py-1 rounded text-left transition-colors ${
                           selectedCategory?.categoryId === category.id && !selectedCategory.subcategoryId
-                            ? 'bg-[#00ffff] text-black'
-                            : 'text-white hover:bg-[#00ffff]/10'
+                            ? 'bg-[#8B5CF6] text-black'
+                            : 'text-white hover:bg-[#8B5CF6]/10'
                         }`}
                       >
                         {category.name}
@@ -186,8 +186,8 @@ export default function ExplorePage() {
                             onClick={() => handleSubcategoryClick(category.id, id)}
                             className={`w-full px-2 py-1 rounded text-left text-sm transition-colors ${
                               selectedCategory?.subcategoryId === id
-                                ? 'bg-[#00ffff] text-black'
-                                : 'text-white/80 hover:bg-[#00ffff]/10'
+                                ? 'bg-[#8B5CF6] text-black'
+                                : 'text-white/80 hover:bg-[#8B5CF6]/10'
                             }`}
                           >
                             {subcategory.name}
@@ -205,7 +205,7 @@ export default function ExplorePage() {
           <div className="flex-1">
             {loading ? (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
               </div>
             ) : error ? (
               <div className="text-center py-12 text-red-400">
@@ -215,17 +215,17 @@ export default function ExplorePage() {
               <>
                 {/* Selected Category Info */}
                 {selectedCategory && (
-                  <div className="mb-6 p-4 bg-black/30 border border-[#00ffff]/20 rounded-lg">
+                  <div className="mb-6 p-4 bg-black/30 border border-[#8B5CF6]/20 rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-white/60">
                         <span>Viewing:</span>
-                        <span className="text-[#00ffff]">
+                        <span className="text-[#8B5CF6]">
                           {categories.find(c => c.id === selectedCategory.categoryId)?.name}
                         </span>
                         {selectedCategory.subcategoryId && (
                           <>
                             <span>→</span>
-                            <span className="text-[#00ffff]">
+                            <span className="text-[#8B5CF6]">
                               {categories
                                 .find(c => c.id === selectedCategory.categoryId)
                                 ?.subcategories?.[selectedCategory.subcategoryId]?.name}
@@ -250,10 +250,10 @@ export default function ExplorePage() {
                       key={prompt.id} 
                       href={`/categories/${prompt.category}/${prompt.subcategory}/prompts/${prompt.id ? prompt.id.replace(/^(private-|public-)/, '') : ''}`}
                     >
-                      <Card className="p-6 hover:border-[#00ffff]/50 transition-all duration-300 group cursor-pointer h-full">
+                      <Card className="p-6 hover:border-[#8B5CF6]/50 transition-all duration-300 group cursor-pointer h-full">
                         <div className="flex flex-col h-full">
                           <div className="mb-4">
-                            <h3 className="text-xl font-semibold text-white group-hover:text-[#00ffff] transition-colors mb-2">
+                            <h3 className="text-xl font-semibold text-white group-hover:text-[#8B5CF6] transition-colors mb-2">
                               {prompt.title}
                             </h3>
                             <p className="text-white/70 text-sm">
@@ -267,7 +267,7 @@ export default function ExplorePage() {
                                 {prompt.tags.map((tag, index) => (
                                   <span 
                                     key={`${prompt.id}-tag-${index}`}
-                                    className="text-xs px-2 py-1 rounded-full bg-[#00ffff]/10 text-[#00ffff]/80"
+                                    className="text-xs px-2 py-1 rounded-full bg-[#8B5CF6]/10 text-[#8B5CF6]/80"
                                   >
                                     {tag}
                                   </span>
@@ -289,11 +289,11 @@ export default function ExplorePage() {
                                   setCopiedPromptId(prompt.id || null);
                                   setTimeout(() => setCopiedPromptId(null), 2000);
                                 }}
-                                className="text-[#00ffff]/60 hover:text-[#00ffff] transition-colors relative"
+                                className="text-[#8B5CF6]/60 hover:text-[#8B5CF6] transition-colors relative"
                                 title="Copy prompt"
                               >
                                 {copiedPromptId === prompt.id ? (
-                                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#00ffff]/90 text-black text-xs px-2 py-1 rounded">
+                                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#8B5CF6]/90 text-black text-xs px-2 py-1 rounded">
                                     Copied!
                                   </span>
                                 ) : null}

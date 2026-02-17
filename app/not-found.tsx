@@ -16,7 +16,7 @@ export default function NotFoundPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#00ffff]"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#8B5CF6]"></div>
     </div>
   );
 } 

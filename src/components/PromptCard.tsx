@@ -61,19 +61,19 @@ export default function PromptCard({
 
   return (
     <div
-      className="glass-panel rounded-xl p-6 hover:border-emerald/30 transition-all duration-300 cursor-pointer h-[200px] flex flex-col justify-between group"
+      className="glass-panel rounded-xl p-6 hover:border-violet/30 transition-all duration-300 cursor-pointer h-[200px] flex flex-col justify-between group"
       onClick={onClick}
     >
       <div className="flex-1">
         {/* Header */}
         <div className="flex justify-between items-start mb-3">
-          <h2 className="text-lg font-medium text-white group-hover:text-emerald transition-colors truncate pr-4">
+          <h2 className="text-lg font-medium text-white group-hover:text-violet transition-colors truncate pr-4">
             {title}
           </h2>
           <div className="flex gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => onCopy?.(content)}
-              className="p-1.5 rounded-lg bg-white/5 text-neutral-400 hover:text-emerald hover:bg-emerald/10 transition-all"
+              className="p-1.5 rounded-lg bg-white/5 text-neutral-400 hover:text-violet hover:bg-violet/10 transition-all"
               title="Copy prompt"
             >
               <ClipboardDocumentIcon className="w-4 h-4" />
@@ -100,7 +100,7 @@ export default function PromptCard({
           {tags.slice(0, 3).map((tag, index) => (
             <span
               key={`${tag}-${index}`}
-              className="text-[10px] px-2 py-0.5 rounded-full bg-emerald/10 text-emerald/80 uppercase tracking-wider"
+              className="text-[10px] px-2 py-0.5 rounded-full bg-violet/10 text-violet/80 uppercase tracking-wider"
             >
               {tag}
             </span>

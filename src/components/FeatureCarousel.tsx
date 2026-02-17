@@ -54,9 +54,9 @@ export default function FeatureCarousel() {
           {duplicatedCategories.map((category, index) => (
             <div
               key={`${category.id}-${index}`}
-              className="flex-shrink-0 w-48 h-24 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4 flex items-center justify-center hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300"
+              className="flex-shrink-0 w-48 h-24 bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-4 flex items-center justify-center hover:border-[#8B5CF6]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300"
             >
-              <p className="text-[#00ffff] text-center font-medium">{category.name}</p>
+              <p className="text-[#8B5CF6] text-center font-medium">{category.name}</p>
             </div>
           ))}
         </motion.div>
@@ -81,9 +81,9 @@ export default function FeatureCarousel() {
           {duplicatedCategories.map((category, index) => (
             <div
               key={`${category.id}-${index}-reverse`}
-              className="flex-shrink-0 w-48 h-24 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4 flex items-center justify-center hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300"
+              className="flex-shrink-0 w-48 h-24 bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-4 flex items-center justify-center hover:border-[#8B5CF6]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300"
             >
-              <p className="text-[#00ffff] text-center font-medium">{category.name}</p>
+              <p className="text-[#8B5CF6] text-center font-medium">{category.name}</p>
             </div>
           ))}
         </motion.div>
@@ -108,9 +108,9 @@ export default function FeatureCarousel() {
           {duplicatedCategories.map((category, index) => (
             <div
               key={`${category.id}-${index}-third`}
-              className="flex-shrink-0 w-48 h-24 bg-black/80 backdrop-blur-lg border border-[#00ffff]/20 rounded-lg p-4 flex items-center justify-center hover:border-[#00ffff]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300"
+              className="flex-shrink-0 w-48 h-24 bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-4 flex items-center justify-center hover:border-[#8B5CF6]/40 hover:shadow-[0_0_15px_rgba(0,255,255,0.2)] transition-all duration-300"
             >
-              <p className="text-[#00ffff] text-center font-medium">{category.name}</p>
+              <p className="text-[#8B5CF6] text-center font-medium">{category.name}</p>
             </div>
           ))}
         </motion.div>

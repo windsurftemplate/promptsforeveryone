@@ -62,7 +62,7 @@ export default function BlogPostContent({ post, popularPosts }: Props) {
         />
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-          <div className="text-[#00ffff] text-sm tracking-wider uppercase mb-4">
+          <div className="text-[#8B5CF6] text-sm tracking-wider uppercase mb-4">
             {new Date(post.date).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
@@ -73,7 +73,7 @@ export default function BlogPostContent({ post, popularPosts }: Props) {
             {post.title}
           </h1>
           <div className="flex items-center justify-center space-x-4">
-            <div className="w-10 h-10 rounded-full bg-[#00ffff]/20 border border-[#00ffff]/10" />
+            <div className="w-10 h-10 rounded-full bg-[#8B5CF6]/20 border border-[#8B5CF6]/10" />
             <div className="text-white/80">{post.author}</div>
           </div>
         </div>
@@ -89,12 +89,12 @@ export default function BlogPostContent({ post, popularPosts }: Props) {
               prose-h2:text-3xl prose-h2:font-bold prose-h2:text-white/90 
               prose-h3:text-2xl prose-h3:font-semibold prose-h3:text-white/80
               prose-p:text-white/70 prose-p:leading-relaxed
-              prose-a:text-[#00ffff] prose-a:no-underline hover:prose-a:text-[#00ffff]/80
+              prose-a:text-[#8B5CF6] prose-a:no-underline hover:prose-a:text-[#8B5CF6]/80
               prose-strong:text-white/90
-              prose-code:text-[#00ffff] prose-code:bg-[#00ffff]/10 prose-code:px-2 prose-code:py-0.5 prose-code:rounded
-              prose-pre:bg-black/50 prose-pre:border prose-pre:border-[#00ffff]/20
+              prose-code:text-[#8B5CF6] prose-code:bg-[#8B5CF6]/10 prose-code:px-2 prose-code:py-0.5 prose-code:rounded
+              prose-pre:bg-black/50 prose-pre:border prose-pre:border-[#8B5CF6]/20
               prose-img:rounded-lg prose-img:shadow-xl
-              prose-blockquote:border-l-[#00ffff] prose-blockquote:bg-[#00ffff]/5 prose-blockquote:py-0.5
+              prose-blockquote:border-l-[#8B5CF6] prose-blockquote:bg-[#8B5CF6]/5 prose-blockquote:py-0.5
               prose-li:text-white/70"
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
@@ -106,8 +106,8 @@ export default function BlogPostContent({ post, popularPosts }: Props) {
             className="lg:w-80 shrink-0"
           >
             <div className="sticky top-24">
-              <div className="rounded-xl border border-[#00ffff]/10 bg-black/40 backdrop-blur-xl p-6">
-                <h2 className="text-xl font-semibold text-[#00ffff] mb-6">
+              <div className="rounded-xl border border-[#8B5CF6]/10 bg-black/40 backdrop-blur-xl p-6">
+                <h2 className="text-xl font-semibold text-[#8B5CF6] mb-6">
                   Popular Posts
                 </h2>
                 <div className="space-y-6">
@@ -119,14 +119,14 @@ export default function BlogPostContent({ post, popularPosts }: Props) {
                         className="block group"
                       >
                         <article className="space-y-2">
-                          <h3 className="text-white/80 group-hover:text-[#00ffff] transition-colors line-clamp-2">
+                          <h3 className="text-white/80 group-hover:text-[#8B5CF6] transition-colors line-clamp-2">
                             {popularPost.title}
                           </h3>
-                          <div className="text-sm text-[#00ffff]/40 flex items-center space-x-2">
+                          <div className="text-sm text-[#8B5CF6]/40 flex items-center space-x-2">
                             <time dateTime={popularPost.date}>
                               {format(new Date(popularPost.date), 'MMM d, yyyy')}
                             </time>
-                            <span className="w-1 h-1 rounded-full bg-[#00ffff]/40" />
+                            <span className="w-1 h-1 rounded-full bg-[#8B5CF6]/40" />
                             <span>{popularPost.readTime}</span>
                           </div>
                         </article>
@@ -145,44 +145,44 @@ export default function BlogPostContent({ post, popularPosts }: Props) {
       </div>
 
       {/* Footer */}
-      <footer className="relative z-20 py-12 bg-black border-t border-[#00ffff]/10">
+      <footer className="relative z-20 py-12 bg-black border-t border-[#8B5CF6]/10">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-8">
               <div className="text-center">
-                <h3 className="text-[#00ffff] font-semibold mb-4">Product</h3>
+                <h3 className="text-[#8B5CF6] font-semibold mb-4">Product</h3>
                 <ul className="space-y-3">
-                  <li><Link href="/explore" className="text-white/60 hover:text-[#00ffff] transition-colors">Explore</Link></li>
-                  <li><Link href="/submit" className="text-white/60 hover:text-[#00ffff] transition-colors">Submit Prompt</Link></li>
-                  <li><Link href="/price" className="text-white/60 hover:text-[#00ffff] transition-colors">Pricing</Link></li>
+                  <li><Link href="/explore" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Explore</Link></li>
+                  <li><Link href="/submit" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Submit Prompt</Link></li>
+                  <li><Link href="/price" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Pricing</Link></li>
                 </ul>
               </div>
               <div className="text-center">
-                <h3 className="text-[#00ffff] font-semibold mb-4">Resources</h3>
+                <h3 className="text-[#8B5CF6] font-semibold mb-4">Resources</h3>
                 <ul className="space-y-3">
-                  <li><Link href="/guides" className="text-white/60 hover:text-[#00ffff] transition-colors">Guides</Link></li>
-                  <li><Link href="/blog" className="text-white/60 hover:text-[#00ffff] transition-colors">Blog</Link></li>
-                  <li><Link href="/about" className="text-white/60 hover:text-[#00ffff] transition-colors">About</Link></li>
-                  <li><Link href="/careers" className="text-white/60 hover:text-[#00ffff] transition-colors">Careers</Link></li>
+                  <li><Link href="/guides" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Guides</Link></li>
+                  <li><Link href="/blog" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Blog</Link></li>
+                  <li><Link href="/about" className="text-white/60 hover:text-[#8B5CF6] transition-colors">About</Link></li>
+                  <li><Link href="/careers" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Careers</Link></li>
                 </ul>
               </div>
               <div className="text-center">
-                <h3 className="text-[#00ffff] font-semibold mb-4">Legal</h3>
+                <h3 className="text-[#8B5CF6] font-semibold mb-4">Legal</h3>
                 <ul className="space-y-3">
-                  <li><Link href="/terms" className="text-white/60 hover:text-[#00ffff] transition-colors">Terms</Link></li>
-                  <li><Link href="/privacy" className="text-white/60 hover:text-[#00ffff] transition-colors">Privacy</Link></li>
+                  <li><Link href="/terms" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Terms</Link></li>
+                  <li><Link href="/privacy" className="text-white/60 hover:text-[#8B5CF6] transition-colors">Privacy</Link></li>
                 </ul>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#00ffff]/10">
+            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#8B5CF6]/10">
               <div className="text-white/60 text-sm mb-4 md:mb-0">
                 © 2025 Prompts For Everyone. All rights reserved.
               </div>
               <div className="flex gap-6">
-                <Link href="https://twitter.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                <Link href="https://twitter.com" className="text-white/60 hover:text-[#8B5CF6] transition-colors">
                   <TwitterIcon className="w-5 h-5" />
                 </Link>
-                <Link href="https://github.com" className="text-white/60 hover:text-[#00ffff] transition-colors">
+                <Link href="https://github.com" className="text-white/60 hover:text-[#8B5CF6] transition-colors">
                   <GithubIcon className="w-5 h-5" />
                 </Link>
               </div>

@@ -245,7 +245,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
           >
             <div 
               onClick={() => handleEdit(prompt)}
-              className="bg-black/30 border border-[#00ffff]/20 rounded-lg p-6 hover:border-[#00ffff]/50 transition-all duration-300"
+              className="bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/50 transition-all duration-300"
             >
               <div className="flex justify-between items-start">
                 <div>
@@ -269,7 +269,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
                       e.stopPropagation();
                       handleCopy(prompt.content, prompt.id);
                     }}
-                    className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                    className="text-sm bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] px-4 py-2 rounded-md"
                   >
                     {copyFeedback === prompt.id ? 'Copied!' : 'Copy'}
                   </Button>
@@ -279,7 +279,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
                       e.stopPropagation();
                       handleShare(prompt);
                     }}
-                    className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                    className="text-sm bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] px-4 py-2 rounded-md"
                   >
                     {copyFeedback === `share-${prompt.id}` ? 'URL Copied!' : 'Share'}
                   </Button>
@@ -291,7 +291,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
                           e.stopPropagation();
                           handleEdit(prompt);
                         }}
-                        className="text-sm bg-[#00ffff]/10 hover:bg-[#00ffff]/20 text-[#00ffff] px-4 py-2 rounded-md"
+                        className="text-sm bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] px-4 py-2 rounded-md"
                       >
                         Edit
                       </Button>
@@ -311,7 +311,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
               </div>
               <p className="text-white/80 mt-4">{prompt.content}</p>
               <div className="flex gap-2 mt-4">
-                <span className="px-3 py-1 bg-[#00ffff]/10 text-[#00ffff] rounded-lg text-sm">
+                <span className="px-3 py-1 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-lg text-sm">
                   {prompt.category}
                 </span>
               </div>
@@ -331,7 +331,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4 }}
-              className="h-[180px] bg-black/30 border border-[#00ffff]/20 rounded-lg p-4"
+              className="h-[180px] bg-black/30 border border-[#8B5CF6]/20 rounded-lg p-4"
             >
               <AdDisplay ad={ads[Math.floor(Math.random() * ads.length)]} />
             </motion.div>
@@ -383,7 +383,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00ffff]"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#8B5CF6]"></div>
       </div>
     );
   }
@@ -398,7 +398,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
         <div className="mt-6">
           <Link
             href="/submit"
-            className="inline-flex items-center px-4 py-2 border border-[#00ffff]/20 bg-[#00ffff]/10 text-[#00ffff] hover:bg-[#00ffff]/20 transition-colors rounded-md text-sm font-medium"
+            className="inline-flex items-center px-4 py-2 border border-[#8B5CF6]/20 bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20 transition-colors rounded-md text-sm font-medium"
           >
             Create a Prompt
           </Link>
@@ -411,7 +411,7 @@ export default function PromptList({ visibility = 'all', prompts: propPrompts, a
     <>
       <div>
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-[#00ffff]">Your Prompts</h2>
+          <h2 className="text-2xl font-bold text-[#8B5CF6]">Your Prompts</h2>
           <p className="text-white/60 mt-1">Total prompts: {localPrompts.length}</p>
         </div>
 
