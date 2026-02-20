@@ -24,10 +24,45 @@ const nextConfig = {
               "connect-src 'self' https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com https://*.stripe.com https://*.google-analytics.com https://*.jsdelivr.net",
               "object-src 'self' data:",
             ].join('; ')
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
           }
         ]
       }
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // Block access to sensitive files
+        {
+          source: '/.env:path*',
+          destination: '/404'
+        },
+        {
+          source: '/:path*.md',
+          destination: '/404'
+        },
+        {
+          source: '/.git:path*',
+          destination: '/404'
+        }
+      ]
+    };
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {

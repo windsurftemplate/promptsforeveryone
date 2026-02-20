@@ -1,0 +1,53 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "/:path*"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/\\.env(\\..*)?$",
+      "status": 404
+    },
+    {
+      "src": "/.*\\.md$",
+      "status": 404
+    },
+    {
+      "src": "/\\.git.*",
+      "status": 404
+    },
+    {
+      "src": "/package(-lock)?\\.json$",
+      "status": 404
+    },
+    {
+      "src": "/tsconfig\\.json$",
+      "status": 404
+    },
+    {
+      "src": "/next\\.config\\.(js|mjs|ts)$",
+      "status": 404
+    }
+  ]
+}
