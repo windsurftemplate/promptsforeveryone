@@ -1,16 +1,79 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { AI_CONFIG } from '@/config/ai';
+import { adminAuth, adminDb } from '@/lib/firebaseAdmin';
 
 const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY
 const API_URL = 'https://api.together.xyz/v1/chat/completions'
+const FREE_DAILY_LIMIT = 5
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     if (!TOGETHER_API_KEY) {
       return NextResponse.json(
         { error: 'API key not configured. Please contact support.' },
         { status: 500 }
       )
+    }
+
+    // Verify authentication
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split('Bearer ')[1];
+    let decodedToken;
+    try {
+      decodedToken = await adminAuth.verifyIdToken(token);
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid authentication token' },
+        { status: 401 }
+      );
+    }
+
+    const userId = decodedToken.uid;
+
+    // Check user subscription status
+    const userRef = adminDb.ref(`users/${userId}`);
+    const userSnapshot = await userRef.once('value');
+    const userData = userSnapshot.val();
+
+    const isPro = userData?.stripeSubscriptionStatus === 'active' || userData?.role === 'admin';
+
+    // Check usage limits for free users
+    if (!isPro) {
+      const today = new Date().toISOString().split('T')[0];
+      const usageRef = adminDb.ref(`users/${userId}/usage/coachToday`);
+      const usageSnapshot = await usageRef.once('value');
+      const usageData = usageSnapshot.val() || { count: 0, date: '' };
+
+      // Reset if it's a new day
+      if (usageData.date !== today) {
+        await usageRef.set({ count: 0, date: today });
+        usageData.count = 0;
+      }
+
+      // Check if limit reached
+      if (usageData.count >= FREE_DAILY_LIMIT) {
+        return NextResponse.json(
+          {
+            error: 'Daily limit reached',
+            limit: FREE_DAILY_LIMIT,
+            upgradeUrl: '/price'
+          },
+          { status: 429 }
+        );
+      }
+
+      // Increment usage count
+      await usageRef.set({
+        count: usageData.count + 1,
+        date: today
+      });
     }
 
     const { prompt } = await req.json()

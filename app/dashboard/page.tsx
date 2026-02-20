@@ -12,6 +12,7 @@ import { useDashboard } from '@/contexts/DashboardContext';
 import PromptModal from '@/components/PromptModal';
 import PromptCard from '@/components/PromptCard';
 import DeleteConfirmationDialog from '@/components/ui/DeleteConfirmationDialog';
+import OnboardingModal from '@/components/ui/OnboardingModal';
 import ProfileSettings from '@/components/dashboard/ProfileSettings';
 import { default as PromptGenerator } from '@/components/prompt-generator/PromptGenerator';
 import { default as PromptCoach } from '@/components/prompt-coach/PromptCoach';
@@ -60,6 +61,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'prompts' | 'generator' | 'coach' | 'profile' | 'templates' | 'learn' | 'interactive' | 'cheatsheets'>('prompts');
   const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [userStats, setUserStats] = useState({
     totalPrompts: 0,
     privateCategories: 0,
@@ -110,7 +112,12 @@ export default function DashboardPage() {
       if (snapshot.exists()) {
         const userData = snapshot.val();
         const hasAccess = userData.role === 'admin' || userData.stripeSubscriptionStatus === 'active';
-        
+
+        // Check if user has seen onboarding
+        if (!userData.hasSeenOnboarding) {
+          setShowOnboarding(true);
+        }
+
         // Fetch categories
         const publicCategoriesRef = ref(db, 'categories');
         const privateCategoriesRef = ref(db, `users/${user.uid}/categories`);
@@ -308,6 +315,18 @@ export default function DashboardPage() {
       console.error('Error deleting prompt:', error);
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleCloseOnboarding = async () => {
+    if (!user) return;
+    try {
+      const { update } = await import('firebase/database');
+      const userRef = ref(db, `users/${user.uid}`);
+      await update(userRef, { hasSeenOnboarding: true });
+      setShowOnboarding(false);
+    } catch (error) {
+      console.error('Error updating onboarding status:', error);
     }
   };
 
@@ -631,6 +650,11 @@ export default function DashboardPage() {
           isDeleting={isDeleting}
           onConfirm={handleConfirmDelete}
           onCancel={() => setPromptToDelete(null)}
+        />
+
+        <OnboardingModal
+          isOpen={showOnboarding}
+          onClose={handleCloseOnboarding}
         />
       </div>
     </div>

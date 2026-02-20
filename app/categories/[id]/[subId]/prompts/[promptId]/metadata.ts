@@ -36,12 +36,15 @@ export async function generateMetadata({ params }: { params: { id: string; subId
     category?.name || ''
   ].filter(Boolean);
 
+  // Generate dynamic OG image URL with prompt details
+  const ogImageUrl = `/api/og?title=${encodeURIComponent(prompt.title)}&description=${encodeURIComponent((prompt.description || '').slice(0, 200))}&category=${encodeURIComponent(subcategory?.name || category?.name || '')}`;
+
   return generateDynamicMetadata({
     title: `${prompt.title} - ${subcategory?.name || 'Prompt'} | PromptsForEveryone`,
     description: prompt.description || `A ${subcategory?.name?.toLowerCase() || ''} prompt in the ${category?.name || ''} category.`,
     path: `/categories/${categoryId}/${subcategoryId}/prompts/${promptId}`,
     type: 'article',
     keywords,
-    image: prompt.image || subcategory?.image || category?.image || '/og-image.png'
+    image: ogImageUrl
   });
 } 

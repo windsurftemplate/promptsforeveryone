@@ -40,12 +40,43 @@ const PromptCoach: React.FC = () => {
   const [editedAIAnalysis, setEditedAIAnalysis] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [usageRemaining, setUsageRemaining] = useState<number | null>(null)
+  const [showUpgrade, setShowUpgrade] = useState(false)
 
   useEffect(() => {
     if (!user) {
       router.push('/login');
     }
   }, [user, router]);
+
+  // Fetch usage count on mount
+  useEffect(() => {
+    const fetchUsageCount = async () => {
+      if (!user) return;
+
+      try {
+        const { get } = await import('firebase/database');
+        const usageRef = ref(db, `users/${user.uid}/usage/coachToday`);
+        const snapshot = await get(usageRef);
+        const usageData = snapshot.val();
+
+        if (usageData) {
+          const today = new Date().toISOString().split('T')[0];
+          if (usageData.date === today) {
+            setUsageRemaining(5 - usageData.count);
+          } else {
+            setUsageRemaining(5);
+          }
+        } else {
+          setUsageRemaining(5);
+        }
+      } catch (err) {
+        console.error('Error fetching usage:', err);
+      }
+    };
+
+    fetchUsageCount();
+  }, [user]);
 
   if (!user) {
     return (
@@ -156,20 +187,37 @@ const PromptCoach: React.FC = () => {
       return
     }
 
+    if (!user) {
+      setError('Please log in to use AI analysis')
+      return
+    }
+
     setIsLoading(true)
     setError('')
     setAiAnalysis('')
+    setShowUpgrade(false)
 
     try {
+      // Get auth token
+      const token = await user.getIdToken();
+
       const response = await fetch('/api/prompt-coach', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ prompt: text }),
       })
 
       const data = await response.json()
+
+      // Handle usage limit reached
+      if (response.status === 429) {
+        setShowUpgrade(true)
+        setUsageRemaining(0)
+        return
+      }
 
       if (!response.ok) {
         const errorData = data as APIError
@@ -181,6 +229,11 @@ const PromptCoach: React.FC = () => {
       }
 
       setAiAnalysis(data.feedback)
+
+      // Update remaining count
+      if (usageRemaining !== null && usageRemaining > 0) {
+        setUsageRemaining(usageRemaining - 1)
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(errorMessage)
@@ -235,6 +288,15 @@ const PromptCoach: React.FC = () => {
 
   return (
     <div className="space-y-8 w-1/2 mx-auto relative">
+      {/* Usage counter badge */}
+      {usageRemaining !== null && usageRemaining < 5 && (
+        <div className="mb-4 p-3 bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 rounded-lg text-center">
+          <p className="text-sm text-white/70">
+            <span className="font-semibold text-[#8B5CF6]">{usageRemaining}</span> of 5 free AI analyses remaining today
+          </p>
+        </div>
+      )}
+
       {/* Quick Analysis - Positioned absolutely to the left */}
       <div className="absolute right-full top-0 pr-6 w-80">
         <div className="space-y-3 sticky top-6">
@@ -294,7 +356,7 @@ const PromptCoach: React.FC = () => {
       </div>
 
       {/* AI Analysis Section */}
-      {(isLoading || aiAnalysis || error) && (
+      {(isLoading || aiAnalysis || error || showUpgrade) && (
         <div className="bg-black/80 backdrop-blur-lg border border-[#8B5CF6]/20 rounded-lg p-6 hover:border-[#8B5CF6]/30 transition-all duration-300">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-[#8B5CF6]">AI Analysis & Suggestions</h2>
@@ -322,6 +384,23 @@ const PromptCoach: React.FC = () => {
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6]" />
+            </div>
+          ) : showUpgrade ? (
+            <div className="p-8 bg-gradient-to-br from-[#8B5CF6]/10 to-[#8B5CF6]/5 border border-[#8B5CF6]/30 rounded-lg text-center space-y-4">
+              <div className="text-4xl mb-2">🚀</div>
+              <h3 className="text-xl font-bold text-white">Daily Limit Reached</h3>
+              <p className="text-white/70">
+                You've used all 5 free AI analyses for today. Upgrade to Pro for unlimited access!
+              </p>
+              <div className="pt-4">
+                <a
+                  href="/price"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold rounded-lg transition-colors"
+                >
+                  Upgrade to Pro
+                </a>
+              </div>
+              <p className="text-sm text-white/50">Or come back tomorrow for 5 more free analyses</p>
             </div>
           ) : error ? (
             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500">
